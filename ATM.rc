@@ -116,7 +116,7 @@ CAPTION "About ATM"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "ATM Version 1.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
+    LTEXT           "AocTM Version 1.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2007 of pubb\nCredit to mep, onfire, fred and andy",IDC_STATIC,40,25,119,23
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,16,WS_GROUP
 END
@@ -247,11 +247,11 @@ END
 
 IDR_MENU1 MENU 
 BEGIN
-    POPUP "功能选择"
+    POPUP "Selections"
     BEGIN
-        MENUITEM "查看历史战绩",                      ID_VIEWHISTORY
-        MENUITEM "查看技术统计",                      ID_STATISTIC
-        MENUITEM "战前分组",                        ID_GROUPING
+        MENUITEM "Win/Lose",                    ID_VIEWHISTORY
+        MENUITEM "Technical",                   ID_STATISTIC
+        MENUITEM "Grouping",                    ID_GROUPING
     END
 END
 
