@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "ATM.h"
+#include "AocTM.h"
 #include "Reportdlg.h"
 #include "csvfile.h"
 
@@ -34,7 +34,7 @@ BEGIN_MESSAGE_MAP(CReportDlg, CDialog)
 END_MESSAGE_MAP()
 
 //Calculate and display the fee information for each player, default is OFF
-//#define	_ATM_FEE_
+//#define	_AocTM_FEE_
 
 // CReport message handlers
 BOOL CReportDlg::OnInitDialog()
@@ -46,6 +46,7 @@ BOOL CReportDlg::OnInitDialog()
 	m_List.InsertColumn( 2, _T("Win Count"), LVCFMT_LEFT, 70, -1);
 	m_List.InsertColumn( 3, _T("Win Rate"), LVCFMT_LEFT, 80, -1);
 	m_List.InsertColumn( 4, _T("Ratings"), LVCFMT_LEFT, 65, -1);
+	m_List.InsertColumn( 5, _T("PayedFee"), LVCFMT_LEFT, 60, -1);
 
 	//by mep for statistic
 	/*m_List.InsertColumn( 5, _T("Min Feud Time"), LVCFMT_LEFT, 85, -1);
@@ -56,7 +57,7 @@ BOOL CReportDlg::OnInitDialog()
 	m_List.InsertColumn( 10, _T("Avg Impl Time"), LVCFMT_LEFT, 80, -1);*/
 
 
-#ifdef	_ATM_FEE_
+#ifdef	_AocTM_FEE_
 	m_List.InsertColumn( 5, _T("½»Ç®"), LVCFMT_LEFT, 80, -1);
 #endif
 
@@ -66,7 +67,7 @@ BOOL CReportDlg::OnInitDialog()
 		CString str;
 		int totalplays = 0, playcount, wincount, i;
 
-#ifdef	_ATM_FEE_
+#ifdef	_AocTM_FEE_
 		for(i = 0; i < m_pPlayerDB->GetCount(); i++)
 			totalplays += m_pPlayerDB->GetAt(i)->PlayCount;
 #endif
@@ -85,6 +86,8 @@ BOOL CReportDlg::OnInitDialog()
 			m_List.SetItemText(nItem, 3, str);
 			str.Format(_T("%d"), m_pPlayerDB->GetAt(i)->Rating);
 			m_List.SetItemText(nItem, 4, str);
+			str.Format(_T("%d"), m_pPlayerDB->GetAt(i)->GetPaidFee());
+			m_List.SetItemText(nItem, 5, str);
 
 			//by mep for statistic
 
@@ -101,7 +104,7 @@ BOOL CReportDlg::OnInitDialog()
 			str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->AvgImpl / 60, m_pPlayerDB->GetAt(i)->AvgImpl % 60);
 			m_List.SetItemText(nItem, 10, str);*/
 
-#ifdef	_ATM_FEE_
+#ifdef	_AocTM_FEE_
 			str.Format(_T("%d"), 400 * playcount / totalplays);
 			m_List.SetItemText(nItem, 5, str);
 #endif

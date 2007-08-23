@@ -19,18 +19,22 @@ public:
 
 #else
 
-class CPayedFee
+class CPaidFee
 {
 public:
+	CPaidFee(void);
 	int	Money;					//本次缴纳金额
 	CTime	PayTime;			//本次缴费时间
 };
 
 class CPlayer
 {
+	//pubb, 07-08-23, no use of copy constructor
+	/*
 	//huangjie, 07-08-03, hide copy constractor and operator =  
 	CPlayer(CPlayer&);
 	CPlayer& operator = (CPlayer&);
+	*/
 public:
 	CPlayer(void);
 	~CPlayer(void);
@@ -59,8 +63,10 @@ public:
 	int Civs[19];
 
 	//pubb,07-08-02, change to pointer for better construction
-	//CArray<CPayedFee, CPayedFee&> PayedFee;	//玩家缴费记录
-	CArray<CPayedFee , CPayedFee &>	Record_PayedFee;	//玩家缴费记录
+	//CArray<CPaidFee, CPaidFee&> PaidFee;	//玩家缴费记录
+	CArray<CPaidFee * , CPaidFee *>	Record_PaidFee;	//玩家缴费记录
+
+	int	GetPaidFee(void);
 
 	bool	Load(class IPersistentInterface * engine);
 	bool	Save(IPersistentInterface * engine);

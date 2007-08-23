@@ -38,7 +38,6 @@ public:
 	CString	GetMapName(int id);		//called in recgame initialization, from map_id to map_name
 
 	bool Add(CRecgame * rg);
-	bool	UpdatePlayerDatabase(IPersistentInterface * engine);
 
 private:
 	CLanguage	m_lang;

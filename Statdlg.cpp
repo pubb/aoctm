@@ -2,31 +2,31 @@
 //
 
 #include "stdafx.h"
-#include "ATM.h"
+#include "AocTM.h"
 #include "Statdlg.h"
 
 
 //by mep for statistic
-/*CString civ_name[19] = {"",
-						"Bri",
-						"Fra",
-						"Got",
-						"Teu",
-						"Jap",
-						"Chi",
-						"Byz",
-						"Per",
-						"Sar",
-						"Tur",
-						"Vik",
-						"Mon",
-						"Cel",
-						"Spa",
-						"Azt",
-						"May",
-						"Hun",
-						"Kor"};*/
-
+CString civ_name[19] = {_T(""),
+						_T("Bri"),
+						_T("Fra"),
+						_T("Got"),
+						_T("Teu"),
+						_T("Jap"),
+						_T("Chi"),
+						_T("Byz"),
+						_T("Per"),
+						_T("Sar"),
+						_T("Tur"),
+						_T("Vik"),
+						_T("Mon"),
+						_T("Cel"),
+						_T("Spa"),
+						_T("Azt"),
+						_T("May"),
+						_T("Hun"),
+						_T("Kor")};
+/*
 CString civ_name[19] = {_T(""),
 						_T("大不列颠"),
 						_T("法兰克"),
@@ -46,8 +46,7 @@ CString civ_name[19] = {_T(""),
 						_T("玛雅"),
 						_T("匈奴"),
 						_T("高丽")};
-
-
+*/
 // Statdlg dialog
 
 IMPLEMENT_DYNAMIC(Statdlg, CDialog)

@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "ATM.h"
+#include "AocTM.h"
 #include "GroupingDlg.h"
 #include "grouping/grouping.h"
 #include "playerinputdlg.h"

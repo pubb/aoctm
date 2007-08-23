@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "RecgameDatabase.h"
-#include "atm.h"
+#include "AocTM.h"
 
 CRecgameDatabase::CRecgameDatabase(void)
 {
@@ -178,20 +178,6 @@ CString CRecgameDatabase::GetMapName(int id)
 		return m_str_table[id];
 	else
 		return _T("");
-}
-
-//regegenerate RecgameDatabase by tranverse all the recgames in DB in order of RecordTime and recalculate player's playcount, wincount, rating, updatetime and the rest fee
-bool	CRecgameDatabase::UpdatePlayerDatabase(IPersistentInterface * engine)
-{
-	if(!engine)
-		return false;
-
-	//recaculate in order
-	theApp.Players.Revert();
-	for(int i = 0; i < GetCount(); i++)
-		theApp.Players.Add(GetAt(i));
-
-	return true;
 }
 
 bool	CRecgameDatabase::Add(CRecgame * rg)

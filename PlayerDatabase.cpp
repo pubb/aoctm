@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "PlayerDatabase.h"
 #include "csvfile.h"
-#include "atm.h"
+#include "AocTM.h"
 
 CPlayerDatabase::CPlayerDatabase(void)
 {
@@ -71,13 +71,18 @@ int	CPlayerDatabase::LoadInitial(void)
 	for(count = 0; csv.Read(config); count++)
 	{
 		CPlayer	*player = new CPlayer;
-		for(int i = 1; i < config.GetCount(); i++)
+		player->InitRating = player->Rating = _ttoi(config[0]);
+		CPaidFee *fee = new CPaidFee;
+		fee->Money = _ttoi(config[1]);
+		player->Record_PaidFee.Add(fee);
+		for(int i = 2; i < config.GetCount(); i++)
 			if(!config[i].IsEmpty())
 				player->NickNames.Add(config[i]);
-		player->InitRating = player->Rating = _ttoi(config[0]);
 		Add(player);
 		config.RemoveAll();
 	}
+
+	Update();
 
 	return count;
 }
@@ -87,12 +92,14 @@ bool	CPlayerDatabase::Save(IPersistentInterface * engine)
 	if(!engine)
 		return false;
 
+	//pubb, 07-08-23, will do BeginTx in it itself
+	engine->ClearPlayers();
+
 	//XXX, pubb, 07-08-11, clear table and then reinsert everything
 	//by mep for performance
 	if(!engine->BeginTx())
 		return false;
 
-	engine->ClearPlayers();
 	
 	bool flag = true;
 	for(int i = 0; i < GetCount(); i++)
@@ -336,17 +343,78 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 int	CPlayerDatabase::GetPlayCount(CString name)
 {
 	INT_PTR index = GetFirstSamePlayer(name);
-	return GetAt(index)->PlayCount;
+	if(index >= 0)
+		return GetAt(index)->PlayCount;
+	return 0;
 }
 
 int CPlayerDatabase::GetWinCount(CString name)
 {
 	INT_PTR index = GetFirstSamePlayer(name);
-	return GetAt(index)->WinCount;
+	if(index >= 0)
+		return GetAt(index)->WinCount;
+	return 0;
 }
 
 int CPlayerDatabase::GetRating(CString name)
 {
 	INT_PTR index = GetFirstSamePlayer(name);
-	return GetAt(index)->Rating;
+	if(index >= 0)
+		return GetAt(index)->Rating;
+	return 0;
+}
+
+int CPlayerDatabase::GetPaidFee(CString name)
+{
+	INT_PTR index = GetFirstSamePlayer(name);
+	if(index >= 0)
+		return GetAt(index)->GetPaidFee();
+	else
+		return 0;
+}
+
+int CPlayerDatabase::GetAllPaidFee(void)
+{
+	int fee = 0;
+	for(int i = 0; i < GetCount(); i++)
+		for(int j = 0; j < GetAt(i)->Record_PaidFee.GetCount(); j++)
+			fee += GetAt(i)->Record_PaidFee[j]->Money;
+
+	return fee;
+}
+
+int CPlayerDatabase::GetAllPlayCount(void)
+{
+	int count = 0;
+	for(int i = 0; i < GetCount(); i++)
+		count += GetAt(i)->PlayCount;
+
+	return count;
+}
+
+/* a player's is equal to that what he paid subtracted by his playcount times cost of each game. 
+ * and the cost of each game is calculated from all paid divided by all playcounts.
+ * updated each time a new game inserted into database.
+ */
+void CPlayerDatabase::UpdateFee(void)
+{
+	int eachcost = 0;
+	int count = GetAllPlayCount();
+	
+	if(count != 0)
+		eachcost = GetAllPaidFee() * 10000 / count;
+
+	for(int i = 0; i < GetCount(); i++)
+		GetAt(i)->Fee = GetAt(i)->GetPaidFee() - eachcost * GetAt(i)->PlayCount / 10000;
+}
+
+//regegenerate RecgameDatabase by tranverse all the recgames in DB in order of RecordTime and recalculate player's playcount, wincount, rating, updatetime and the rest fee
+void CPlayerDatabase::Update(void)
+{
+	//recaculate in order
+	Revert();
+	for(int i = 0; i < theApp.Recgames.GetCount(); i++)
+		Add(theApp.Recgames[i]);
+
+	UpdateFee();
 }

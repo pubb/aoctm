@@ -24,7 +24,7 @@
 
 /* pubb, 07-08-02 
  * all 'NickName' to 'NickNames'
- * all 'PayedFee' to 'Record_PayedFee'
+ * all 'PaidFee' to 'Record_PaidFee'
  * all 'ViewerName' to 'ViewerID', text to integer
  */
 /* pubb, 07-08-11
@@ -79,7 +79,7 @@ _T("create table t_ChatInfo \
 	target integer, \
 	content text \
 );") ,
-_T("create table t_PayedFee \
+_T("create table t_PaidFee \
 ( \
 	player_id integer not null, \
 	paytime integer not null, \
@@ -346,13 +346,13 @@ SQLitePersisten::SavePlayer(/*inout*/ CPlayer& player)
 		}
 	}
 
-	//INSERT to t_PayedFee
-	for(i = 0; i < player.Record_PayedFee.GetSize(); i++)
+	//INSERT to t_PaidFee
+	for(i = 0; i < player.Record_PaidFee.GetSize(); i++)
 	{
 		sqlite3_stmt *stmt;
 		const char* unused = 0;
 
-		const TCHAR* insertStr = _T("insert into t_PayedFee values (?, ?, ?)");
+		const TCHAR* insertStr = _T("insert into t_PaidFee values (?, ?, ?)");
 
 		int ret = SQLITE3_PREPARE(m_DB, insertStr, stmt, unused);
 		
@@ -362,8 +362,8 @@ SQLitePersisten::SavePlayer(/*inout*/ CPlayer& player)
 		}
 
 		sqlite3_bind_int(stmt, 1, player.ID);
-		sqlite3_bind_int(stmt, 2, (int)player.Record_PayedFee[i].PayTime.GetTime());
-		sqlite3_bind_int(stmt, 3, player.Record_PayedFee[i].Money);
+		sqlite3_bind_int(stmt, 2, (int)player.Record_PaidFee[i]->PayTime.GetTime());
+		sqlite3_bind_int(stmt, 3, player.Record_PaidFee[i]->Money);
 
 		if(sqlite3_step(stmt) != SQLITE_DONE)
 		{
@@ -437,7 +437,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 		if(player.NickNames.GetCount() <= 0)
 			return false;
 
-		const TCHAR* queryStr3 = _T("select paytime, fee from t_PayedFee where player_id = ?");
+		const TCHAR* queryStr3 = _T("select paytime, fee from t_PaidFee where player_id = ?");
 
 		ret = SQLITE3_PREPARE(m_DB, queryStr3, stmt, unused);
 
@@ -450,10 +450,10 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 
 		while(sqlite3_step(stmt) != SQLITE_DONE)
 		{
-			CPayedFee payedFee;
-			payedFee.PayTime = (CTime)sqlite3_column_int(stmt, 0);
-			payedFee.Money = sqlite3_column_int(stmt, 1);
-			player.Record_PayedFee.Add(payedFee);
+			CPaidFee * payedFee = new CPaidFee;
+			payedFee->PayTime = (CTime)sqlite3_column_int(stmt, 0);
+			payedFee->Money = sqlite3_column_int(stmt, 1);
+			player.Record_PaidFee.Add(payedFee);
 		}
 
 
@@ -610,7 +610,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 
 		sqlite3_finalize(stmt);	
 
-		const TCHAR* queryStr3 = _T("select paytime, fee from t_PayedFee where player_id = ?");
+		const TCHAR* queryStr3 = _T("select paytime, fee from t_PaidFee where player_id = ?");
 
 		ret = SQLITE3_PREPARE(m_DB, queryStr3, stmt, unused);
 
@@ -623,10 +623,10 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 
 		while(sqlite3_step(stmt) != SQLITE_DONE)
 		{
-			CPayedFee payedFee;
-			payedFee.PayTime = (CTime)sqlite3_column_int(stmt, 0);
-			payedFee.Money = sqlite3_column_int(stmt, 1);
-			player.Record_PayedFee.Add(payedFee);
+			CPaidFee * payedFee = new CPaidFee;
+			payedFee->PayTime = (CTime)sqlite3_column_int(stmt, 0);
+			payedFee->Money = sqlite3_column_int(stmt, 1);
+			player.Record_PaidFee.Add(payedFee);
 		}
 
 		//by mep for statistic
@@ -806,8 +806,8 @@ SQLitePersisten::DeletePlayer(/*in*/ CPlayer& player)
 	}
 
 	//pubb, 07-08-10, bad DELETE syntax, changed
-	//const TCHAR* deleteStr3 = _T("delete t_PayedFee where player_id = ?");
-	const TCHAR* deleteStr3 = _T("delete from t_PayedFee where player_id = ?");
+	//const TCHAR* deleteStr3 = _T("delete t_PaidFee where player_id = ?");
+	const TCHAR* deleteStr3 = _T("delete from t_PaidFee where player_id = ?");
 
 	ret = SQLITE3_PREPARE(m_DB, deleteStr3, stmt, unused);
 	
@@ -869,6 +869,24 @@ bool SQLitePersisten::ClearPlayers(void)
 	}
 
 	queryStr = _T("delete from t_Player");
+	ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
+	if( ret != SQLITE_OK)
+	{
+		Rollback();
+		return false;
+	}
+	if(sqlite3_step(stmt) != SQLITE_DONE)
+	{
+		sqlite3_finalize(stmt);
+		Rollback();
+		return false;
+	}
+	else
+	{
+		sqlite3_finalize(stmt);
+	}
+
+	queryStr = _T("delete from t_PaidFee");
 	ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{

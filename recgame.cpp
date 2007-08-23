@@ -5,7 +5,7 @@
 
 #include "stdafx.h"
 #include "recgame.h"
-#include "atm.h"
+#include "AocTM.h"
 
 #include "zconf.h"
 #include "zlib.h"
@@ -807,7 +807,7 @@ void CRecgame::getGameData(void)
 			memcpy(chat_msg, &m_pt_header[j], chat_len);
 			str_edit += CString(chat_msg) + _T("\r\n");
 
-			/* pubb, 07-08-02, copy chatmsg. it's stored in format like "pubb:1" */
+			/* pubb, 07-08-02, copy chAocTMsg. it's stored in format like "pubb:1" */
 			CChatInfo * chat = new CChatInfo(chat_msg);
 			ChatB4Game.Add(chat);
 		}
