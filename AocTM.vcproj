@@ -193,6 +193,18 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\AocTM.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AocTM.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\AocTMDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GroupingDlg.cpp"
 				>
 			</File>
@@ -268,26 +280,6 @@
 				Name="XListCtrl"
 				>
 				<File
-					RelativePath=".\AocTM.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\AocTM.h"
-					>
-				</File>
-				<File
-					RelativePath=".\AocTM.rc"
-					>
-				</File>
-				<File
-					RelativePath=".\AocTMDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\AocTMDlg.h"
-					>
-				</File>
-				<File
 					RelativePath=".\XListCtrl\ReportCtrl.cpp"
 					>
 				</File>
@@ -338,6 +330,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\AocTM.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AocTMDlg.h"
+				>
+			</File>
 			<File
 				RelativePath=".\GroupingDlg.h"
 				>

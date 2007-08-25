@@ -136,9 +136,6 @@ void	CPlayerDatabase::RemoveAll(void)
 void	CPlayerDatabase::Reset(IPersistentInterface * engine)
 {
 	Load(engine, true);
-
-	for(int i = 0; i < theApp.Recgames.GetCount(); i++)
-		Add(theApp.Recgames[i]);
 }
 
 void	CPlayerDatabase::Revert(void)

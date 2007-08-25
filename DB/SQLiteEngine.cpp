@@ -456,7 +456,11 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 			player.Record_PaidFee.Add(payedFee);
 		}
 
-
+		/* XXX, pubb, 07-08-25
+		 * not a good place to do statics here.
+		 * when LoadInitial(), there'll be no chance to get the statics information.
+		 * add the function in PlayerDatabase::Add(CRecgame *) if really want to do it here
+		 */
 		//by mep for statistic
 
 		//select DISTINCT(t_PlayerInGame.recgame_id), t_PlayerInGame.civ, t_PlayerInGame.feudaltime, t_PlayerInGame.castletime, t_PlayerInGame.imperialtime
