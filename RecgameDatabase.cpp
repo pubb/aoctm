@@ -234,3 +234,11 @@ next:	;
 	}
 	return -1;
 }
+
+CTime	CRecgameDatabase::GetLatestGameTime(void)
+{
+	if(GetCount() <= 0)
+		return CTime(0);
+
+	return GetAt(GetCount() - 1)->RecordTime;
+}

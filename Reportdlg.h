@@ -25,6 +25,8 @@ protected:
 public:
 	CPlayerDatabase	*m_pPlayerDB;
 	CXListCtrl m_List;
+	bool	m_bTemp;
+
 public:
 	afx_msg void OnBnClickedOk();
 };

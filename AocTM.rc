@@ -127,9 +127,9 @@ EXSTYLE WS_EX_APPWINDOW
 CAPTION "AOC Team Manager"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    CONTROL         "Drag&&Drop GAME RECORD files in.\n\nRight Click to open Grouping Dialog.",IDC_STATIC,
-                    "Static",SS_LEFTNOWORDWRAP | WS_GROUP,81,39,117,25,WS_EX_TRANSPARENT
+    CONTROL         "Drag&&Drop GAME RECORD files in.",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,81,39,117,12,WS_EX_TRANSPARENT
     PUSHBUTTON      "&Reset",IDC_INIT,223,87,50,14,0,WS_EX_TRANSPARENT
+    LTEXT           "Recgames until xxxx-xx-xx xx'xx'xx",IDC_DATABASE,7,93,116,8
 END
 
 IDD_REPORT DIALOGEX 0, 0, 339, 246

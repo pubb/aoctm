@@ -270,11 +270,11 @@ void	CPlayerDatabase::UpdateRatings(CRecgame & rg)
  *		5. for all conditions that abs(R_winner - R_loser) > DELTA_MAX, deltaR is no less than R_MIN and no greater than R_MAX.
  * then we have 3 points:
  *		(-DELTA_MAX, R_MAX), (0, R_ZERO), (DELTA_MAX, R_MIN)
- * According to Formula Langrange, the formula for delatR is (let R = R_winner - R_loser:
- *		deltaR = ((R - DELTA_ZERO) * (R - DELTA_MAX) * R_MAX / (R_MAX - R_ZERO) / (R_MAX - R_MIN))
- *					+ (R - (-DELTA_MAX)) * (R - DELTA_MAX) * R_ZERO /(R_ZERO - R_MAX) / (R_ZERO - R_MIN)
- *					+ (R - (-DELTA_MAX)) * (R - DELTA_ZERO) * R_MIN / (R_MIN - R_MAX) / (R_MIN - R_ZERO)
- *		deltaR = min(R_MAX, max(R_MIN, deltaR))
+ * According to Formula Langrange, the formula for delatR is (let R = R_winner - R_loser):
+ * deltaR = (R - DELTA_ZERO) * (R - DELTA_MAX) * R_MAX / ((-DELTA_MAX) - DELTA_ZERO) / ((-DELTA_MAX) - DELTA_MAX)
+ *				+ (R - (-DELTA_MAX)) * (R - DELTA_MAX) * R_ZERO / (DELTA_ZERO - (-DELTA_MAX)) / (DELTA_ZERO - DELTA_MAX)
+ *				+ (R - (-DELTA_MAX)) * (R - DELTA_ZERO) * R_MIN / (DELTA_MAX - (-DELTA_MAX)) / (DELTA_MAX - DELTA_ZERO)
+ * deltaR = min(R_MAX, max(R_MIN, deltaR))
  */
 void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 {
@@ -317,10 +317,14 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 	R_winner /= winner_count;
 	R_loser /= loser_count;
 	
-	int R = R_winner - R_loser;
-	deltaR = (R - DELTA_ZERO) * (R - DELTA_MAX) * R_MAX / ((-DELTA_MAX) - DELTA_ZERO) / ((-DELTA_MAX) - DELTA_MAX)
+	//pubb, 07-08-26, change to use 'float' to calculate for more accuracy
+	{
+	float R = (float)(R_winner - R_loser);
+	deltaR = (int)((R - DELTA_ZERO) * (R - DELTA_MAX) * R_MAX / ((-DELTA_MAX) - DELTA_ZERO) / ((-DELTA_MAX) - DELTA_MAX)
 				+ (R - (-DELTA_MAX)) * (R - DELTA_MAX) * R_ZERO / (DELTA_ZERO - (-DELTA_MAX)) / (DELTA_ZERO - DELTA_MAX)
-				+ (R - (-DELTA_MAX)) * (R - DELTA_ZERO) * R_MIN / (DELTA_MAX - (-DELTA_MAX)) / (DELTA_MAX - DELTA_ZERO);
+				+ (R - (-DELTA_MAX)) * (R - DELTA_ZERO) * R_MIN / (DELTA_MAX - (-DELTA_MAX)) / (DELTA_MAX - DELTA_ZERO));
+	}
+
 	deltaR = min(R_MAX, max(R_MIN, deltaR));
 
 	for(i = 1; i <= 8; i++)

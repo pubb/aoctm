@@ -44,8 +44,8 @@ public:
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 
 private:
-	void ShowReport(CPlayerDatabase * players);
-	void ShowReportThisTime(CPlayerDatabase * players);
+	void ShowReport(CPlayerDatabase * players, bool thistime = false);
+	void CopyRatings(CPlayerDatabase * players);
 
 public:
 	afx_msg void OnViewHistory();

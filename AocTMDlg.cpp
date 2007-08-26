@@ -86,7 +86,6 @@ BOOL CAocTMDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	// Add "About..." menu item to system menu.
-	GdiplusStartup(&gdiplusToken,   &gdiplusStartupInput,   NULL);     //FRED
 	// IDM_ABOUTBOX must be in the system command range.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
@@ -109,6 +108,9 @@ BOOL CAocTMDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	GdiplusStartup(&gdiplusToken,   &gdiplusStartupInput,   NULL);     //FRED
+
+	GetDlgItem(IDC_DATABASE)->SetWindowText(_T("Recgames until ") + theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -237,7 +239,8 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 	if(loadnew)
 		theApp.Players.Update();
 
-	ShowReportThisTime(&thisplayers);
+	CopyRatings(&thisplayers);
+	ShowReport(&thisplayers, true);;
 
 	CDialog::OnDropFiles(hDropInfo);
 }
@@ -297,10 +300,11 @@ void CAocTMDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	CDialog::OnLButtonDblClk(nFlags, point);
 }
 
-void CAocTMDlg::ShowReport(CPlayerDatabase * players)
+void CAocTMDlg::ShowReport(CPlayerDatabase * players, bool thistime)
 {
 	CReportDlg	dlg;
 	dlg.m_pPlayerDB = players;
+	dlg.m_bTemp = thistime;
 	dlg.DoModal();
 }
 
@@ -326,7 +330,7 @@ void CAocTMDlg::OnGrouping()
 	dlg.DoModal();
 }
 
-void CAocTMDlg::ShowReportThisTime(CPlayerDatabase * players)
+void CAocTMDlg::CopyRatings(CPlayerDatabase *players)
 {
 	//copy ratings from players' database
 	INT_PTR index;
@@ -340,6 +344,4 @@ void CAocTMDlg::ShowReportThisTime(CPlayerDatabase * players)
 			(*players)[i]->Fee = theApp.Players[index]->Fee;
 		}
 	}
-
-	ShowReport(players);
 }

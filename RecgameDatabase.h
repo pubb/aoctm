@@ -36,6 +36,7 @@ public:
 	void	RemoveAll(void);
 
 	CString	GetMapName(int id);		//called in recgame initialization, from map_id to map_name
+	CTime	GetLatestGameTime(void);
 
 	bool Add(CRecgame * rg);
 
