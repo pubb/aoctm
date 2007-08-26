@@ -30,6 +30,9 @@
 /* pubb, 07-08-11
  * add a 'playernum' in recgame table
  */
+/* pubb, 07-08-23
+ * all 'Payed' to 'Paid'
+ */
 //pubb, 07-08-02, move from .h file
 const TCHAR* sqliteTableDefs[] = {
 _T("create table t_Player \
@@ -459,7 +462,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 		/* XXX, pubb, 07-08-25
 		 * not a good place to do statics here.
 		 * when LoadInitial(), there'll be no chance to get the statics information.
-		 * add the function in PlayerDatabase::Add(CRecgame *) if really want to do it here
+		 * add the function in PlayerDatabase::Reset() or PlayerDatabase::LoadInitial() if really want to do it here
 		 */
 		//by mep for statistic
 
