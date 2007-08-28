@@ -26,11 +26,13 @@
 #define IDC_BUTTON2                     1010
 #define IDC_NEW                         1010
 #define IDC_INPUT                       1010
+#define IDC_CANCEL                      1010
 #define IDC_EDITNAME                    1011
 #define IDC_EDITRATING                  1012
 #define IDC_BUTTON1                     1014
 #define IDC_KEEP                        1014
 #define IDC_INIT                        1014
+#define IDC_SAVE                        1014
 #define IDC_SPINRATING                  1015
 #define IDC_LIST1                       1016
 #define IDC_DATABASEDUE                 1017

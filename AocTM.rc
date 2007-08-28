@@ -180,12 +180,14 @@ BEGIN
     CONTROL         "",IDC_LIST1,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,534,174
 END
 
-IDD_FEE DIALOGEX 0, 0, 303, 178
+IDD_FEE DIALOGEX 0, 0, 303, 196
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Fee from July (incompleted...)"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,289,164
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,289,165
+    PUSHBUTTON      "&Save to CSV",IDC_SAVE,74,175,50,14
+    PUSHBUTTON      "&Dismiss",IDC_CANCEL,179,175,50,14
 END
 
 
@@ -250,7 +252,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 296
         TOPMARGIN, 7
-        BOTTOMMARGIN, 171
+        BOTTOMMARGIN, 189
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -265,10 +267,10 @@ IDR_MENU1 MENU
 BEGIN
     POPUP "Selections"
     BEGIN
-        MENUITEM "Win/Lose",                    ID_VIEWHISTORY
-        MENUITEM "Technical",                   ID_STATISTIC
-        MENUITEM "Grouping",                    ID_GROUPING
-        MENUITEM "Fee",                         ID_FEE
+        MENUITEM "&Win/Lose",                   ID_VIEWHISTORY
+        MENUITEM "&Technical",                  ID_STATISTIC
+        MENUITEM "&Grouping",                   ID_GROUPING
+        MENUITEM "&Fee",                        ID_FEE
     END
 END
 

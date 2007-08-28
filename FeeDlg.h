@@ -25,4 +25,8 @@ private:
 
 public:
 	CXListCtrl m_List;
+public:
+	afx_msg void OnBnClickedSave();
+public:
+	afx_msg void OnBnClickedCancel();
 };
