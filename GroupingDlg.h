@@ -2,6 +2,7 @@
 #include "xlistctrl\xlistctrl.h"
 #include "afxwin.h"
 #include "playerdatabase.h"
+#include "aoctmdlg.h"
 
 // CGroupingDlg dialog
 
@@ -29,6 +30,7 @@ private:
 	void	InsertPlayers(CString name, int data);
 	void	InsertSelected(CString name, int rating, int data);
 	bool	UpdateSelected(int rating, int data);
+	void	Refresh(void);
 
 	virtual BOOL OnInitDialog(void);
 	afx_msg void OnNMDblclkPlayers(NMHDR *pNMHDR, LRESULT *pResult);
@@ -37,4 +39,9 @@ private:
 	afx_msg void OnBnClickedReset();
 	afx_msg void OnBnClickedInput();
 	afx_msg void OnBnClickedKeep();
+public:
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnDropFiles(HDROP hDropInfo);
+
+	CAocTMDlg	* maindlg;
 };

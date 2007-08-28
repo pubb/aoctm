@@ -109,8 +109,7 @@ BOOL CAocTMDlg::OnInitDialog()
 
 	// TODO: Add extra initialization here
 	GdiplusStartup(&gdiplusToken,   &gdiplusStartupInput,   NULL);     //FRED
-
-	GetDlgItem(IDC_DATABASE)->SetWindowText(_T("Recgames until ") + theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
+	Refresh();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -241,6 +240,7 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 
 	CopyRatings(&thisplayers);
 	ShowReport(&thisplayers, true);;
+	Refresh();
 
 	CDialog::OnDropFiles(hDropInfo);
 }
@@ -326,6 +326,7 @@ void CAocTMDlg::OnGrouping()
 {
 	// TODO: Add your command handler code here
 	CGroupingDlg	dlg;
+	dlg.maindlg = this;
 	
 	dlg.DoModal();
 }
@@ -344,4 +345,9 @@ void CAocTMDlg::CopyRatings(CPlayerDatabase *players)
 			(*players)[i]->Fee = theApp.Players[index]->Fee;
 		}
 	}
+}
+
+void CAocTMDlg::Refresh(void)
+{
+	GetDlgItem(IDC_DATABASE)->SetWindowText(_T("Recgames until ") + theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
 }

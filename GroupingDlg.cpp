@@ -12,7 +12,7 @@
 IMPLEMENT_DYNAMIC(CGroupingDlg, CDialog)
 
 CGroupingDlg::CGroupingDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CGroupingDlg::IDD, pParent)
+	: CDialog(CGroupingDlg::IDD, pParent), maindlg(NULL)
 {
 
 }
@@ -39,6 +39,8 @@ BEGIN_MESSAGE_MAP(CGroupingDlg, CDialog)
 	ON_BN_CLICKED(IDC_RESET, &CGroupingDlg::OnBnClickedReset)
 	ON_BN_CLICKED(IDC_NEW, &CGroupingDlg::OnBnClickedInput)
 	ON_BN_CLICKED(IDC_KEEP, &CGroupingDlg::OnBnClickedKeep)
+	ON_WM_CREATE()
+	ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
 
@@ -50,20 +52,10 @@ BOOL CGroupingDlg::OnInitDialog()
 
 	m_Players.InsertColumn(0, _T("Name"), LVCFMT_LEFT, 120, -1);
 
-	for(int i = 0; i < theApp.Players.GetCount(); i++)
-		InsertPlayers(theApp.Players[i]->NickNames[0], i);
-
 	m_Selected.InsertColumn(0, _T("Name"), LVCFMT_LEFT, 155, -1);
 	m_Selected.InsertColumn(1, _T("Rating"), LVCFMT_LEFT, 155, -1);
 
-	int	index;
-	CString	str;
-	if(theApp.bCurrent)
-		for(int i = 0; i < 8 && theApp.CurrentPlayers[i] >= 0; i++)
-		{
-			index = theApp.CurrentPlayers[i];
-			InsertSelected(theApp.Players[index]->NickNames[0], theApp.Players[index]->Rating, index);
-		}
+	Refresh();
 
 	return TRUE;
 }
@@ -165,13 +157,12 @@ void CGroupingDlg::OnBnClickedInput()
 	CPlayerInputDlg	dlg;
 	if(dlg.DoModal() == IDOK)
 	{
-		CPlayer	*p = new CPlayer();
-		p->NickNames.Add(dlg.m_Name);
-		p->Rating = p->InitRating = dlg.m_iRating;
-		
-		INT_PTR index = theApp.Players.GetFirstSamePlayer(p->NickNames[0]);
+		INT_PTR index = theApp.Players.GetFirstSamePlayer(dlg.m_Name);
 		if(index < 0)
 		{
+			CPlayer	*p = new CPlayer();
+			p->NickNames.Add(dlg.m_Name);
+			p->Rating = p->InitRating = dlg.m_iRating;
 			index = theApp.Players.Add(p);
 			InsertPlayers(dlg.m_Name, (int)index);
 		}
@@ -182,6 +173,8 @@ void CGroupingDlg::OnBnClickedInput()
 				return;
 		}
 		InsertSelected(dlg.m_Name, dlg.m_iRating, (int)index);
+		
+		
 	}
 }
 
@@ -235,4 +228,38 @@ bool CGroupingDlg::UpdateSelected(int rating, int data)
 		}
 	}
 	return false;
+}
+
+void CGroupingDlg::Refresh(void)
+{
+	m_Players.DeleteAllItems();
+	m_Selected.DeleteAllItems();
+
+	int i, index;
+	for(i = 0; i < theApp.Players.GetCount(); i++)
+		InsertPlayers(theApp.Players[i]->NickNames[0], i);
+
+	if(theApp.bCurrent)
+		for(i = 0; i < 8 && theApp.CurrentPlayers[i] >= 0; i++)
+		{
+			index = theApp.CurrentPlayers[i];
+			InsertSelected(theApp.Players[index]->NickNames[0], theApp.Players[index]->Rating, index);
+		}
+}
+int CGroupingDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CDialog::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	DragAcceptFiles();
+
+	return 0;
+}
+
+void CGroupingDlg::OnDropFiles(HDROP hDropInfo)
+{
+	if(maindlg)
+		maindlg->OnDropFiles(hDropInfo);
+
+	CDialog::OnDropFiles(hDropInfo);
 }

@@ -1,0 +1,4 @@
+07-08-28
+    增加Changelog和TODO文件。
+    GroupingDlg支持拖放，直接调用AocTMDlg的拖放消息处理函数。
+    给GroupingDlg和AocTMDlg添加了Refresh()函数，供底层数据更新时刷新窗口内容用。

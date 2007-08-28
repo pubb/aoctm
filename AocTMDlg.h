@@ -46,6 +46,7 @@ public:
 private:
 	void ShowReport(CPlayerDatabase * players, bool thistime = false);
 	void CopyRatings(CPlayerDatabase * players);
+	void Refresh(void);
 
 public:
 	afx_msg void OnViewHistory();
