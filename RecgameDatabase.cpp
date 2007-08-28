@@ -93,6 +93,9 @@ int	CRecgameDatabase::Load(IPersistentInterface * engine)
 	RemoveAll();
 
 	int i, count = engine->GetRecgameCount();
+	if(count <= 0)
+		return 0;
+
 	int * ids = new int [count];
 	engine->GetAllRecGamesID(ids, count);
 
@@ -241,4 +244,12 @@ CTime	CRecgameDatabase::GetLatestGameTime(void)
 		return CTime(0);
 
 	return GetAt(GetCount() - 1)->RecordTime;
+}
+
+CTime	CRecgameDatabase::GetFirstGameTime(void)
+{
+	if(GetCount() <= 0)
+		return CTime(0);
+
+	return GetAt(0)->RecordTime;
 }

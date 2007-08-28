@@ -52,4 +52,5 @@ public:
 	afx_msg void OnViewHistory();
 	afx_msg void OnStatistic();
 	afx_msg void OnGrouping();
+	afx_msg void OnFee();
 };

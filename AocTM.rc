@@ -129,17 +129,17 @@ FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     CONTROL         "Drag&&Drop GAME RECORD files in.",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,81,39,117,12,WS_EX_TRANSPARENT
     PUSHBUTTON      "&Reset",IDC_INIT,223,87,50,14,0,WS_EX_TRANSPARENT
-    LTEXT           "Recgames until xxxx-xx-xx xx'xx'xx",IDC_DATABASE,7,93,116,8
+    LTEXT           "Recgames from xxxx-xx-xx xx'xx'xx to xxxx-xx-xx xx'xx'xx",IDC_DATABASE,7,93,213,8
 END
 
-IDD_REPORT DIALOGEX 0, 0, 339, 246
+IDD_REPORT DIALOGEX 0, 0, 312, 231
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
+CAPTION "Player Win/Lose Statics"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "&Save to CSV",IDOK,66,225,50,14
-    PUSHBUTTON      "&Dismiss",IDCANCEL,153,225,50,14
-    CONTROL         "",IDC_ReportList,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,325,214
+    DEFPUSHBUTTON   "&Save to CSV",IDOK,66,210,50,14
+    PUSHBUTTON      "&Dismiss",IDCANCEL,153,210,50,14
+    CONTROL         "",IDC_ReportList,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,298,200
 END
 
 IDD_GROUPING DIALOGEX 0, 0, 327, 207
@@ -180,6 +180,14 @@ BEGIN
     CONTROL         "",IDC_LIST1,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,534,174
 END
 
+IDD_FEE DIALOGEX 0, 0, 303, 178
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Fee from July (incompleted...)"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,289,164
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -208,9 +216,9 @@ BEGIN
     IDD_REPORT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 332
+        RIGHTMARGIN, 305
         TOPMARGIN, 7
-        BOTTOMMARGIN, 239
+        BOTTOMMARGIN, 224
     END
 
     IDD_GROUPING, DIALOG
@@ -236,6 +244,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 199
     END
+
+    IDD_FEE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 296
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 171
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -252,6 +268,7 @@ BEGIN
         MENUITEM "Win/Lose",                    ID_VIEWHISTORY
         MENUITEM "Technical",                   ID_STATISTIC
         MENUITEM "Grouping",                    ID_GROUPING
+        MENUITEM "Fee",                         ID_FEE
     END
 END
 

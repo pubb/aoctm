@@ -46,8 +46,13 @@ BOOL CReportDlg::OnInitDialog()
 	m_List.InsertColumn( 2, _T("Win Count"), LVCFMT_LEFT, 70, -1);
 	m_List.InsertColumn( 3, _T("Win Rate"), LVCFMT_LEFT, 80, -1);
 	m_List.InsertColumn( 4, _T("Ratings"), LVCFMT_LEFT, 65, -1);
+	/* pubb, 07-08-28, move Fee functions to another dialog
 	if(!m_bTemp)
-		m_List.InsertColumn( 5, _T("PayedFee"), LVCFMT_LEFT, 60, -1);
+	{
+		m_List.InsertColumn( 5, _T("RestFee"), LVCFMT_LEFT, 60, -1);
+//		m_List.InsertColumn( 6, _T("Cost"), LVCFMT_LEFT, 60, -1);
+	}
+	*/
 
 	//by mep for statistic
 	/*m_List.InsertColumn( 5, _T("Min Feud Time"), LVCFMT_LEFT, 85, -1);
@@ -78,11 +83,15 @@ BOOL CReportDlg::OnInitDialog()
 			m_List.SetItemText(nItem, 3, str);
 			str.Format(_T("%d"), m_pPlayerDB->GetAt(i)->Rating);
 			m_List.SetItemText(nItem, 4, str);
+			/* pubb, 07-08-28, move Fee functions to another dialog
 			if(!m_bTemp)
 			{
-				str.Format(_T("%d"), m_pPlayerDB->GetAt(i)->GetPaidFee());
+				str.Format(_T("%d"), m_pPlayerDB->GetAt(i)->GetPaidFee() - m_pPlayerDB->GetAt(i)->GetCostFee());
 				m_List.SetItemText(nItem, 5, str);
+				//str.Format(_T("%d"), m_pPlayerDB->GetAt(i)->GetCostFee());
+				//m_List.SetItemText(nItem, 6, str);
 			}
+			*/
 
 			//by mep for statistic
 

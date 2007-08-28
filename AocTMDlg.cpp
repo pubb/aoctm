@@ -9,6 +9,7 @@
 #include "groupingdlg.h"
 #include "progresswnd.h"
 #include "Statdlg.h"
+#include "feedlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -76,6 +77,7 @@ BEGIN_MESSAGE_MAP(CAocTMDlg, CDialog)
 	ON_COMMAND(ID_VIEWHISTORY, &CAocTMDlg::OnViewHistory)
 	ON_COMMAND(ID_STATISTIC, &CAocTMDlg::OnStatistic)
 	ON_COMMAND(ID_GROUPING, &CAocTMDlg::OnGrouping)
+	ON_COMMAND(ID_FEE, &CAocTMDlg::OnFee)
 END_MESSAGE_MAP()
 
 
@@ -331,6 +333,12 @@ void CAocTMDlg::OnGrouping()
 	dlg.DoModal();
 }
 
+void CAocTMDlg::OnFee(void)
+{
+	CFeeDlg	dlg;
+	dlg.DoModal();
+}
+
 void CAocTMDlg::CopyRatings(CPlayerDatabase *players)
 {
 	//copy ratings from players' database
@@ -349,5 +357,5 @@ void CAocTMDlg::CopyRatings(CPlayerDatabase *players)
 
 void CAocTMDlg::Refresh(void)
 {
-	GetDlgItem(IDC_DATABASE)->SetWindowText(_T("Recgames until ") + theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
+	GetDlgItem(IDC_DATABASE)->SetWindowText(_T("Recgames from ") + theApp.Recgames.GetFirstGameTime().Format(_T("%Y-%m-%d %H'%M'%S")) + _T(" to ") + theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
 }

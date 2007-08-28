@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Player.h"
+#include "aoctm.h"
 
 CPaidFee::CPaidFee(void)
 : Money(0), PayTime(CTime(0))
@@ -44,4 +45,12 @@ int	CPlayer::GetPaidFee(void)
 		fee += Record_PaidFee[j]->Money;
 
 	return fee;
+}
+
+int CPlayer::GetPlayCountFromJuly(void)
+{
+	/* FIXME, it should be read from database with SQL
+	 * wait for mep...
+	 */
+	return PlayCount;
 }

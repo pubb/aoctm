@@ -115,7 +115,7 @@ BOOL Statdlg::OnInitDialog()
 
 			if( (index > 0) && (index < 19) )
 			{
-				str.Format(_T("%s/%.f%%"), civ_name[index], 100*(float)m_pPlayerDB->GetAt(i)->Civs[index]/(float)m_pPlayerDB->GetAt(i)->PlayCount);
+				str.Format(_T("%9s/%.f%%"), civ_name[index], 100*(float)m_pPlayerDB->GetAt(i)->Civs[index]/(float)m_pPlayerDB->GetAt(i)->PlayCount);
 				m_List.SetItemText(nItem, 1, str);
 			}
 			else

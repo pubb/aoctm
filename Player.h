@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "recgame.h"
 #include "DB/persistentinterface.h"
 
@@ -67,6 +68,7 @@ public:
 	CArray<CPaidFee * , CPaidFee *>	Record_PaidFee;	//Íæ¼Ò½É·Ñ¼ÇÂ¼
 
 	int	GetPaidFee(void);
+	int GetPlayCountFromJuly(void);
 
 	bool	Load(class IPersistentInterface * engine);
 	bool	Save(IPersistentInterface * engine);

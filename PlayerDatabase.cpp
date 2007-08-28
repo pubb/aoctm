@@ -341,39 +341,6 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 }
 #endif
 
-int	CPlayerDatabase::GetPlayCount(CString name)
-{
-	INT_PTR index = GetFirstSamePlayer(name);
-	if(index >= 0)
-		return GetAt(index)->PlayCount;
-	return 0;
-}
-
-int CPlayerDatabase::GetWinCount(CString name)
-{
-	INT_PTR index = GetFirstSamePlayer(name);
-	if(index >= 0)
-		return GetAt(index)->WinCount;
-	return 0;
-}
-
-int CPlayerDatabase::GetRating(CString name)
-{
-	INT_PTR index = GetFirstSamePlayer(name);
-	if(index >= 0)
-		return GetAt(index)->Rating;
-	return 0;
-}
-
-int CPlayerDatabase::GetPaidFee(CString name)
-{
-	INT_PTR index = GetFirstSamePlayer(name);
-	if(index >= 0)
-		return GetAt(index)->GetPaidFee();
-	else
-		return 0;
-}
-
 int CPlayerDatabase::GetAllPaidFee(void)
 {
 	int fee = 0;
@@ -393,22 +360,6 @@ int CPlayerDatabase::GetAllPlayCount(void)
 	return count;
 }
 
-/* a player's is equal to that what he paid subtracted by his playcount times cost of each game. 
- * and the cost of each game is calculated from all paid divided by all playcounts.
- * updated each time a new game inserted into database.
- */
-void CPlayerDatabase::UpdateFee(void)
-{
-	int eachcost = 0;
-	int count = GetAllPlayCount();
-	
-	if(count != 0)
-		eachcost = GetAllPaidFee() * 10000 / count;
-
-	for(int i = 0; i < GetCount(); i++)
-		GetAt(i)->Fee = GetAt(i)->GetPaidFee() - eachcost * GetAt(i)->PlayCount / 10000;
-}
-
 //regegenerate RecgameDatabase by tranverse all the recgames in DB in order of RecordTime and recalculate player's playcount, wincount, rating, updatetime and the rest fee
 void CPlayerDatabase::Update(void)
 {
@@ -416,6 +367,18 @@ void CPlayerDatabase::Update(void)
 	Revert();
 	for(int i = 0; i < theApp.Recgames.GetCount(); i++)
 		Add(theApp.Recgames[i]);
+}
 
-	UpdateFee();
+int CPlayerDatabase::GetAllCostFee(void)
+{
+	/* XXX, pubb, 07-08-28, not a good way */
+	return 860;
+}
+
+int CPlayerDatabase::GetAllPlayCountFromJuly(void)
+{
+	/* FIXME, it should be read from database with SQL
+	 * wait for mep...
+	 */
+	return GetAllPlayCount();
 }

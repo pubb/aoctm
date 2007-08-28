@@ -205,6 +205,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FeeDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GroupingDlg.cpp"
 				>
 			</File>
@@ -336,6 +340,10 @@
 			</File>
 			<File
 				RelativePath=".\AocTMDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FeeDlg.h"
 				>
 			</File>
 			<File
