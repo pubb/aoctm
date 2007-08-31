@@ -185,15 +185,15 @@ void CPlayerDatabase::Add(CRecgame * rg)
 
 #if 0
 /* Algorithm is from GameZone Rating System:
- * R old is your current rating. 
+ * R_old is your current rating. 
  * R1 is the average rating of the winning players before the game. 
  * R2 is the average rating of the losing players before the game. 
  * f is a calculated point value between -1 and 1. f = max [ min [( R2 - R1 ) / 400 , 1 ], - 1 ] 
  * Winning Points = max [ 16 * ( 1 + f ), 1 ] 
  * Losing Points = min [ 16 * (- 1 - f ), - 1 ] ----the original formula from the web is wrong : 16 * ( -1 + f), corrected by onfire
- * For each win , your new rating = R old + ( winning points / number of winners ) 
+ * For each win , your new rating = R_old + ( winning points / number of winners ) 
  * Here's how to calculate your new rating for a loss: 
- * For each loss , your new rating = R old + ( losing points / number of losers ) 
+ * For each loss , your new rating = R_old + ( losing points / number of losers ) 
  *
  * Not suitable for us. We need deltaR to be related to (Rw - Rl)
  */
@@ -263,26 +263,27 @@ void	CPlayerDatabase::UpdateRatings(CRecgame & rg)
  * I use this formula:
  *		deltaR = a * POWER(R_winner - R_loser, 2) + b * (R_winner - R_loser) + c
  * and assume:
- *		1. abs(R_winner - R_loser) is no greater than DELTA_MAX for most of time;
- *		2. when R_winner is equal to R_loser (DELTA_ZERO = 0), deltaR is R_ZERO;
- *		3. when (R_winner - R_loser) is -DELTA_MAX, deltaR is R_MAX;
- *		4. when (R_winner - R_loser) is +DELTA_MAX, deltaR is R_MIN.
- *		5. for all conditions that abs(R_winner - R_loser) > DELTA_MAX, deltaR is no less than R_MIN and no greater than R_MAX.
+ *		1. abs(R_winner - R_loser) is no greater than wlR_MAX for most of time;
+ *		2. when R_winner is equal to R_loser (wlR_ZERO = 0), deltaR is deltaR_ZERO;
+ *		3. when (R_winner - R_loser) is -wlR_MAX, deltaR is deltaR_MAX;
+ *		4. when (R_winner - R_loser) is +wlR_MAX, deltaR is deltaR_MIN.
+ *		5. for all conditions that abs(R_winner - R_loser) > wlR_MAX, deltaR is no less than deltaR_MIN and no greater than deltaR_MAX.
  * then we have 3 points:
- *		(-DELTA_MAX, R_MAX), (0, R_ZERO), (DELTA_MAX, R_MIN)
- * According to Formula Langrange, the formula for delatR is (let R = R_winner - R_loser):
- * deltaR = (R - DELTA_ZERO) * (R - DELTA_MAX) * R_MAX / ((-DELTA_MAX) - DELTA_ZERO) / ((-DELTA_MAX) - DELTA_MAX)
- *				+ (R - (-DELTA_MAX)) * (R - DELTA_MAX) * R_ZERO / (DELTA_ZERO - (-DELTA_MAX)) / (DELTA_ZERO - DELTA_MAX)
- *				+ (R - (-DELTA_MAX)) * (R - DELTA_ZERO) * R_MIN / (DELTA_MAX - (-DELTA_MAX)) / (DELTA_MAX - DELTA_ZERO)
- * deltaR = min(R_MAX, max(R_MIN, deltaR))
+ *		(-wlR_MAX, deltaR_MAX), (0, deltaR_ZERO), (wlR_MAX, deltaR_MIN)
+ * According to Formula Langrange, the formula for delatR is (let wlR = R_winner - R_loser):
+ * deltaR = (wlR - wlR_ZERO) * (wlR - wlR_MAX) * deltaR_MAX / ((-wlR_MAX) - wlR_ZERO) / ((-wlR_MAX) - wlR_MAX)
+ *				+ (wlR - (-wlR_MAX)) * (wlR - wlR_MAX) * deltaR_ZERO / (wlR_ZERO - (-wlR_MAX)) / (wlR_ZERO - wlR_MAX)
+ *				+ (wlR - (-wlR_MAX)) * (wlR - wlR_ZERO) * deltaR_MIN / (wlR_MAX - (-wlR_MAX)) / (wlR_MAX - wlR_ZERO)
+ * deltaR = min(deltaR_MAX, max(deltaR_MIN, deltaR))
  */
 void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 {
-	const int DELTA_MAX = 200;
-	const int DELTA_ZERO = 0;
-	const int R_ZERO = 10;
-	const int R_MAX = 50;
-	const int R_MIN = 1;
+	const int wlR_MAX = 100;
+	const int wlR_ZERO = 0;
+	const int wlR_MIN = -200;
+	const int deltaR_ZERO = 10;
+	const int deltaR_MAX = 50;
+	const int deltaR_MIN = 1;
 
 	/* for simplicity, consider the condition of 2 teams */
 	int	winteam, R_winner = 0, R_loser = 0;
@@ -318,14 +319,38 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 	R_loser /= loser_count;
 	
 	//pubb, 07-08-26, change to use 'float' to calculate for more accuracy
+	float wlR = (float)(R_winner - R_loser);
+	/* XXX, pubb, 07-08-31
+	 * if wlR is much greater than wlR_MAX (a very rare case),
+	 * the function maybe curve up again.
+	 * it'll be a very strange result since deltaR will be greater than 1 at that time
+	 * so, do the following check...
+	 */
+	if(wlR >= wlR_MAX)
 	{
-	float R = (float)(R_winner - R_loser);
-	deltaR = (int)((R - DELTA_ZERO) * (R - DELTA_MAX) * R_MAX / ((-DELTA_MAX) - DELTA_ZERO) / ((-DELTA_MAX) - DELTA_MAX)
-				+ (R - (-DELTA_MAX)) * (R - DELTA_MAX) * R_ZERO / (DELTA_ZERO - (-DELTA_MAX)) / (DELTA_ZERO - DELTA_MAX)
-				+ (R - (-DELTA_MAX)) * (R - DELTA_ZERO) * R_MIN / (DELTA_MAX - (-DELTA_MAX)) / (DELTA_MAX - DELTA_ZERO));
+		deltaR = 1;
 	}
-
-	deltaR = min(R_MAX, max(R_MIN, deltaR));
+	else
+	{
+#if 1
+		/* XXX, pubb, 07-08-31, not a good way to get the function */
+		deltaR = (int)((wlR - wlR_ZERO) * (wlR - wlR_MAX) * deltaR_MAX / (wlR_MIN - wlR_ZERO) / (wlR_MIN - wlR_MAX)	
+					+ (wlR - wlR_MIN) * (wlR - wlR_MAX) * deltaR_ZERO / (wlR_ZERO - wlR_MIN) / (wlR_ZERO - wlR_MAX)
+					+ (wlR - wlR_MIN) * (wlR - wlR_ZERO) * deltaR_MIN / (wlR_MAX - wlR_MIN) / (wlR_MAX - wlR_ZERO));
+#else
+		/* XXX, pubb, 07-08-31, not a good way too */
+		/* pubb, 07-08-31
+		 * for y = ax^2+bx+c, c = deltaR_ZERO
+		 * let '-b/2a = wlR_MAX',
+		* then 'b = -2 * wlR_MAX * a'.
+		* for point (x,y) = (-wlR_MAX, deltaR_MAX), a*(-wlR_MAX)^2 -2*wlR_MAX*a*(-wlR_MAX) + deltaR_ZERO = deltaR_MAX
+		*/
+		float a = (float)1.0 * (deltaR_MAX - deltaR_ZERO) / ((-wlR_MAX) * (-wlR_MAX) - 2 * wlR_MAX * (-wlR_MAX));
+		// y = (1/3000) * x^2 -(4/30) * x + 10
+		deltaR = (int)(a * wlR * wlR - 2 * wlR_MAX * a * wlR + deltaR_ZERO);
+#endif
+		deltaR = min(deltaR_MAX, max(deltaR_MIN, deltaR));
+	}
 
 	for(i = 1; i <= 8; i++)
 	{
