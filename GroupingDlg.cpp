@@ -246,6 +246,7 @@ void CGroupingDlg::Refresh(void)
 			InsertSelected(theApp.Players[index]->NickNames[0], theApp.Players[index]->Rating, index);
 		}
 }
+
 int CGroupingDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDialog::OnCreate(lpCreateStruct) == -1)
@@ -260,6 +261,8 @@ void CGroupingDlg::OnDropFiles(HDROP hDropInfo)
 {
 	if(maindlg)
 		maindlg->OnDropFiles(hDropInfo);
+
+	Refresh();
 
 	CDialog::OnDropFiles(hDropInfo);
 }
