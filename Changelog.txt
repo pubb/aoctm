@@ -4,3 +4,6 @@
     给GroupingDlg和AocTMDlg添加了Refresh()函数，供底层数据更新时刷新窗口内容用。
     增加了FeeDlg对话框，用来显示缴费情况，但内部数据获取还没有真正实现。
     从andy那儿要来了一个图标，把它转换成ico，更新使用。
+    
+07-08-31
+    修正了CGroupingDlg:OnDropFiles()里没有Refresh()的bug。
