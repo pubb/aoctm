@@ -41,6 +41,8 @@ BEGIN_MESSAGE_MAP(CGroupingDlg, CDialog)
 	ON_BN_CLICKED(IDC_KEEP, &CGroupingDlg::OnBnClickedKeep)
 	ON_WM_CREATE()
 	ON_WM_DROPFILES()
+	ON_NOTIFY(NM_DBLCLK, IDC_GROUP1, &CGroupingDlg::OnNMDblclkGroup1)
+	ON_NOTIFY(NM_DBLCLK, IDC_GROUP2, &CGroupingDlg::OnNMDblclkGroup2)
 END_MESSAGE_MAP()
 
 
@@ -54,6 +56,9 @@ BOOL CGroupingDlg::OnInitDialog()
 
 	m_Selected.InsertColumn(0, _T("Name"), LVCFMT_LEFT, 155, -1);
 	m_Selected.InsertColumn(1, _T("Rating"), LVCFMT_LEFT, 155, -1);
+
+	m_Group1.InsertColumn(0, _T(""), LVCFMT_LEFT, 120);
+	m_Group2.InsertColumn(0, _T(""), LVCFMT_LEFT, 120);
 
 	Refresh();
 
@@ -99,7 +104,7 @@ void CGroupingDlg::OnBnClickedOk()
 		return;
 
 	//huangjie, 07-08-03, only even count is permitted
-	if(selected %2 != 0)
+	if(selected % 2 != 0)
 	{
 		AfxMessageBox(_T("even player count is permitted only"), MB_OK);
 		return;
@@ -115,15 +120,24 @@ void CGroupingDlg::OnBnClickedOk()
 	Intermediator	inter(selected, ratings);
 	inter.Grouping(group1, group2, group1TotalScore, group2TotalScore, delta);
 
-	m_Group1.ResetContent();
-	m_Group2.ResetContent();
-		
+	m_Group1.DeleteAllItems();
+	m_Group2.DeleteAllItems();
+
+	int j1 = 0, j2 = 0;
+
 	for(i = 0; i < 4 /* XXX, maybe less than */; i++)
+	{
 		if(group1[i] > 0)
-			m_Group1.AddString(m_Selected.GetItemText(group1[i] - 1, 0));
-	for(i = 0; i < 4; i++)
+		{
+			m_Group1.InsertItem(j1, m_Selected.GetItemText(group1[i] - 1, 0));
+			m_Group1.SetItemData(j1++, group1[i] - 1);
+		}
 		if(group2[i] > 0)
-			m_Group2.AddString(m_Selected.GetItemText(group2[i] - 1, 0));
+		{
+			m_Group2.InsertItem(j2, m_Selected.GetItemText(group2[i] - 1, 0));
+			m_Group2.SetItemData(j2++, group2[i] - 1);
+		}
+	}
 
 	CString	str;
 	str.Format(_T("Group1: %d, Group2: %d, Delta Rating: %d"), group1TotalScore, group2TotalScore, delta);
@@ -147,8 +161,8 @@ void CGroupingDlg::OnBnClickedReset()
 	m_Selected.DeleteAllItems();
 	theApp.ClearCurrentPlayers();
 
-	m_Group1.ResetContent();
-	m_Group2.ResetContent();
+	m_Group1.DeleteAllItems();
+	m_Group2.DeleteAllItems();
 	GetDlgItem(IDC_MSG)->SetWindowText(_T("Double click, Double click, Double click, ..."));
 }
 
@@ -265,4 +279,55 @@ void CGroupingDlg::OnDropFiles(HDROP hDropInfo)
 	Refresh();
 
 	CDialog::OnDropFiles(hDropInfo);
+}
+
+void CGroupingDlg::OnExchange(int index1, int index2)
+{
+	int j1 = (int)m_Group1.GetItemData(index1), j2 = (int)m_Group2.GetItemData(index2);
+
+	m_Group1.SetItemText(index1, 0, m_Selected.GetItemText(j2, 0));
+	m_Group1.SetItemData(index1, j2);
+	m_Group2.SetItemText(index2, 0, m_Selected.GetItemText(j1, 0));
+	m_Group2.SetItemData(index2, j1);
+
+	int group1 = 0, group2 = 0;
+	for(int i = 0; i < m_Group1.GetItemCount() /* pubb, 07-09-04, if odd players? */; i++)
+	{
+		group1 += _ttoi(m_Selected.GetItemText((int)m_Group1.GetItemData(i), 1));
+		group2 += _ttoi(m_Selected.GetItemText((int)m_Group2.GetItemData(i), 1));
+	}
+
+	CString	str;
+	str.Format(_T("Group1: %d, Group2: %d, Delta Rating: %d"), group1, group2, group1 - group2);
+	GetDlgItem(IDC_MSG)->SetWindowText(str);
+}
+
+void CGroupingDlg::OnNMDblclkGroup1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	NMLISTVIEW *p = (NMLISTVIEW *)pNMHDR;
+	*pResult = 0;
+
+	if(p->iItem < 0)
+		return;
+	
+	POSITION pos = m_Group2.GetFirstSelectedItemPosition();
+	if(pos == NULL)
+		return;
+
+	OnExchange(p->iItem, m_Group2.GetNextSelectedItem(pos));
+}
+
+void CGroupingDlg::OnNMDblclkGroup2(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	NMLISTVIEW *p = (NMLISTVIEW *)pNMHDR;
+	*pResult = 0;
+
+	if(p->iItem < 0)
+		return;
+	
+	POSITION pos = m_Group1.GetFirstSelectedItemPosition();
+	if(pos == NULL)
+		return;
+
+	OnExchange(m_Group1.GetNextSelectedItem(pos), p->iItem);
 }

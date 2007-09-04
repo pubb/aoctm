@@ -88,55 +88,92 @@ BOOL Statdlg::OnInitDialog()
 	m_List.InsertColumn( 6, _T("Min Impl Time"), LVCFMT_LEFT, 85, -1);
 	m_List.InsertColumn( 7, _T("Avg Impl Time"), LVCFMT_LEFT, 85, -1);
 
-	if(m_pPlayerDB)
+	if(!m_pPlayerDB)
+		return FALSE;
+
+	m_pPlayerDB->Update();
+
+	int nItem;
+	CString str;
+	int totalplays = 0, playcount, i;
+
+	for(i = 0; i < m_pPlayerDB->GetCount(); i++)
 	{
-		int nItem;
-		CString str;
-		int totalplays = 0, playcount, i;
+		playcount = m_pPlayerDB->GetAt(i)->PlayCount;
+		if(!playcount)
+			continue;
 
-		for(i = 0; i < m_pPlayerDB->GetCount(); i++)
+		nItem = m_List.InsertItem(i, m_pPlayerDB->GetAt(i)->NickNames[0]);
+
+		int mostciv = 0;
+		int index = 0;
+		for(int j = 0;j < 19;j++)
 		{
-			playcount = m_pPlayerDB->GetAt(i)->PlayCount;
-			if(!playcount)
-				continue;
-
-			nItem = m_List.InsertItem(i, m_pPlayerDB->GetAt(i)->NickNames[0]);
-
-			int mostciv = 0;
-			int index = 0;
-			for(int j = 0;j < 19;j++)
+			if( mostciv < m_pPlayerDB->GetAt(i)->Civs[j])
 			{
-				if( mostciv < m_pPlayerDB->GetAt(i)->Civs[j])
-				{
-					mostciv = m_pPlayerDB->GetAt(i)->Civs[j];
-					index = j;
-				}
+				mostciv = m_pPlayerDB->GetAt(i)->Civs[j];
+				index = j;
 			}
+		}
 
-			if( (index > 0) && (index < 19) )
+		if( (index > 0) && (index < 19) )
+		{
+			str.Format(_T("%9s/%.f%%"), civ_name[index], 100*(float)m_pPlayerDB->GetAt(i)->Civs[index]/(float)m_pPlayerDB->GetAt(i)->PlayCount);
+			m_List.SetItemText(nItem, 1, str);
+		}
+		else
+		{
+			str.Format(_T("N/A"));
+			m_List.SetItemText(nItem, 1, str);
+		}
+
+		CTimeSpan avg, min;
+		int	count;
+		for(int j = 0; j < 3 ; j++)
+		{
+			switch(j)
 			{
-				str.Format(_T("%9s/%.f%%"), civ_name[index], 100*(float)m_pPlayerDB->GetAt(i)->Civs[index]/(float)m_pPlayerDB->GetAt(i)->PlayCount);
-				m_List.SetItemText(nItem, 1, str);
+			case 0:
+				min = m_pPlayerDB->GetAt(i)->MinFeudTime;
+				count = m_pPlayerDB->GetAt(i)->FeudCount;
+				if(count)
+					avg = CTimeSpan(m_pPlayerDB->GetAt(i)->TotalFeudTime.GetTotalSeconds() / count);
+				else
+					avg = CTimeSpan(0);
+				break;
+			case 1:
+				min = m_pPlayerDB->GetAt(i)->MinCstlTime;
+				count = m_pPlayerDB->GetAt(i)->CstlCount;
+				if(count)
+					avg = CTimeSpan(m_pPlayerDB->GetAt(i)->TotalCstlTime.GetTotalSeconds() / count);
+				else
+					avg = CTimeSpan(0);
+				break;
+			case 2:
+				min = m_pPlayerDB->GetAt(i)->MinImplTime;
+				count = m_pPlayerDB->GetAt(i)->ImplCount;
+				if(count)
+					avg = CTimeSpan(m_pPlayerDB->GetAt(i)->TotalImplTime.GetTotalSeconds() / count);
+				else
+					avg = CTimeSpan(0);
+				break;
 			}
+			if(min == MAX_TIMESPAN)
+				str = _T("--:--:--");
 			else
-			{
-				str.Format(_T("N/A"));
-				m_List.SetItemText(nItem, 1, str);
-			}
-			
-			str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->MinFeud / 60, m_pPlayerDB->GetAt(i)->MinFeud % 60);
-			m_List.SetItemText(nItem, 2, str);
-			str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->AvgFeud / 60, m_pPlayerDB->GetAt(i)->AvgFeud % 60);
-			m_List.SetItemText(nItem, 3, str);
-			str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->MinCstl / 60, m_pPlayerDB->GetAt(i)->MinCstl % 60);
-			m_List.SetItemText(nItem,4, str);
-			str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->AvgCstl / 60, m_pPlayerDB->GetAt(i)->AvgCstl % 60);
-			m_List.SetItemText(nItem, 5, str);
-			str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->MinImpl / 60, m_pPlayerDB->GetAt(i)->MinImpl % 60);
-			m_List.SetItemText(nItem, 6, str);
-			str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->AvgImpl / 60, m_pPlayerDB->GetAt(i)->AvgImpl % 60);
-			m_List.SetItemText(nItem, 7, str);
-
+				if(min.GetHours() == 0)
+					str.Format(_T("%d:%.2d"), min.GetMinutes(), min.GetSeconds());
+				else
+					str.Format(_T("%.2d:%.2d:%.2d"), min.GetHours(), min.GetMinutes(), min.GetSeconds());
+			m_List.SetItemText(nItem, 2 * j + 2, str);
+			if(avg == CTimeSpan(0))
+				str = _T("--:--:--");
+			else
+				if(avg.GetHours() == 0)
+					str.Format(_T("%d:%.2d"), avg.GetMinutes(), avg.GetSeconds());
+				else
+					str.Format(_T("%.2d:%.2d:%.2d"), avg.GetHours(), avg.GetMinutes(), avg.GetSeconds());
+			m_List.SetItemText(nItem, 2 * j + 3, str);
 		}
 	}
 

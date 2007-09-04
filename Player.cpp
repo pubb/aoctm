@@ -8,12 +8,9 @@ CPaidFee::CPaidFee(void)
 }
 
 CPlayer::CPlayer(void)
-: ID(-1), PlayCount(0), WinCount(0), InitRating(DEF_RATING), Rating(DEF_RATING), Fee(0)
+: ID(-1), Fee(0), InitRating(DEF_RATING)
 {
-	for(int i = 0; i < 19;i++)
-	{
-		Civs[i] = 0;
-	}
+	Initialize();
 }
 
 CPlayer::~CPlayer(void)
@@ -47,10 +44,15 @@ int	CPlayer::GetPaidFee(void)
 	return fee;
 }
 
-int CPlayer::GetPlayCountFromJuly(void)
+void CPlayer::Initialize(void)
 {
-	/* FIXME, it should be read from database with SQL
-	 * wait for mep...
-	 */
-	return PlayCount;
+	PlayCount = WinCount = FeudCount = CstlCount = ImplCount = 0;
+	TotalFeudTime = TotalCstlTime = TotalImplTime = 0;
+	Rating = InitRating;
+	MinFeudTime = MinCstlTime = MinImplTime = MAX_TIMESPAN;
+
+	for(int i = 0; i < 19;i++)
+	{
+		Civs[i] = 0;
+	}
 }

@@ -38,6 +38,8 @@
 #define IDC_DATABASEDUE                 1017
 #define IDC_DATABASE                    1017
 #define IDC_LIST                        1018
+#define IDC_EXCHANGE                    1019
+#define IDC_LIST2                       1020
 #define ID_32779                        32779
 #define ID_32780                        32780
 #define ID_32781                        32781
@@ -53,7 +55,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32787
-#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

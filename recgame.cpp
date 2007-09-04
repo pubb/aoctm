@@ -74,7 +74,7 @@ CChatInfo::operator = (CChatInfo& rh)
 
 CPlayerInGame::CPlayerInGame(void)
 : Name(_T("")), Team(-1), Civ(0), Color(0), PositionX(0), PositionY(0), 
-  FeudTime(0), CastleTime(0), ImplTime(0),ResignTime(0),
+  FeudTime(0), CstlTime(0), ImplTime(0),ResignTime(0),
   number_key(0)
 {
 	for(int i = 0; i < 256; i++)
@@ -91,7 +91,7 @@ CPlayerInGame::CPlayerInGame(CPlayerInGame & player)
 	PositionY = player.PositionY;
 
 	FeudTime = player.FeudTime;
-	CastleTime = player.CastleTime;
+	CstlTime = player.CstlTime;
 	ImplTime = player.ImplTime;
 	ResignTime = player.ResignTime;
 
@@ -113,7 +113,7 @@ CPlayerInGame::operator = (CPlayerInGame& rh)
 	PositionY = rh.PositionY;
 
 	FeudTime = rh.FeudTime;
-	CastleTime = rh.CastleTime;
+	CstlTime = rh.CstlTime;
 	ImplTime = rh.ImplTime;
 	ResignTime = rh.ResignTime;
 
@@ -859,12 +859,12 @@ void CRecgame::getGameData(void)
 					}
 				}
 				for(i=0; i<9; i++){
-					hour   = (int)(Players[i].CastleTime/1000/3600);
-					minute = ((int)(Players[i].CastleTime/1000/60))%60;
-					second = ((int)(Players[i].CastleTime/1000))%60;
+					hour   = (int)(Players[i].CstlTime/1000/3600);
+					minute = ((int)(Players[i].CstlTime/1000/60))%60;
+					second = ((int)(Players[i].CstlTime/1000))%60;
 
-					if(Players[i].CastleTime != 0 &&
-						Players[i].CastleTime < time_cnt &&
+					if(Players[i].CstlTime != 0 &&
+						Players[i].CstlTime < time_cnt &&
 						age_flag[i] < 2){
 //						str_advance.Format((LPCTSTR)("@#1(%02d:%02d:%02d) " + m_castle_msg + "\r\n" ),
 //							            hour, minute, second, info->player_name[i]);
@@ -969,10 +969,10 @@ void CRecgame::getGameData(void)
 				
 				if(research_id == 102){
 					if(Players[player_id].Civ == 0x08){
-						Players[player_id].CastleTime = Timecnt2CTimeSpan(time_cnt + 144 * 1000);
+						Players[player_id].CstlTime = Timecnt2CTimeSpan(time_cnt + 144 * 1000);
 					}
 					else{
-						Players[player_id].CastleTime = Timecnt2CTimeSpan(time_cnt + 160 * 1000);
+						Players[player_id].CstlTime = Timecnt2CTimeSpan(time_cnt + 160 * 1000);
 					}
 				}
 				

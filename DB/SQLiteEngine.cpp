@@ -459,6 +459,10 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 			player.Record_PaidFee.Add(payedFee);
 		}
 
+		/* pubb, 07-09-04
+		 * move it to CPlayerDatabase::Update() with no DB operations
+		 */
+#if 0
 		/* XXX, pubb, 07-08-25
 		 * not a good place to do statics here.
 		 * when LoadInitial(), there'll be no chance to get the statics information.
@@ -486,7 +490,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 		int cstlcount = 0;
 		int implcount = 0;
 
-		player.MinFeud = player.MinCstl = player.MinImpl = 9999;
+		player.MinFeudTime = player.MinCstl = player.MinImpl = 9999;
 		player.AvgFeud = player.AvgCstl = player.AvgImpl = 0;
 
 		while(sqlite3_step(stmt) != SQLITE_DONE)
@@ -504,8 +508,8 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 				feudcount++;
 				player.AvgFeud += ft;
 
-				if( player.MinFeud > ft)
-					player.MinFeud = ft;
+				if( player.MinFeudTime > ft)
+					player.MinFeudTime = ft;
 			}
 
 			if( ct != 0 )
@@ -544,6 +548,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 		}
 
 		sqlite3_finalize(stmt);
+#endif
 	}
 	else if(player.NickNames.GetSize() > 0)
 	{
@@ -636,6 +641,10 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 			player.Record_PaidFee.Add(payedFee);
 		}
 
+		/* pubb, 07-09-04
+		 * do it in PlayerDatabase::Update() with no DB operations
+		 */
+#if 0
 		//by mep for statistic
 		//select DISTINCT(t_PlayerInGame.recgame_id), t_PlayerInGame.civ, t_PlayerInGame.feudaltime, t_PlayerInGame.castletime, t_PlayerInGame.imperialtime
 		//from t_PlayerInGame, t_PlayerName
@@ -658,7 +667,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 		int cstlcount = 0;
 		int implcount = 0;
 
-		player.MinFeud = player.MinCstl = player.MinImpl = 9999;
+		player.MinFeudTime = player.MinCstl = player.MinImpl = 9999;
 		player.AvgFeud = player.AvgCstl = player.AvgImpl = 0;
 
 		while(sqlite3_step(stmt) != SQLITE_DONE)
@@ -676,8 +685,8 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 				feudcount++;
 				player.AvgFeud += ft;
 
-				if( player.MinFeud > ft)
-					player.MinFeud = ft;
+				if( player.MinFeudTime > ft)
+					player.MinFeudTime = ft;
 			}
 
 			if( ct != 0 )
@@ -715,6 +724,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 		}
 
 		sqlite3_finalize(stmt);
+#endif
 	}
 	else
 	{
@@ -1077,7 +1087,7 @@ SQLitePersisten::SaveRecGame(/*in*/ CRecgame& recGame)
 		sqlite3_bind_int(stmt, 6, recGame.Players[i].PositionX);
 		sqlite3_bind_int(stmt, 7, recGame.Players[i].PositionY);
 		sqlite3_bind_int(stmt, 8, (int)recGame.Players[i].FeudTime.GetTotalSeconds());
-		sqlite3_bind_int(stmt, 9, (int)recGame.Players[i].CastleTime.GetTotalSeconds());
+		sqlite3_bind_int(stmt, 9, (int)recGame.Players[i].CstlTime.GetTotalSeconds());
 		sqlite3_bind_int(stmt, 10, (int)recGame.Players[i].ImplTime.GetTotalSeconds());
 		sqlite3_bind_int(stmt, 11, (int)recGame.Players[i].ResignTime.GetTotalSeconds());
 
@@ -1257,7 +1267,7 @@ SQLitePersisten::LoadRecGame(/*in out*/ CRecgame& recGame)
 		playerInGame.PositionX = sqlite3_column_int(stmt, 4);
 		playerInGame.PositionY = sqlite3_column_int(stmt, 5);
 		playerInGame.FeudTime = CTimeSpan(sqlite3_column_int(stmt, 6));
-		playerInGame.CastleTime = CTimeSpan(sqlite3_column_int(stmt, 7));
+		playerInGame.CstlTime = CTimeSpan(sqlite3_column_int(stmt, 7));
 		playerInGame.ImplTime = CTimeSpan(sqlite3_column_int(stmt, 8));
 		playerInGame.ResignTime = CTimeSpan(sqlite3_column_int(stmt, 9));
 		recGame.Players.Add(playerInGame);

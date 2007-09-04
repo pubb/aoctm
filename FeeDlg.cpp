@@ -38,12 +38,16 @@ BOOL CFeeDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	//pubb, 07-09-04, to setup only to count plays with fee
+	theApp.Players.m_bCountFee = true;
+	theApp.Players.Update();
+
 	m_List.InsertColumn( 0, _T("Name"), LVCFMT_LEFT, 120, -1);
 	m_List.InsertColumn( 1, _T("PlayCount from July"), LVCFMT_LEFT, 120, -1);
 	m_List.InsertColumn( 2, _T("PaidFee"), LVCFMT_LEFT, 70, -1);
 	m_List.InsertColumn( 3, _T("RestFee"), LVCFMT_LEFT, 70, -1);
 
-	int nItem, cost = theApp.Players.GetAllCostFee(), count = theApp.Players.GetAllPlayCountFromJuly();
+	int nItem, cost = theApp.Players.GetAllCostFee(), count = theApp.Players.GetAllPlayCount();
 	float eachcost = count == 0 ? 0 : (float)1.0 * cost / count;
 	
 	CString str;
@@ -51,13 +55,17 @@ BOOL CFeeDlg::OnInitDialog()
 	{
 		CPlayer * player = theApp.Players[i];
 		nItem = m_List.InsertItem(i, player->NickNames[0]);
-		str.Format(_T("%d"), player->GetPlayCountFromJuly());
+		str.Format(_T("%d"), player->PlayCount);
 		m_List.SetItemText(nItem, 1, str);
 		str.Format(_T("%d"), player->GetPaidFee());
 		m_List.SetItemText(nItem, 2, str);
-		str.Format(_T("%d"), (int)(player->GetPaidFee() - eachcost * player->GetPlayCountFromJuly()));
+		str.Format(_T("%d"), (int)(player->GetPaidFee() - eachcost * player->PlayCount));
 		m_List.SetItemText(nItem, 3, str);
 	}
+
+	//pubb, 07-09-04, restore
+	theApp.Players.m_bCountFee = false;
+	theApp.Players.Update();
 
 	return TRUE;
 }

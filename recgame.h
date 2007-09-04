@@ -42,7 +42,7 @@ public:
 	int	PositionY;									//玩家位置
 
 	CTimeSpan	FeudTime;								//升封时间
-	CTimeSpan	CastleTime;								//升城时间
+	CTimeSpan	CstlTime;								//升城时间
 	CTimeSpan	ImplTime;								//升帝时间
 	CTimeSpan	ResignTime;								//投降时间
 

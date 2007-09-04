@@ -39,6 +39,7 @@ class CPlayer
 public:
 	CPlayer(void);
 	~CPlayer(void);
+	void Initialize(void);
 
 	int	ID;						//玩家唯一标识
 	//pubb, 07-08-02, change variable name
@@ -53,12 +54,15 @@ public:
 
 	//by mep
 	//for technic statistic
-	int MinFeud;
-	int AvgFeud;
-	int MinCstl;
-	int AvgCstl;
-	int MinImpl;
-	int AvgImpl;
+	CTimeSpan MinFeudTime;
+	CTimeSpan TotalFeudTime;
+	int FeudCount;
+	CTimeSpan MinCstlTime;
+	CTimeSpan TotalCstlTime;
+	int CstlCount;
+	CTimeSpan MinImplTime;
+	CTimeSpan TotalImplTime;
+	int ImplCount;
 	//保存使用的文明，每一项表示该文明被使用一次
 	//255表示那个文明？
 	int Civs[19];
@@ -68,7 +72,7 @@ public:
 	CArray<CPaidFee * , CPaidFee *>	Record_PaidFee;	//玩家缴费记录
 
 	int	GetPaidFee(void);
-	int GetPlayCountFromJuly(void);
+//	int GetPlayCountWithFee(void);
 
 	bool	Load(class IPersistentInterface * engine);
 	bool	Save(IPersistentInterface * engine);
@@ -78,3 +82,4 @@ public:
 
 #define	DEF_RATING	1500
 #define	DEF_RATING_STR	_T("1500")
+#define	MAX_TIMESPAN	CTimeSpan(99999999)

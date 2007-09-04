@@ -5,7 +5,7 @@ class CPlayerDatabase
 	: public CArray <CPlayer *, CPlayer *>
 {
 public:
-	CPlayerDatabase(void);
+	CPlayerDatabase(bool countfee = false);
 	~CPlayerDatabase(void);
 
 	//pubb, 07-08-02, no need for SQL-based version
@@ -30,8 +30,8 @@ public:
 	int GetAllPaidFee(void);
 	int GetAllCostFee(void);
 	int GetAllPlayCount(void);
-	int GetAllPlayCountFromJuly(void);
 
+	bool	m_bCountFee;
 private:
 	CString	m_ConfigFile;
 

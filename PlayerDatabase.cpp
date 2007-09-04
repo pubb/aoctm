@@ -3,8 +3,9 @@
 #include "csvfile.h"
 #include "AocTM.h"
 
-CPlayerDatabase::CPlayerDatabase(void)
+CPlayerDatabase::CPlayerDatabase(bool countfee)
 {
+	m_bCountFee = countfee;
 }
 
 CPlayerDatabase::~CPlayerDatabase(void)
@@ -141,11 +142,7 @@ void	CPlayerDatabase::Reset(IPersistentInterface * engine)
 void	CPlayerDatabase::Revert(void)
 {
 	for(int i = 0; i < GetCount(); i++)
-	{
-		CPlayer * player = GetAt(i);
-		player->Rating = player->InitRating;
-		player->PlayCount = player->WinCount = 0;
-	}
+		GetAt(i)->Initialize();
 }
 
 
@@ -162,6 +159,10 @@ void CPlayerDatabase::Add(CRecgame * rg)
 
 	for(int i = 1; i <= rg->PlayerNum; i++)
 	{
+		//07-09-04, pubb, to get a playerdatabase with Fee info
+		if(m_bCountFee && rg->RecordTime < CTime(2007, 7, 1, 12, 0, 0))
+			continue;
+
 		if(rg->Players[i].Name.IsEmpty())
 			continue;
 
@@ -178,6 +179,31 @@ void CPlayerDatabase::Add(CRecgame * rg)
 		if(!rg->IsLoser(i))
 			player->WinCount++;
 		player->UpdateTime = rg->RecordTime;
+
+		//pubb, 07-09-04, for techical stat
+		if(rg->Players[i].FeudTime > 0)
+		{
+			player->FeudCount++;
+			player->TotalFeudTime += rg->Players[i].FeudTime;
+			if(player->MinFeudTime > rg->Players[i].FeudTime)
+				player->MinFeudTime = rg->Players[i].FeudTime;
+		}
+		if(rg->Players[i].CstlTime > 0)
+		{
+			player->CstlCount++;
+			player->TotalCstlTime += rg->Players[i].CstlTime;
+			if(player->MinCstlTime > rg->Players[i].CstlTime)
+				player->MinCstlTime = rg->Players[i].CstlTime;
+		}
+		if(rg->Players[i].ImplTime > 0)
+		{
+			player->ImplCount++;
+			player->TotalImplTime += rg->Players[i].ImplTime;
+			if(player->MinImplTime > rg->Players[i].ImplTime)
+				player->MinImplTime = rg->Players[i].ImplTime;
+		}
+		if( (rg->Players[i].Civ > 0) && (rg->Players[i].Civ < 19) )
+			player->Civs[rg->Players[i].Civ]++;
 	}
 			
 	UpdateRatings(rg);
@@ -398,12 +424,4 @@ int CPlayerDatabase::GetAllCostFee(void)
 {
 	/* XXX, pubb, 07-08-28, not a good way */
 	return 860;
-}
-
-int CPlayerDatabase::GetAllPlayCountFromJuly(void)
-{
-	/* FIXME, it should be read from database with SQL
-	 * wait for mep...
-	 */
-	return GetAllPlayCount();
 }

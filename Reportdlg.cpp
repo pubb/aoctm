@@ -95,7 +95,7 @@ BOOL CReportDlg::OnInitDialog()
 
 			//by mep for statistic
 
-			/*str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->MinFeud / 60, m_pPlayerDB->GetAt(i)->MinFeud % 60);
+			/*str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->MinFeudTime / 60, m_pPlayerDB->GetAt(i)->MinFeudTime % 60);
 			m_List.SetItemText(nItem, 5, str);
 			str.Format(_T("%d:%.2d"), m_pPlayerDB->GetAt(i)->AvgFeud / 60, m_pPlayerDB->GetAt(i)->AvgFeud % 60);
 			m_List.SetItemText(nItem, 6, str);

@@ -24,8 +24,8 @@ protected:
 private:
 	CXListCtrl m_Players;
 	CXListCtrl m_Selected;
-	CListBox m_Group1;
-	CListBox m_Group2;
+	CListCtrl m_Group1;
+	CListCtrl m_Group2;
 
 	void	InsertPlayers(CString name, int data);
 	void	InsertSelected(CString name, int rating, int data);
@@ -39,9 +39,13 @@ private:
 	afx_msg void OnBnClickedReset();
 	afx_msg void OnBnClickedInput();
 	afx_msg void OnBnClickedKeep();
-public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnDropFiles(HDROP hDropInfo);
+	afx_msg void OnNMDblclkGroup1(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMDblclkGroup2(NMHDR *pNMHDR, LRESULT *pResult);
+	
+	void OnExchange(int index1, int index2);
 
+public:
 	CAocTMDlg	* maindlg;
 };

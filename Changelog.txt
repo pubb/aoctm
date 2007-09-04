@@ -7,3 +7,8 @@
     
 07-08-31
     修正了CGroupingDlg:OnDropFiles()里没有Refresh()的bug。
+    
+07-09-04
+    用一个简单的办法实现了应缴费显示功能：在进行应缴费情况计算时，重新组织PlayerDatabase，忽略7月份以前的所有录像；计算完成后再恢复PlayerDatabase。
+    重写了技术统计部分，避免直接读取数据库，而是使用CPlayerDatabase数据结构。
+    在分组后可以用双击来手工交换成员，并及时更新分数差。
