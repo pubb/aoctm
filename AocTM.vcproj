@@ -150,7 +150,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib db/sqlite3.lib gdiplus.lib"
+				AdditionalDependencies="zlib.lib db/sqlite3.lib gdiplus.lib xgraph10.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -209,11 +209,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GraphDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GroupingDlg.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Language.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MyGraph.cpp"
 				>
 			</File>
 			<File
@@ -328,6 +336,26 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="CGraph"
+				>
+				<File
+					RelativePath=".\CGraph\2DBarGraph.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CGraph\2DLineGraph.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CGraph\2DPieGraph.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CGraph\GraphObject.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -347,11 +375,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GraphDlg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GroupingDlg.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Language.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MyGraph.h"
 				>
 			</File>
 			<File
@@ -392,6 +428,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\XGraph\XGraph10.h"
 				>
 			</File>
 			<Filter
@@ -471,6 +511,30 @@
 				>
 				<File
 					RelativePath=".\Renamer\Renamer.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="CGraph"
+				>
+				<File
+					RelativePath=".\CGraph\2DBarGraph.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CGraph\2DLineGraph.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CGraph\2DPieGraph.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CGraph\GraphObject.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CGraph\MathParams.h"
 					>
 				</File>
 			</Filter>

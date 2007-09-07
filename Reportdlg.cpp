@@ -6,6 +6,8 @@
 #include "Reportdlg.h"
 #include "csvfile.h"
 
+#include "graphdlg.h"
+
 // CReport dialog
 
 IMPLEMENT_DYNAMIC(CReportDlg, CDialog)
@@ -31,6 +33,7 @@ void CReportDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CReportDlg, CDialog)
 	ON_BN_CLICKED(IDOK, &CReportDlg::OnBnClickedOk)
+	ON_NOTIFY(NM_DBLCLK, IDC_ReportList, &CReportDlg::OnNMDblclkReportlist)
 END_MESSAGE_MAP()
 
 //Calculate and display the fee information for each player, default is OFF
@@ -153,4 +156,15 @@ void CReportDlg::OnBnClickedOk()
 	}
 
 	OnOK();
+}
+
+void CReportDlg::OnNMDblclkReportlist(NMHDR *pNMHDR, LRESULT *pResult)
+{
+
+	CGraphDlg dlg;
+	dlg.m_pPlayers = m_pPlayerDB;
+
+	dlg.DoModal();
+
+	*pResult = 0;
 }
