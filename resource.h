@@ -12,10 +12,11 @@
 #define IDD_GROUPING                    131
 #define IDD_PLAYERINPUT                 132
 #define IDD_STATDLG                     135
-#define IDR_MENU1                       136
+#define IDR_MAINPOPMENU                 136
 #define IDD_FEE                         137
 #define IDD_DIALOG1                     139
 #define IDD_GRAPH                       139
+#define IDR_REPORTPOPMENU               140
 #define IDC_ReportList                  1000
 #define IDC_PLAYERS                     1002
 #define IDC_SELECTED                    1003
@@ -50,13 +51,16 @@
 #define ID_GROUPING                     32784
 #define ID_SELECTIONS_FEE               32785
 #define ID_FEE                          32786
+#define ID__RATINGCURVE                 32787
+#define ID__USEDCIVS                    32788
+#define ID__PLAYCOUNT                   32789
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        140
-#define _APS_NEXT_COMMAND_VALUE         32787
+#define _APS_NEXT_RESOURCE_VALUE        141
+#define _APS_NEXT_COMMAND_VALUE         32790
 #define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

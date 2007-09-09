@@ -12,7 +12,7 @@
 IMPLEMENT_DYNAMIC(CGraphDlg, CDialog)
 
 CGraphDlg::CGraphDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CGraphDlg::IDD, pParent), m_pPlayers(NULL)
+	: CDialog(CGraphDlg::IDD, pParent), m_pPlayers(NULL), m_nCommand(SHOW_RATINGCURVE)
 {
 	if(::IsWindow(m_Graph.m_hWnd))
 		m_Graph.DestroyWindow();
@@ -20,6 +20,8 @@ CGraphDlg::CGraphDlg(CWnd* pParent /*=NULL*/)
 
 CGraphDlg::~CGraphDlg()
 {
+	//pubb, 07-09-09, restore the global
+	theApp.Players.Update();
 }
 
 void CGraphDlg::DoDataExchange(CDataExchange* pDX)
@@ -43,13 +45,18 @@ int CGraphDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if(!m_pPlayers)
 		return 0;
 
-	CArray<CPlayer *, CPlayer *> players;
-	for(int i = 0; i < m_pPlayers->GetCount(); i++)
+	switch(m_nCommand)
 	{
-		players.Add(m_pPlayers->GetAt(i));
+	case SHOW_RATINGCURVE:
+		ShowRatingCurve(CTime(2007,1,1,0,0,0));
+		break;
+	case SHOW_PLAYCOUNT:
+		ShowPlayCountBar();
+		break;
+	case SHOW_USEDCIVS:
+		/* not implemented */
+		break;
 	}
-	
-	ShowRatingCurve(players, CTime(2007,1,1,0,0,0));
 
 	return 0;
 }
@@ -75,17 +82,17 @@ void CGraphDlg::ShowPlayCountBar(void)
 	m_Graph.ClearData();
 }
 
-void CGraphDlg::ShowRatingCurve(CArray<CPlayer *, CPlayer *> & players, CTime from, CTime to)
+void CGraphDlg::ShowRatingCurve(CTime from, CTime to)
 {
 	if(to < from)
 		return;
 	
-	m_Graph.PrepareData((int)players.GetCount(), (int)(to - from).GetDays());
+	m_Graph.PrepareData((int)m_pPlayers->GetCount(), (int)(to - from).GetDays());
 	
 	int serie, segment;
-	for(serie = 0; serie < players.GetCount(); serie++)
+	for(serie = 0; serie < m_pPlayers->GetCount(); serie++)
 	{
-		m_Graph.Series[serie] = players[serie]->NickNames[0];
+		m_Graph.Series[serie] = m_pPlayers->GetAt(serie)->NickNames[0];
 	}
 
 	CTime t;
@@ -95,10 +102,11 @@ void CGraphDlg::ShowRatingCurve(CArray<CPlayer *, CPlayer *> & players, CTime fr
 			m_Graph.Segments[segment] = t.Format(_T("%m.%d"));
 		else
 			m_Graph.Segments[segment] = _T("");
-		m_pPlayers->Update(CTime(0), t);
-		for(serie = 0; serie < players.GetCount(); serie++)
+		//XXX, pubb, 07-09-09, not a good way to change the global variable
+		theApp.Players.Update(CTime(0), t);
+		for(serie = 0; serie < m_pPlayers->GetCount(); serie++)
 		{
-			m_Graph.Data[serie][segment] = players[serie]->Rating -  /* XXX */1000;
+			m_Graph.Data[serie][segment] = m_pPlayers->GetAt(serie)->Rating -  /* XXX */1000;
 		}
 	}
 

@@ -128,7 +128,9 @@ void C2DLineGraph::BuildGraph(HDC hDC)
 	bool exit, flag;
 
 	// Set graph step parameters
-	int seg_area = int(m_Size.cx*0.65);
+	//pubb, 070909, test
+	//int seg_area = int(m_Size.cx*0.65);
+	int seg_area = int(m_Size.cx*0.9);
 	int seg_step = int(double(seg_area)/(4*double(m_SegmentsNumber)));
 	int ser_step = int(double(seg_step)/8);
 

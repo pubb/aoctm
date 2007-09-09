@@ -268,7 +268,7 @@ void CAocTMDlg::OnRButtonUp(UINT nFlags, CPoint point)
 	CDialog::OnRButtonUp(nFlags, point);
 
 	CMenu menu, *pSubMenu;
-	if (!menu.LoadMenu(IDR_MENU1))
+	if (!menu.LoadMenu(IDR_MAINPOPMENU))
 		return;
 	if (!(pSubMenu = menu.GetSubMenu(0)))
 		return;

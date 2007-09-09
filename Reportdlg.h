@@ -29,6 +29,7 @@ public:
 
 public:
 	afx_msg void OnBnClickedOk();
-public:
 	afx_msg void OnNMDblclkReportlist(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMRclickReportlist(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnShowChart(UINT command);
 };

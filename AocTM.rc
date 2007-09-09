@@ -278,7 +278,7 @@ END
 // Menu
 //
 
-IDR_MENU1 MENU 
+IDR_MAINPOPMENU MENU 
 BEGIN
     POPUP "Selections"
     BEGIN
@@ -286,6 +286,16 @@ BEGIN
         MENUITEM "&Technical",                  ID_STATISTIC
         MENUITEM "&Grouping",                   ID_GROUPING
         MENUITEM "&Fee",                        ID_FEE
+    END
+END
+
+IDR_REPORTPOPMENU MENU 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "&RatingCurve",                ID__RATINGCURVE
+        MENUITEM "Used&Civs",                   ID__USEDCIVS
+        MENUITEM "&PlayCount",                  ID__PLAYCOUNT
     END
 END
 

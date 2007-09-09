@@ -5,6 +5,8 @@
 
 #include <map>
 
+typedef	enum {SHOW_RATINGCURVE = 0, SHOW_PLAYCOUNT, SHOW_USEDCIVS}	CHART_COMMAND;
+
 // CGraphDlg dialog
 class CGraphDlg : public CDialog
 {
@@ -23,11 +25,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	CPlayerDatabase	* m_pPlayers;
+	CArray<CPlayer *, CPlayer *>	* m_pPlayers;
+	CHART_COMMAND	m_nCommand;	
 
 private:
 	CMyGraph m_Graph;
 	
-	void ShowRatingCurve(CArray<CPlayer *, CPlayer *> & players, CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
+	void ShowRatingCurve(CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
 	void ShowPlayCountBar(void);
 };

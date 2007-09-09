@@ -34,6 +34,8 @@ void CReportDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CReportDlg, CDialog)
 	ON_BN_CLICKED(IDOK, &CReportDlg::OnBnClickedOk)
 	ON_NOTIFY(NM_DBLCLK, IDC_ReportList, &CReportDlg::OnNMDblclkReportlist)
+	ON_NOTIFY(NM_RCLICK, IDC_ReportList, &CReportDlg::OnNMRclickReportlist)
+	ON_COMMAND_RANGE(ID__RATINGCURVE, ID__PLAYCOUNT, &CReportDlg::OnShowChart)
 END_MESSAGE_MAP()
 
 //Calculate and display the fee information for each player, default is OFF
@@ -86,6 +88,9 @@ BOOL CReportDlg::OnInitDialog()
 			m_List.SetItemText(nItem, 3, str);
 			str.Format(_T("%d"), m_pPlayerDB->GetAt(i)->Rating);
 			m_List.SetItemText(nItem, 4, str);
+			//pubb, 07-09-09, save index in CPlayerDatabase for retrieval
+			m_List.SetItemData(nItem, i);
+
 			/* pubb, 07-08-28, move Fee functions to another dialog
 			if(!m_bTemp)
 			{
@@ -160,11 +165,62 @@ void CReportDlg::OnBnClickedOk()
 
 void CReportDlg::OnNMDblclkReportlist(NMHDR *pNMHDR, LRESULT *pResult)
 {
+	if(!m_pPlayerDB)
+		return;
 
 	CGraphDlg dlg;
 	dlg.m_pPlayers = m_pPlayerDB;
-
 	dlg.DoModal();
 
 	*pResult = 0;
+}
+
+void CReportDlg::OnNMRclickReportlist(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	if(!m_pPlayerDB || !m_List.GetFirstSelectedItemPosition())
+		return;
+
+	CMenu menu, *pSubMenu;
+	if (!menu.LoadMenu(IDR_REPORTPOPMENU))
+		return;
+	if (!(pSubMenu = menu.GetSubMenu(0)))
+		return;
+	CPoint pos;
+	GetCursorPos(&pos);
+	SetForegroundWindow();  
+
+	::TrackPopupMenu(pSubMenu->m_hMenu, 0, pos.x, pos.y, 0, 
+					 GetSafeHwnd(), NULL);
+	PostMessage(WM_NULL, 0, 0);
+	menu.DestroyMenu();
+
+	*pResult = 0;
+}
+
+void CReportDlg::OnShowChart(UINT command)
+{
+	CArray<CPlayer *, CPlayer *> selected_players;
+	POSITION pos = m_List.GetFirstSelectedItemPosition();
+	while(pos)
+	{		
+		selected_players.Add(m_pPlayerDB->GetAt(m_List.GetItemData(m_List.GetNextSelectedItem(pos))));
+	}
+	
+	switch(command)
+	{
+	case ID__RATINGCURVE:
+		command = SHOW_RATINGCURVE;
+		break;
+	case ID__PLAYCOUNT:
+		command = SHOW_PLAYCOUNT;
+		break;
+	case ID__USEDCIVS:
+		command = SHOW_USEDCIVS;
+		//XXX, not implemented yet
+		return;
+	}
+	CGraphDlg dlg;
+	dlg.m_nCommand = (CHART_COMMAND)command;
+	dlg.m_pPlayers = &selected_players;
+	dlg.DoModal();
 }
