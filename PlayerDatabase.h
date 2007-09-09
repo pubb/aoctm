@@ -5,7 +5,7 @@ class CPlayerDatabase
 	: public CArray <CPlayer *, CPlayer *>
 {
 public:
-	CPlayerDatabase(bool countfee = false);
+	CPlayerDatabase(void);
 	~CPlayerDatabase(void);
 
 	//pubb, 07-08-02, no need for SQL-based version
@@ -23,7 +23,7 @@ public:
 
 	void	RemoveAll(void);
 
-	void	Update(void);
+	void	Update(CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
 
 	INT_PTR GetFirstSamePlayer(CString name);
 
@@ -31,11 +31,11 @@ public:
 	int GetAllCostFee(void);
 	int GetAllPlayCount(void);
 
-	bool	m_bCountFee;
 private:
 	CString	m_ConfigFile;
 
 	void	Revert(void);
+	void	GetRatings(CTime when = CTime::GetCurrentTime());
 	int		LoadInitial(void);
 	void	UpdateRatings(CRecgame * rg);
 };

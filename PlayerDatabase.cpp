@@ -3,9 +3,8 @@
 #include "csvfile.h"
 #include "AocTM.h"
 
-CPlayerDatabase::CPlayerDatabase(bool countfee)
+CPlayerDatabase::CPlayerDatabase(void)
 {
-	m_bCountFee = countfee;
 }
 
 CPlayerDatabase::~CPlayerDatabase(void)
@@ -159,10 +158,6 @@ void CPlayerDatabase::Add(CRecgame * rg)
 
 	for(int i = 1; i <= rg->PlayerNum; i++)
 	{
-		//07-09-04, pubb, to get a playerdatabase with Fee info
-		if(m_bCountFee && rg->RecordTime < CTime(2007, 7, 1, 12, 0, 0))
-			continue;
-
 		if(rg->Players[i].Name.IsEmpty())
 			continue;
 
@@ -412,16 +407,26 @@ int CPlayerDatabase::GetAllPlayCount(void)
 }
 
 //regegenerate RecgameDatabase by tranverse all the recgames in DB in order of RecordTime and recalculate player's playcount, wincount, rating, updatetime and the rest fee
-void CPlayerDatabase::Update(void)
+void CPlayerDatabase::Update(CTime from, CTime to)
 {
 	//recaculate in order
 	Revert();
 	for(int i = 0; i < theApp.Recgames.GetCount(); i++)
-		Add(theApp.Recgames[i]);
+	{
+		CRecgame * rg = theApp.Recgames[i];
+		if(rg->RecordTime < from || rg->RecordTime > to)
+			continue;
+		Add(rg);
+	}
 }
 
 int CPlayerDatabase::GetAllCostFee(void)
 {
 	/* XXX, pubb, 07-08-28, not a good way */
 	return 860;
+}
+
+void	CPlayerDatabase::GetRatings(CTime when)
+{
+	Update(CTime(0), when);
 }

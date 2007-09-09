@@ -28,7 +28,6 @@ public:
 private:
 	CMyGraph m_Graph;
 	
-	void ShowRatingCurve(CPlayer * players);
-	void ShowRatingBar(void);
+	void ShowRatingCurve(CArray<CPlayer *, CPlayer *> & players, CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
 	void ShowPlayCountBar(void);
 };

@@ -39,8 +39,7 @@ BOOL CFeeDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	//pubb, 07-09-04, to setup only to count plays with fee
-	theApp.Players.m_bCountFee = true;
-	theApp.Players.Update();
+	theApp.Players.Update(CTime(2007, 7, 1, 0, 0, 0));
 
 	m_List.InsertColumn( 0, _T("Name"), LVCFMT_LEFT, 120, -1);
 	m_List.InsertColumn( 1, _T("PlayCount from July"), LVCFMT_LEFT, 120, -1);
@@ -64,7 +63,6 @@ BOOL CFeeDlg::OnInitDialog()
 	}
 
 	//pubb, 07-09-04, restore
-	theApp.Players.m_bCountFee = false;
 	theApp.Players.Update();
 
 	return TRUE;

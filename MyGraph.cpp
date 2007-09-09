@@ -29,10 +29,9 @@ void	CMyGraph::ShowCurve(CRect & clRect, COLORREF bgcolor, CString title, CStrin
 		Add2DLineGraphSegment(Segments[segment]);
 	}
 
-	COLORREF	firstcolor = RGB(0, 0, 255);
 	for(serie = 0; serie < Series.GetCount(); serie++)
 	{
-		Add2DLineGraphSeries(Series[serie], firstcolor * (serie + 1));
+		Add2DLineGraphSeries(Series[serie], RGB(rand() % 255, rand() % 255, rand() % 255));
 		for(segment = 0; segment < Segments.GetCount(); segment++)
 		{
 			Set2DLineGraphValue(segment + 1, serie + 1, Data[serie][segment]);
@@ -57,10 +56,9 @@ void	CMyGraph::ShowBar(CRect & clRect, COLORREF bgcolor, CString title, CString 
 		Add2DBarGraphSegment(Segments[segment]);
 	}
 
-	COLORREF	firstcolor = RGB(0, 0, 255);
 	for(serie = 0; serie < Series.GetCount(); serie++)
 	{
-		Add2DBarGraphSeries(Series[serie], firstcolor * (serie + 1));
+		Add2DBarGraphSeries(Series[serie], RGB(rand() % 255, rand() % 255, rand() % 255));
 		for(segment = 0; segment < Segments.GetCount(); segment++)
 		{
 			Set2DBarGraphValue(segment + 1, serie + 1, Data[serie][segment]);
@@ -81,10 +79,9 @@ void	CMyGraph::ShowPie(CRect & clRect, COLORREF bgcolor, CString title, CString 
 	
 	// Add graph segments
 	int segment;
-	COLORREF	firstcolor = RGB(0, 0, 255);
 	for(segment = 0; segment < Segments.GetCount(); segment++)
 	{
-		Add2DPieGraphSegment(Data[0][segment], firstcolor * (segment + 1), Segments[segment]);
+		Add2DPieGraphSegment(Data[0][segment], RGB(rand() % 255, rand() % 255, rand() % 255), Segments[segment]);
 	}
 	// Set graph animation
 	SetGraphAnimation( FALSE, AT_PIE_DRAW );
