@@ -38,7 +38,7 @@ void	CMyGraph::ShowCurve(CRect & clRect, COLORREF bgcolor, CString title, CStrin
 		}
 	}
 	// Set graph animation
-	SetGraphAnimation( FALSE, AT_LINE_DRAW_ALL );
+	SetGraphAnimation( TRUE, AT_LINE_DRAW_ALL );
 }
 
 void	CMyGraph::ShowBar(CRect & clRect, COLORREF bgcolor, CString title, CString subtitle, CWnd *pParentWnd)
@@ -77,11 +77,18 @@ void	CMyGraph::ShowPie(CRect & clRect, COLORREF bgcolor, CString title, CString 
 	SetGraphTitle(title);
 	SetGraphSubtitle(subtitle);
 	
+	//to change to the percent
+	int count = 0;
+	for(int i = 0; i < Segments.GetCount(); i++)
+	{
+		count += Data[0][i];
+	}
+
 	// Add graph segments
 	int segment;
 	for(segment = 0; segment < Segments.GetCount(); segment++)
 	{
-		Add2DPieGraphSegment(Data[0][segment], RGB(rand() % 255, rand() % 255, rand() % 255), Segments[segment]);
+		Add2DPieGraphSegment(Data[0][segment] * 100.0 / count, RGB(rand() % 255, rand() % 255, rand() % 255), Segments[segment]);
 	}
 	// Set graph animation
 	SetGraphAnimation( FALSE, AT_PIE_DRAW );

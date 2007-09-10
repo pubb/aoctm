@@ -216,8 +216,7 @@ void CReportDlg::OnShowChart(UINT command)
 		break;
 	case ID__USEDCIVS:
 		command = SHOW_USEDCIVS;
-		//XXX, not implemented yet
-		return;
+		break;
 	}
 	CGraphDlg dlg;
 	dlg.m_nCommand = (CHART_COMMAND)command;

@@ -33,4 +33,5 @@ private:
 	
 	void ShowRatingCurve(CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
 	void ShowPlayCountBar(void);
+	void ShowUsedCivs(void);
 };

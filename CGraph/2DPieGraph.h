@@ -16,7 +16,9 @@
 struct _2DPieGraphSegments
 {
 	int index;
-	int percent;
+	//pubb, 07-09-09, to display in double
+	//int percent;
+	double percent;
 	COLORREF color;
 	CString text;
 	struct _2DPieGraphSegments* next;
@@ -42,7 +44,9 @@ public:
 	void SetGraphAnimation( BOOL g_animation, int a_type );
 	void ClearGraph();
 	void DeleteSegment( int s_index );
-	void AddSegment( int s_percent, COLORREF s_color, CString s_text );
+	//pubb, 07-09-09, to be double percent
+	//void AddSegment( int s_percent, COLORREF s_color, CString s_text );
+	void AddSegment( double s_percent, COLORREF s_color, CString s_text );
 	void BuildGraph( HDC hDC );
 	C2DPieGraph( CPoint g_position, CSize g_size );
 	virtual ~C2DPieGraph();
@@ -59,10 +63,14 @@ private:
 	int m_AnimationType;
 	CFont* m_LegendFont;
 	CPoint m_AnimationStartPoint;
-	int m_DrawPercentCompleted;
+	//pubb, 07-09-09, double percent
+	//int m_DrawPercentCompleted;
+	double m_DrawPercentCompleted;
 	double m_DrawAnimationAngle;
 	int m_AnimationPercent;
-	int m_DrawTotalPercent;
+	//pubb, 07-09-09, double percent
+	//int m_DrawTotalPercent;
+	double m_DrawTotalPercent;
 	BOOL m_Animation;
 	CSize m_Size;
 	CPoint m_Position;

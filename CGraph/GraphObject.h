@@ -87,7 +87,9 @@ public:
 	BOOL GetGraphAnimation();
 	void SetGraphAnimation(BOOL g_animation, int a_type);
 	void Delete2DPieGraphSegment( int s_index );
+	//pubb, 07-09-09, to use double percent
 	void Add2DPieGraphSegment( int s_percent, COLORREF s_color, CString s_text );
+	void Add2DPieGraphSegment( double s_percent, COLORREF s_color, CString s_text );
 	void CreateGraph( int g_type );
 	virtual ~CGraphObject();
 

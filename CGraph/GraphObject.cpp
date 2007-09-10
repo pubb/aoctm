@@ -455,7 +455,7 @@ void CGraphObject::OnPaint()
 	// Do not call CWnd::OnPaint() for painting messages
 }
 
-void CGraphObject::Add2DPieGraphSegment(int s_percent, COLORREF s_color, CString s_text)
+void CGraphObject::Add2DPieGraphSegment(double s_percent, COLORREF s_color, CString s_text)
 {
 	// Add new 2D pie graph segment
 	m_2DPieGraph->AddSegment( s_percent, s_color, s_text );

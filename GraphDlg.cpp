@@ -54,7 +54,7 @@ int CGraphDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		ShowPlayCountBar();
 		break;
 	case SHOW_USEDCIVS:
-		/* not implemented */
+		ShowUsedCivs();
 		break;
 	}
 
@@ -82,12 +82,13 @@ void CGraphDlg::ShowPlayCountBar(void)
 	m_Graph.ClearData();
 }
 
+#define	RATINGCURVE_STEP	15
 void CGraphDlg::ShowRatingCurve(CTime from, CTime to)
 {
 	if(to < from)
 		return;
 	
-	m_Graph.PrepareData((int)m_pPlayers->GetCount(), (int)(to - from).GetDays());
+	m_Graph.PrepareData((int)m_pPlayers->GetCount(), (int)(to - from).GetDays() / RATINGCURVE_STEP + 2 /* XXX, for full display */);
 	
 	int serie, segment;
 	for(serie = 0; serie < m_pPlayers->GetCount(); serie++)
@@ -96,23 +97,41 @@ void CGraphDlg::ShowRatingCurve(CTime from, CTime to)
 	}
 
 	CTime t;
-	for(segment = 0, t = from; t < to && segment < m_Graph.Segments.GetCount(); t += CTimeSpan(1, 0, 0, 0), segment++)
+	for(segment = 0, t = from; segment < m_Graph.Segments.GetCount(); t += CTimeSpan(RATINGCURVE_STEP, 0, 0, 0), segment++)
 	{
-		if(t.GetDayOfWeek() == 6)	//every Friday
-			m_Graph.Segments[segment] = t.Format(_T("%m.%d"));
-		else
-			m_Graph.Segments[segment] = _T("");
+		m_Graph.Segments[segment] = t.Format(_T("%m.%d"));
 		//XXX, pubb, 07-09-09, not a good way to change the global variable
 		theApp.Players.Update(CTime(0), t);
 		for(serie = 0; serie < m_pPlayers->GetCount(); serie++)
 		{
-			m_Graph.Data[serie][segment] = m_pPlayers->GetAt(serie)->Rating -  /* XXX */1000;
+			m_Graph.Data[serie][segment] = m_pPlayers->GetAt(serie)->Rating -  /* XXX, for more clear display */1000;
 		}
 	}
 
 	CRect clRect;
 	GetClientRect(clRect);
 	m_Graph.ShowCurve(clRect, RGB(255, 255, 255), _T("Rating Curves"), _T(""), this);
+	
+	m_Graph.ClearData();
+}
+
+void CGraphDlg::ShowUsedCivs(void)
+{
+	//XXX, pubb, 07-09-09, only deal with the first selected player for now
+	//prepare data
+	extern CString civ_name[19];
+	m_Graph.PrepareData(1, 18);	//one serie, 19 civs for segments
+	theApp.Players.Update();	//to generate Civs[]
+	CPlayer * player = m_pPlayers->GetAt(0);
+	for(int i = 0; i < 18; i++)
+	{
+		m_Graph.Segments[i] = civ_name[i + 1];
+		m_Graph.Data[0][i] = player->Civs[i + 1];
+	}
+
+	CRect clRect;
+	GetClientRect(clRect);
+	m_Graph.ShowPie(clRect, RGB(255, 255, 255), _T("Used Civs"), player->NickNames[0], this);
 	
 	m_Graph.ClearData();
 }

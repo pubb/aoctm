@@ -295,6 +295,15 @@ void C2DPieGraph::BuildGraph(HDC hDC)
 			pBrush = new CBrush();
 			pBrush->CreateSolidBrush( curr->color );
 			hOldBrush = ::SelectObject( hDC, pBrush->GetSafeHandle() );
+			//pubb, 07-09-10, for 100% full circle drawing
+			if(curr->percent == 100)
+			{
+				::Ellipse(hDC, m_Position.x, m_Position.y, m_Position.x + m_Size.cx, m_Position.y + m_Size.cy);
+				::SelectObject( hDC, hOldBrush );
+				pBrush->DeleteObject();
+				delete pBrush;
+				break;	//no other segment for sure
+			}
 			::Pie( hDC, m_Position.x, m_Position.y, m_Position.x + m_Size.cx, m_Position.y + m_Size.cy, 
 				startX, startY, endX, endY );
 			::SelectObject( hDC, hOldBrush );
@@ -314,10 +323,12 @@ void C2DPieGraph::BuildGraph(HDC hDC)
 	}
 }
 
-void C2DPieGraph::AddSegment(int s_percent, COLORREF s_color, CString s_text)
+void C2DPieGraph::AddSegment(double s_percent, COLORREF s_color, CString s_text)
 {
 	// Get total percent
-	int percentTotal = 0;
+	//pubb, 07-09-09, double percent
+	//int percentTotal = 0;
+	double percentTotal = 0;
 	_2DPieGraphSegments* cs = m_Segments;
 	while ( cs != NULL )
 	{
@@ -413,7 +424,9 @@ void C2DPieGraph::DeleteSegment(int s_index)
 		}
 
 		// Get total percent
-		int percentTotal = 0;
+		//pubb, 07-09-09, double percent
+		//int percentTotal = 0;
+		double percentTotal = 0.0;
 		_2DPieGraphSegments* cs = m_Segments;
 		int ind = 1;
 		while ( cs != NULL )
@@ -524,7 +537,9 @@ void C2DPieGraph::BuildGraphLegend(HDC hDC)
 		delete rBrush;
 
 		// Draw segment text
-		str.Format(_T("(%d%s)  %s"), curr->percent, _T("%"), curr->text );
+		//pubb, 07-09-09, to use double percent
+		//str.Format(_T("(%d%s)  %s"), curr->percent, _T("%"), curr->text );
+		str.Format(_T("(%.1f%s)  %s"), curr->percent, _T("%"), curr->text );
 		::SetBkMode( hDC, TRANSPARENT );
 		::TextOut( hDC, start.x + rect.Width() + int(m_Size.cx*0.01), start.y, str, str.GetLength() );
 		::SetBkMode( hDC, OPAQUE );
@@ -619,7 +634,9 @@ void C2DPieGraph::UpdateSegment(int s_index, int s_percent, COLORREF s_color, CS
 		curr->text = s_text;
 
 		// Get total percent
-		int percentTotal = 0;
+		//pubb, 07-09-09, double percent
+		//int percentTotal = 0;
+		double percentTotal = 0.0;
 		_2DPieGraphSegments* cs = m_Segments;
 		int ind = 1;
 		while ( cs != NULL )
