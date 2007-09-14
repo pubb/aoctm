@@ -15,7 +15,7 @@ IMPLEMENT_DYNAMIC(CReportDlg, CDialog)
 
 
 CReportDlg::CReportDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CReportDlg::IDD, pParent), m_pPlayerDB(NULL), m_bTemp(false)
+: CDialog(CReportDlg::IDD, pParent), m_pPlayerDB(NULL), m_FirstGame(FIRSTGAME_TIME), m_LastGame(CTime::GetCurrentTime())
 {
 
 }
@@ -221,5 +221,7 @@ void CReportDlg::OnShowChart(UINT command)
 	CGraphDlg dlg;
 	dlg.m_nCommand = (CHART_COMMAND)command;
 	dlg.m_pPlayers = &selected_players;
+	dlg.m_FirstGame = m_FirstGame;
+	dlg.m_LastGame = m_LastGame;
 	dlg.DoModal();
 }

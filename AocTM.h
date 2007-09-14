@@ -45,5 +45,7 @@ private:
 };
 
 #define	DB_NAME	(_T("doctors.aoc"))
+#define	FIRSTGAME_TIME CTime(2007, 1, 1, 0, 0, 0)
+#define FIRSTGAME_FEE_TIME	CTime(2007, 7, 1, 0, 0, 0)
 
 extern CAocTMApp theApp;

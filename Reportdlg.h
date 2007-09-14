@@ -25,7 +25,7 @@ protected:
 public:
 	CPlayerDatabase	*m_pPlayerDB;
 	CXListCtrl m_List;
-	bool	m_bTemp;
+	CTime	m_FirstGame, m_LastGame;
 
 public:
 	afx_msg void OnBnClickedOk();

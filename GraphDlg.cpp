@@ -12,7 +12,7 @@
 IMPLEMENT_DYNAMIC(CGraphDlg, CDialog)
 
 CGraphDlg::CGraphDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CGraphDlg::IDD, pParent), m_pPlayers(NULL), m_nCommand(SHOW_RATINGCURVE)
+: CDialog(CGraphDlg::IDD, pParent), m_pPlayers(NULL), m_nCommand(SHOW_RATINGCURVE), m_FirstGame(FIRSTGAME_TIME), m_LastGame(CTime::GetCurrentTime())
 {
 	if(::IsWindow(m_Graph.m_hWnd))
 		m_Graph.DestroyWindow();
@@ -48,7 +48,7 @@ int CGraphDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	switch(m_nCommand)
 	{
 	case SHOW_RATINGCURVE:
-		ShowRatingCurve(CTime(2007,1,1,0,0,0));
+		ShowRatingCurve();
 		break;
 	case SHOW_PLAYCOUNT:
 		ShowPlayCountBar();
@@ -82,13 +82,21 @@ void CGraphDlg::ShowPlayCountBar(void)
 	m_Graph.ClearData();
 }
 
-#define	RATINGCURVE_STEP	15
-void CGraphDlg::ShowRatingCurve(CTime from, CTime to)
+#define	RATINGCURVE_SEG_NUM	15
+void CGraphDlg::ShowRatingCurve(void)
 {
-	if(to < from)
+	if(m_LastGame < m_FirstGame)
 		return;
 	
-	m_Graph.PrepareData((int)m_pPlayers->GetCount(), (int)(to - from).GetDays() / RATINGCURVE_STEP + 2 /* XXX, for full display */);
+	int	seg_num = RATINGCURVE_SEG_NUM;
+	int	step = (int)(((m_LastGame - m_FirstGame).GetTotalHours() + /* 1 more day */24)/ (RATINGCURVE_SEG_NUM - 1));
+	if(step == 0)
+	{
+		seg_num = (int)(m_LastGame - m_FirstGame).GetTotalHours();
+		step = 1;
+	}
+
+	m_Graph.PrepareData((int)m_pPlayers->GetCount(), seg_num);
 	
 	int serie, segment;
 	for(serie = 0; serie < m_pPlayers->GetCount(); serie++)
@@ -97,14 +105,16 @@ void CGraphDlg::ShowRatingCurve(CTime from, CTime to)
 	}
 
 	CTime t;
-	for(segment = 0, t = from; segment < m_Graph.Segments.GetCount(); t += CTimeSpan(RATINGCURVE_STEP, 0, 0, 0), segment++)
+
+	for(segment = 0, t = m_FirstGame; segment < m_Graph.Segments.GetCount(); t += CTimeSpan(0, step, 0, 0), segment++)
 	{
 		m_Graph.Segments[segment] = t.Format(_T("%m.%d"));
-		//XXX, pubb, 07-09-09, not a good way to change the global variable
+		//XXX, pubb, 07-09-09, not a good way m_LastGame change the global variable
 		theApp.Players.Update(CTime(0), t);
 		for(serie = 0; serie < m_pPlayers->GetCount(); serie++)
 		{
-			m_Graph.Data[serie][segment] = m_pPlayers->GetAt(serie)->Rating -  /* XXX, for more clear display */1000;
+			int rating = theApp.Players[theApp.Players.GetFirstSamePlayer(m_pPlayers->GetAt(serie)->NickNames[0])]->Rating;	//XXX, in order to get the correct Ratings from the main db
+			m_Graph.Data[serie][segment] = rating -  /* XXX, for more clear display */1000;
 		}
 	}
 

@@ -181,7 +181,7 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 
 	CRecgame *rg;
 	CPlayerDatabase	thisplayers;		//store and show the effect of this Drag&Drop
-
+	CTime	first = CTime::GetCurrentTime(), last = FIRSTGAME_TIME;
 	CProgressWnd	wndProgress;
 
 	wndProgress.Create(this, _T("Progress..."), TRUE);
@@ -223,6 +223,10 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 		theApp.Players.UpdateRatings(rg);
 		*/
 		thisplayers.Add(rg);
+		if(rg->RecordTime < first)
+			first = rg->RecordTime;
+		if(rg->RecordTime > last)
+			last = rg->RecordTime;
 
 		if(theApp.Recgames.Add(rg))
 		{
@@ -241,7 +245,7 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 		theApp.Players.Update();
 
 	CopyRatings(&thisplayers);
-	ShowReport(&thisplayers, true);;
+	ShowReport(&thisplayers, first, last);;
 	Refresh();
 
 	CDialog::OnDropFiles(hDropInfo);
@@ -302,11 +306,12 @@ void CAocTMDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	CDialog::OnLButtonDblClk(nFlags, point);
 }
 
-void CAocTMDlg::ShowReport(CPlayerDatabase * players, bool thistime)
+void CAocTMDlg::ShowReport(CPlayerDatabase * players, CTime first, CTime last)
 {
 	CReportDlg	dlg;
 	dlg.m_pPlayerDB = players;
-	dlg.m_bTemp = thistime;
+	dlg.m_FirstGame = first;
+	dlg.m_LastGame = last;
 	dlg.DoModal();
 }
 
@@ -350,7 +355,6 @@ void CAocTMDlg::CopyRatings(CPlayerDatabase *players)
 		if(index >= 0)
 		{
 			(*players)[i]->Rating = theApp.Players[index]->Rating;
-			(*players)[i]->Fee = theApp.Players[index]->Fee;
 		}
 	}
 }

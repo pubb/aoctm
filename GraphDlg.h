@@ -26,12 +26,13 @@ protected:
 
 public:
 	CArray<CPlayer *, CPlayer *>	* m_pPlayers;
-	CHART_COMMAND	m_nCommand;	
+	CHART_COMMAND	m_nCommand;
+	CTime	m_FirstGame, m_LastGame;
 
 private:
 	CMyGraph m_Graph;
 	
-	void ShowRatingCurve(CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
+	void ShowRatingCurve(void);
 	void ShowPlayCountBar(void);
 	void ShowUsedCivs(void);
 };
