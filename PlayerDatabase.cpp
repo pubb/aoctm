@@ -407,15 +407,15 @@ int CPlayerDatabase::GetAllPlayCount(void)
 }
 
 //regegenerate RecgameDatabase by tranverse all the recgames in DB in order of RecordTime and recalculate player's playcount, wincount, rating, updatetime and the rest fee
-void CPlayerDatabase::Update(CTime from, CTime to)
+void CPlayerDatabase::Update(CTime to)
 {
 	//recaculate in order
 	Revert();
 	for(int i = 0; i < theApp.Recgames.GetCount(); i++)
 	{
 		CRecgame * rg = theApp.Recgames[i];
-		if(rg->RecordTime < from || rg->RecordTime > to)
-			continue;
+		if(rg->RecordTime > to)
+			break;
 		Add(rg);
 	}
 }
@@ -428,5 +428,5 @@ int CPlayerDatabase::GetAllCostFee(void)
 
 void	CPlayerDatabase::GetRatings(CTime when)
 {
-	Update(CTime(0), when);
+	Update(when);
 }

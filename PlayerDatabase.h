@@ -23,7 +23,7 @@ public:
 
 	void	RemoveAll(void);
 
-	void	Update(CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
+	void	Update(CTime to = CTime::GetCurrentTime());
 
 	INT_PTR GetFirstSamePlayer(CString name);
 
