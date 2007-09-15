@@ -39,7 +39,7 @@ BOOL CFeeDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	//pubb, 07-09-04, to setup only to count plays with fee
-	theApp.Players.Update();
+	theApp.Players.Update(FIRSTGAME_FEE_TIME);
 
 	m_List.InsertColumn( 0, _T("Name"), LVCFMT_LEFT, 120, -1);
 	m_List.InsertColumn( 1, _T("PlayCount from July"), LVCFMT_LEFT, 120, -1);

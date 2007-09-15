@@ -110,7 +110,7 @@ void CGraphDlg::ShowRatingCurve(void)
 	{
 		m_Graph.Segments[segment] = t.Format(_T("%m.%d"));
 		//XXX, pubb, 07-09-09, not a good way m_LastGame change the global variable
-		theApp.Players.Update(t);
+		theApp.Players.GetRatings(t);
 		for(serie = 0; serie < m_pPlayers->GetCount(); serie++)
 		{
 			int rating = theApp.Players[theApp.Players.GetFirstSamePlayer(m_pPlayers->GetAt(serie)->NickNames[0])]->Rating;	//XXX, in order to get the correct Ratings from the main db
@@ -130,7 +130,7 @@ void CGraphDlg::ShowUsedCivs(void)
 	//XXX, pubb, 07-09-09, only deal with the first selected player for now
 	//prepare data
 	extern CString civ_name[19];
-	m_Graph.PrepareData(1, 18);	//one serie, 19 civs for segments
+	m_Graph.PrepareData(1, 18);	//one serie, 18 civs for segments
 	theApp.Players.Update();	//to generate Civs[]
 	CPlayer * player = m_pPlayers->GetAt(0);
 	for(int i = 0; i < 18; i++)

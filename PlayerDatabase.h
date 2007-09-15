@@ -23,19 +23,19 @@ public:
 
 	void	RemoveAll(void);
 
-	void	Update(CTime to = CTime::GetCurrentTime());
+	void	Update(CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
 
 	INT_PTR GetFirstSamePlayer(CString name);
 
 	int GetAllPaidFee(void);
 	int GetAllCostFee(void);
 	int GetAllPlayCount(void);
+	void	GetRatings(CTime when = CTime::GetCurrentTime());
 
 private:
 	CString	m_ConfigFile;
 
 	void	Revert(void);
-	void	GetRatings(CTime when = CTime::GetCurrentTime());
 	int		LoadInitial(void);
 	void	UpdateRatings(CRecgame * rg);
 };

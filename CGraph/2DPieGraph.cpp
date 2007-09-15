@@ -281,6 +281,9 @@ void C2DPieGraph::BuildGraph(HDC hDC)
 		{
 			// Set graph segment end angle
 			angle = startAngle + (double(curr->percent)/100.0) * (2*PI);
+			//pubb, 07-09-15, to check for full circle bug caused by accuracy of floating calculation
+			if(angle > 2*PI)
+				angle = 2*PI;
 			// Calculate graph segment end position
 			if ( ( ( angle >= 0 ) && ( angle <= (PI/2) ) ) || ( ( angle >= (3*PI/2) ) && ( angle <= (2*PI) ) ) )
 				endX = m_Position.x + m_Size.cx/2 + int( (m_Size.cx/2) * cos( angle ) );

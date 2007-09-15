@@ -38,7 +38,7 @@ void	CMyGraph::ShowCurve(CRect & clRect, COLORREF bgcolor, CString title, CStrin
 		}
 	}
 	// Set graph animation
-	SetGraphAnimation( TRUE, AT_LINE_DRAW_ALL );
+	SetGraphAnimation( FALSE, AT_LINE_DRAW_ALL );
 }
 
 void	CMyGraph::ShowBar(CRect & clRect, COLORREF bgcolor, CString title, CString subtitle, CWnd *pParentWnd)

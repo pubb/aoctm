@@ -199,6 +199,16 @@ void CPlayerDatabase::Add(CRecgame * rg)
 		}
 		if( (rg->Players[i].Civ > 0) && (rg->Players[i].Civ < 19) )
 			player->Civs[rg->Players[i].Civ]++;
+	
+#if 0
+		//DEBUG, pubb, 07-09-15, Civ == 255, strange. 2007-06-02 21'14 - old(1), 2007-07-26 21'25 - mXp(1), 2007-07-26 21'55 - pubb(1)
+		else
+		{
+			CString str;
+			str.Format(_T("%s\n%s - %d"), rg->FileName, rg->Players[i].Name, rg->Players[i].Civ);
+			AfxMessageBox(str);
+		}
+#endif
 	}
 			
 	UpdateRatings(rg);
@@ -407,13 +417,15 @@ int CPlayerDatabase::GetAllPlayCount(void)
 }
 
 //regegenerate RecgameDatabase by tranverse all the recgames in DB in order of RecordTime and recalculate player's playcount, wincount, rating, updatetime and the rest fee
-void CPlayerDatabase::Update(CTime to)
+void CPlayerDatabase::Update(CTime from, CTime to)
 {
 	//recaculate in order
 	Revert();
 	for(int i = 0; i < theApp.Recgames.GetCount(); i++)
 	{
 		CRecgame * rg = theApp.Recgames[i];
+		if(rg->RecordTime < from)
+			continue;
 		if(rg->RecordTime > to)
 			break;
 		Add(rg);
@@ -428,5 +440,5 @@ int CPlayerDatabase::GetAllCostFee(void)
 
 void	CPlayerDatabase::GetRatings(CTime when)
 {
-	Update(when);
+	Update(CTime(0), when);
 }
