@@ -1188,6 +1188,7 @@ int		CRecgame::GetWinnerTeam(void)
 	 */
 	if(max_index == 0)
 		max_index = Players[ViewerID].Team;
+		//return 0;	//not a good way too, maybe need check chat msg for 'resign?' or 'gg'
 
 	return max_index == 1 ? 2 : 1;
 }

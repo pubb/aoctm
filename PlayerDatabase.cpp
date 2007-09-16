@@ -435,7 +435,7 @@ void CPlayerDatabase::Update(CTime from, CTime to)
 int CPlayerDatabase::GetAllCostFee(void)
 {
 	/* XXX, pubb, 07-08-28, not a good way */
-	return 875;
+	return 1025;
 }
 
 void	CPlayerDatabase::GetRatings(CTime when)
