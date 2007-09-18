@@ -15,9 +15,8 @@ IMPLEMENT_DYNAMIC(CReportDlg, CDialog)
 
 
 CReportDlg::CReportDlg(CWnd* pParent /*=NULL*/)
-: CDialog(CReportDlg::IDD, pParent), m_pPlayerDB(NULL), m_FirstGame(FIRSTGAME_TIME), m_LastGame(CTime::GetCurrentTime())
+: CDialog(CReportDlg::IDD, pParent), m_pPlayerDB(NULL)
 {
-
 }
 
 CReportDlg::~CReportDlg()
@@ -35,7 +34,7 @@ BEGIN_MESSAGE_MAP(CReportDlg, CDialog)
 	ON_BN_CLICKED(IDOK, &CReportDlg::OnBnClickedOk)
 	ON_NOTIFY(NM_DBLCLK, IDC_ReportList, &CReportDlg::OnNMDblclkReportlist)
 	ON_NOTIFY(NM_RCLICK, IDC_ReportList, &CReportDlg::OnNMRclickReportlist)
-	ON_COMMAND_RANGE(ID__RATINGCURVE, ID__PLAYCOUNT, &CReportDlg::OnShowChart)
+	ON_COMMAND_RANGE(ID__RATINGCURVE, ID__TECHSTAT, &CReportDlg::OnShowChart)
 END_MESSAGE_MAP()
 
 //Calculate and display the fee information for each player, default is OFF
@@ -51,6 +50,7 @@ BOOL CReportDlg::OnInitDialog()
 	m_List.InsertColumn( 2, _T("Win Count"), LVCFMT_LEFT, 70, -1);
 	m_List.InsertColumn( 3, _T("Win Rate"), LVCFMT_LEFT, 80, -1);
 	m_List.InsertColumn( 4, _T("Ratings"), LVCFMT_LEFT, 65, -1);
+	m_List.InsertColumn( 5, _T("DeltaRatings"), LVCFMT_LEFT, 65, -1);
 	/* pubb, 07-08-28, move Fee functions to another dialog
 	if(!m_bTemp)
 	{
@@ -67,11 +67,16 @@ BOOL CReportDlg::OnInitDialog()
 	m_List.InsertColumn( 9, _T("Min Impl Time"), LVCFMT_LEFT, 80, -1);
 	m_List.InsertColumn( 10, _T("Avg Impl Time"), LVCFMT_LEFT, 80, -1);*/
 
-	if(m_pPlayerDB)
+	if(m_pPlayerDB && m_pPlayerDB->m_pRecgameDB)
 	{
 		int nItem;
 		CString str;
 		int totalplays = 0, playcount, wincount, i;
+
+		//pubb, 07-09-18, to generate ratings before the report ( 5 minutes )
+		theApp.Players.Update(CTime(0), m_pPlayerDB->m_pRecgameDB->GetFirstGameTime() - CTimeSpan(0, 0, 5, 0));
+		CopyInitRatings();	//store ratings before this show up in InitRating
+		m_pPlayerDB->Update();
 
 		for(i = 0; i < m_pPlayerDB->GetCount(); i++)
 		{
@@ -88,6 +93,9 @@ BOOL CReportDlg::OnInitDialog()
 			m_List.SetItemText(nItem, 3, str);
 			str.Format(_T("%d"), m_pPlayerDB->GetAt(i)->Rating);
 			m_List.SetItemText(nItem, 4, str);
+			str.Format(_T("%d"), m_pPlayerDB->GetAt(i)->Rating - m_pPlayerDB->GetAt(i)->InitRating);
+			m_List.SetItemText(nItem, 5, str);
+
 			//pubb, 07-09-09, save index in CPlayerDatabase for retrieval
 			m_List.SetItemData(nItem, i);
 
@@ -199,7 +207,9 @@ void CReportDlg::OnNMRclickReportlist(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CReportDlg::OnShowChart(UINT command)
 {
-	CArray<CPlayer *, CPlayer *> selected_players;
+	CPlayerDatabase selected_players;
+	selected_players.m_pRecgameDB = m_pPlayerDB->m_pRecgameDB;
+
 	POSITION pos = m_List.GetFirstSelectedItemPosition();
 	while(pos)
 	{		
@@ -211,7 +221,7 @@ void CReportDlg::OnShowChart(UINT command)
 	case ID__RATINGCURVE:
 		command = SHOW_RATINGCURVE;
 		break;
-	case ID__PLAYCOUNT:
+	case ID__TECHSTAT:
 		command = SHOW_PLAYCOUNT;
 		break;
 	case ID__USEDCIVS:
@@ -221,7 +231,22 @@ void CReportDlg::OnShowChart(UINT command)
 	CGraphDlg dlg;
 	dlg.m_nCommand = (CHART_COMMAND)command;
 	dlg.m_pPlayers = &selected_players;
-	dlg.m_FirstGame = m_FirstGame;
-	dlg.m_LastGame = m_LastGame;
+	dlg.m_FirstGame = m_pPlayerDB->m_pRecgameDB->GetFirstGameTime();
+	dlg.m_LastGame = m_pPlayerDB->m_pRecgameDB->GetLatestGameTime();
 	dlg.DoModal();
+}
+
+void CReportDlg::CopyInitRatings(void)
+{
+	//copy ratings from players' database
+	INT_PTR index;
+	
+	for(int i = 0; i < m_pPlayerDB->GetCount(); i++)
+	{
+		index = theApp.Players.GetFirstSamePlayer((*m_pPlayerDB)[i]->NickNames[0]);
+		if(index >= 0)
+		{
+			(*m_pPlayerDB)[i]->InitRating = theApp.Players[index]->Rating;
+		}
+	}
 }

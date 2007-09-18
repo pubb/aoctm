@@ -8,8 +8,6 @@ CRecgameDatabase::CRecgameDatabase(void)
 
 CRecgameDatabase::~CRecgameDatabase(void)
 {
-	for(int i = 0; i < GetCount(); i++)
-		delete GetAt(i);
 }
 
 bool	CRecgameDatabase::Initialize()
@@ -205,10 +203,11 @@ INT_PTR	CRecgameDatabase::GetFirstSameRecgame(CRecgame * rg)
 {
 	CRecgame * rg_db;
 
-	int i,j;
+	INT_PTR	i;
+	int j;
 
 	//search from top to bottom because most of time, the duplicate one is near the top.
-	for(i = (int)GetCount() - 1; i >= 0; i--)
+	for(i = GetCount() - 1; i >= 0; i--)
 	{
 		rg_db = GetAt(i);
 
@@ -231,7 +230,7 @@ INT_PTR	CRecgameDatabase::GetFirstSameRecgame(CRecgame * rg)
 				goto next;
 		if(j > rg_db->PlayerNum)
 		{
-			return rg_db->ID;
+			return i;
 		}
 next:	;
 	}
@@ -252,4 +251,10 @@ CTime	CRecgameDatabase::GetFirstGameTime(void)
 		return CTime(0);
 
 	return GetAt(0)->RecordTime;
+}
+
+void	CRecgameDatabase::Free(void)
+{
+	for(int i = 0; i < GetCount(); i++)
+		delete GetAt(i);
 }

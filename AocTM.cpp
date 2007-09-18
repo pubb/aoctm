@@ -111,6 +111,9 @@ BOOL CAocTMApp::InitInstance()
 	 * load Players into PlayerDatabase from DB. only save back (and update) when exiting
 	 */
 	Players.Load(Engine);
+	//pubb, 07-09-18, set related recgame db
+	Players.m_pRecgameDB = &Recgames;
+
 	/* pubb, 07-07-31
 	 * for grouping
 	 */
@@ -132,6 +135,10 @@ BOOL CAocTMApp::InitInstance()
 	
 	//pubb, 07-08-04
 	Players.Save(Engine);
+	
+	//pubb, 07-09-18, explicitly clear memory
+	Recgames.Free();
+	Players.Free();
 
 	/* pubb, 07-08-03 */
 	Engine->Close();

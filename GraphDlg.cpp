@@ -51,7 +51,7 @@ int CGraphDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		ShowRatingCurve();
 		break;
 	case SHOW_PLAYCOUNT:
-		ShowPlayCountBar();
+		ShowTechStatBar();
 		break;
 	case SHOW_USEDCIVS:
 		ShowUsedCivs();
@@ -61,23 +61,69 @@ int CGraphDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	return 0;
 }
 
-void CGraphDlg::ShowPlayCountBar(void)
+void CGraphDlg::ShowTechStatBar(void)
 {
 	//prepare data
-	m_Graph.PrepareData(2, (int)m_pPlayers->GetCount());
-	m_Graph.Series[0] = _T("Play Count");
-	m_Graph.Series[1] = _T("Win Count");
+	m_Graph.PrepareData(6, (int)m_pPlayers->GetCount());
+	m_Graph.Series[0] = _T("Min Feud Time");
+	m_Graph.Series[1] = _T("Avg Feud Time");
+	m_Graph.Series[2] = _T("Min Cstl Time");
+	m_Graph.Series[3] = _T("Avg Cstl Time");
+	m_Graph.Series[4] = _T("Min Impl Time");
+	m_Graph.Series[5] = _T("Avg Impl Time");
+
+	int playcount, count;
+	CTimeSpan avg, min;
+	CPlayer * player;
+
+//	m_pPlayers->Update();
+
 	for(int i = 0; i < m_pPlayers->GetCount(); i++)
 	{
-		CPlayer * player = m_pPlayers->GetAt(i);
+		player = m_pPlayers->GetAt(i);
 		m_Graph.Segments[i] = player->NickNames[0];
-		m_Graph.Data[0][i] = player->PlayCount;
-		m_Graph.Data[1][i] = player->WinCount;
+
+		playcount = player->PlayCount;
+
+		for(int j = 0; j < 3 ; j++)
+		{
+			switch(j)
+			{
+			case 0:
+				min = player->MinFeudTime;
+				count = player->FeudCount;
+				if(count)
+					avg = CTimeSpan(player->TotalFeudTime.GetTotalSeconds() / count);
+				else
+					avg = CTimeSpan(0);
+				break;
+			case 1:
+				min = player->MinCstlTime;
+				count = player->CstlCount;
+				if(count)
+					avg = CTimeSpan(player->TotalCstlTime.GetTotalSeconds() / count);
+				else
+					avg = CTimeSpan(0);
+				break;
+			case 2:
+				min = player->MinImplTime;
+				count = player->ImplCount;
+				if(count)
+					avg = CTimeSpan(player->TotalImplTime.GetTotalSeconds() / count);
+				else
+					avg = CTimeSpan(0);
+				break;
+			}
+			if(min == MAX_TIMESPAN)
+				min = 0;
+			m_Graph.Data[2 * j][i] = (int)min.GetTotalSeconds();
+			m_Graph.Data[2 * j + 1][i] = (int)avg.GetTotalSeconds();
+		}
 	}
 
 	CRect clRect;
 	GetClientRect(clRect);
-	m_Graph.ShowBar(clRect, RGB(255, 255, 255), _T("Play Count"), _T(""), this);
+	m_Graph.ShowBar(clRect, RGB(255, 255, 255), _T("Tech Statics"), _T(""), this);
 	
 	m_Graph.ClearData();
 }
@@ -89,7 +135,7 @@ void CGraphDlg::ShowRatingCurve(void)
 		return;
 	
 	int	seg_num = RATINGCURVE_SEG_NUM;
-	int	step = (int)(((m_LastGame - m_FirstGame).GetTotalHours() + /* 1 more day */24)/ (RATINGCURVE_SEG_NUM - 1));
+	int	step = (int)(((m_LastGame - m_FirstGame).GetTotalHours() + /* 15 more hour */15)/ (RATINGCURVE_SEG_NUM - 1));
 	if(step == 0)
 	{
 		seg_num = (int)(m_LastGame - m_FirstGame).GetTotalHours();

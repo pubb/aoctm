@@ -25,11 +25,13 @@ protected:
 public:
 	CPlayerDatabase	*m_pPlayerDB;
 	CXListCtrl m_List;
-	CTime	m_FirstGame, m_LastGame;
-
+	
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnNMDblclkReportlist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMRclickReportlist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnShowChart(UINT command);
+
+private:
+	void CopyInitRatings();
 };

@@ -25,7 +25,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	CArray<CPlayer *, CPlayer *>	* m_pPlayers;
+	CPlayerDatabase	* m_pPlayers;
 	CHART_COMMAND	m_nCommand;
 	CTime	m_FirstGame, m_LastGame;
 
@@ -33,6 +33,6 @@ private:
 	CMyGraph m_Graph;
 	
 	void ShowRatingCurve(void);
-	void ShowPlayCountBar(void);
+	void ShowTechStatBar(void);
 	void ShowUsedCivs(void);
 };

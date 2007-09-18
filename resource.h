@@ -53,14 +53,14 @@
 #define ID_FEE                          32786
 #define ID__RATINGCURVE                 32787
 #define ID__USEDCIVS                    32788
-#define ID__PLAYCOUNT                   32789
+#define ID__TECHSTAT                    32789
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         32790
+#define _APS_NEXT_COMMAND_VALUE         32791
 #define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

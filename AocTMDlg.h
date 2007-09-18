@@ -44,8 +44,7 @@ public:
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 
 private:
-	void ShowReport(CPlayerDatabase * players, CTime first = FIRSTGAME_TIME, CTime last = CTime::GetCurrentTime());
-	void CopyRatings(CPlayerDatabase * players);
+	void ShowReport(CPlayerDatabase * players);
 	void Refresh(void);
 
 public:

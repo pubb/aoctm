@@ -174,15 +174,16 @@ HCURSOR CAocTMDlg::OnQueryDragIcon()
 void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 {
 	int	count =	DragQueryFile(hDropInfo,0xffffffff,NULL,0);
+
 	TCHAR	strPath[4096];
 	bool loadnew = false;
-
-	/* the first function, to count each player's play times */
-
 	CRecgame *rg;
-	CPlayerDatabase	thisplayers;		//store and show the effect of this Drag&Drop
-	CTime	first = CTime::GetCurrentTime(), last = FIRSTGAME_TIME;
 	CProgressWnd	wndProgress;
+
+	//store and show the effect of this Drag&Drop
+	CPlayerDatabase	players;
+	CRecgameDatabase recgames;
+	players.m_pRecgameDB = &recgames;
 
 	wndProgress.Create(this, _T("Progress..."), TRUE);
 	wndProgress.SetRange(0,count);
@@ -216,25 +217,21 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 			continue;
 		}
 
-		//pubb, 07-08-02, Add to database and update rating in Add()
-		/*
-		theApp.Players.CountPlay(rg);
-		theApp.Players.CountWin(rg);
-		theApp.Players.UpdateRatings(rg);
-		*/
-		thisplayers.Add(rg);
-		if(rg->RecordTime < first)
-			first = rg->RecordTime;
-		if(rg->RecordTime > last)
-			last = rg->RecordTime;
+		players.Add(rg);
 
 		if(theApp.Recgames.Add(rg))
 		{
+			//pubb, 07-09-18, for temporary storage for one drag&drop
+			recgames.Add(rg);
 			if(!loadnew)
 				loadnew = true;
 		}
 		else
+		{
+			//pubb, 07-09-18, store it in temporary recgameDB when duplicate in mainDB
+			recgames.Add(theApp.Recgames[theApp.Recgames.GetFirstSameRecgame(rg)]);
 			delete rg;
+		}
 	}
 
 	theApp.Engine->Commit();
@@ -244,9 +241,10 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 	if(loadnew)
 		theApp.Players.Update();
 
-	CopyRatings(&thisplayers);
-	ShowReport(&thisplayers, first, last);;
+	ShowReport(&players);;
 	Refresh();
+
+	players.Free();
 
 	CDialog::OnDropFiles(hDropInfo);
 }
@@ -306,12 +304,10 @@ void CAocTMDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	CDialog::OnLButtonDblClk(nFlags, point);
 }
 
-void CAocTMDlg::ShowReport(CPlayerDatabase * players, CTime first, CTime last)
+void CAocTMDlg::ShowReport(CPlayerDatabase * players)
 {
 	CReportDlg	dlg;
 	dlg.m_pPlayerDB = players;
-	dlg.m_FirstGame = first;
-	dlg.m_LastGame = last;
 	dlg.DoModal();
 }
 
@@ -342,21 +338,6 @@ void CAocTMDlg::OnFee(void)
 {
 	CFeeDlg	dlg;
 	dlg.DoModal();
-}
-
-void CAocTMDlg::CopyRatings(CPlayerDatabase *players)
-{
-	//copy ratings from players' database
-	INT_PTR index;
-	
-	for(int i = 0; i < players->GetCount(); i++)
-	{
-		index = theApp.Players.GetFirstSamePlayer((*players)[i]->NickNames[0]);
-		if(index >= 0)
-		{
-			(*players)[i]->Rating = theApp.Players[index]->Rating;
-		}
-	}
 }
 
 void CAocTMDlg::Refresh(void)

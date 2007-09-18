@@ -1,5 +1,6 @@
 #pragma once
 #include "db/persistentinterface.h"
+#include "recgamedatabase.h"
 
 class CPlayerDatabase
 	: public CArray <CPlayer *, CPlayer *>
@@ -7,7 +8,9 @@ class CPlayerDatabase
 public:
 	CPlayerDatabase(void);
 	~CPlayerDatabase(void);
+	void	Free(void);
 
+	CRecgameDatabase	* m_pRecgameDB;
 	//pubb, 07-08-02, no need for SQL-based version
 	/*
 	void	CountPlay(CRecgame & rg);

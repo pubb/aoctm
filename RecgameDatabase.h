@@ -34,10 +34,12 @@ public:
 	int	Load(IPersistentInterface * engine);
 	bool	Save(IPersistentInterface * engine);
 	void	RemoveAll(void);
+	void	Free(void);
 
 	CString	GetMapName(int id);		//called in recgame initialization, from map_id to map_name
 	CTime	GetFirstGameTime(void);
 	CTime	GetLatestGameTime(void);
+	INT_PTR	GetFirstSameRecgame(CRecgame * rg);
 
 	bool Add(CRecgame * rg);
 
@@ -46,6 +48,5 @@ private:
 	CString m_str_table[100];
 	CString	m_game_path, m_rec_path;
 
-	INT_PTR	GetFirstSameRecgame(CRecgame * rg);
 	CString GetAOCRegistry(void);
 };

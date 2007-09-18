@@ -4,13 +4,12 @@
 #include "AocTM.h"
 
 CPlayerDatabase::CPlayerDatabase(void)
+: m_pRecgameDB(NULL)
 {
 }
 
 CPlayerDatabase::~CPlayerDatabase(void)
 {
-	for(int i = 0; i < GetCount(); i++)
-		delete GetAt(i);
 }
 
 INT_PTR CPlayerDatabase::GetFirstSamePlayer(CString name)
@@ -419,11 +418,14 @@ int CPlayerDatabase::GetAllPlayCount(void)
 //regegenerate RecgameDatabase by tranverse all the recgames in DB in order of RecordTime and recalculate player's playcount, wincount, rating, updatetime and the rest fee
 void CPlayerDatabase::Update(CTime from, CTime to)
 {
+	if(!m_pRecgameDB)
+		return;
+
 	//recaculate in order
 	Revert();
-	for(int i = 0; i < theApp.Recgames.GetCount(); i++)
+	for(int i = 0; i < m_pRecgameDB->GetCount(); i++)
 	{
-		CRecgame * rg = theApp.Recgames[i];
+		CRecgame * rg = m_pRecgameDB->GetAt(i);
 		if(rg->RecordTime < from)
 			continue;
 		if(rg->RecordTime > to)
@@ -441,4 +443,10 @@ int CPlayerDatabase::GetAllCostFee(void)
 void	CPlayerDatabase::GetRatings(CTime when)
 {
 	Update(CTime(0), when);
+}
+
+void	CPlayerDatabase::Free(void)
+{
+	for(int i = 0; i < GetCount(); i++)
+		delete GetAt(i);
 }
