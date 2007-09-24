@@ -3,6 +3,7 @@
 #include "AocTM.h"
 
 CRecgameDatabase::CRecgameDatabase(void)
+: dirty(false)
 {
 }
 
@@ -90,6 +91,8 @@ int	CRecgameDatabase::Load(IPersistentInterface * engine)
 
 	RemoveAll();
 
+	dirty = false;
+
 	int i, count = engine->GetRecgameCount();
 	if(count <= 0)
 		return 0;
@@ -117,10 +120,12 @@ int	CRecgameDatabase::Load(IPersistentInterface * engine)
 bool CRecgameDatabase::Save(IPersistentInterface *engine)
 {
 	//by mep for performance
-	if(!engine)
+	if(!engine || !dirty)
 		return false;
 
-	if( engine->BeginTx() )
+	engine->ClearRecgames();
+
+	if( !engine->BeginTx() )
 		return false;
 	
 	bool flag = true;
@@ -144,6 +149,7 @@ bool CRecgameDatabase::Save(IPersistentInterface *engine)
 		return false;
 	}
 
+	dirty = false;
 	return true;
 }
 
@@ -183,7 +189,9 @@ CString CRecgameDatabase::GetMapName(int id)
 
 bool	CRecgameDatabase::Add(CRecgame * rg)
 {
-	if(!rg->Loaded || !theApp.Engine || GetFirstSameRecgame(rg) >= 0)
+	//pubb, 07-09-22, no DB operations now
+	//if(!rg->Loaded || !theApp.Engine || GetFirstSameRecgame(rg) >= 0)
+	if(!rg->Loaded || GetFirstSameRecgame(rg) >= 0)
 		return false;
 
 	//store it in order of RecordTime in memory. each LOAD-from-DB is also in RecordTime order.
@@ -193,8 +201,8 @@ bool	CRecgameDatabase::Add(CRecgame * rg)
 			break;
 	InsertAt(i, rg);
 
-	rg->Save(theApp.Engine);
-
+	if(!dirty)
+		dirty = true;
 	return true;
 }
 

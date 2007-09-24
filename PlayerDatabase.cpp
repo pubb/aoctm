@@ -4,7 +4,7 @@
 #include "AocTM.h"
 
 CPlayerDatabase::CPlayerDatabase(void)
-: m_pRecgameDB(NULL)
+: m_pRecgameDB(NULL), dirty(false), Charge(0)
 {
 }
 
@@ -21,16 +21,25 @@ INT_PTR CPlayerDatabase::GetFirstSamePlayer(CString name)
 	return -1;
 }
 
-int	CPlayerDatabase::Load(IPersistentInterface * engine, bool reset)
+bool	CPlayerDatabase::Load(IPersistentInterface * engine, bool reset)
 {
-	//clear PlayerDatabase before ADD
-	RemoveAll();
-
 	if(reset)
-		return LoadInitial();
+	{
+		if(LoadInitial())
+		{
+			dirty = true;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
 	if(!engine)
-		return -1;
+		return false;
+
+	RemoveAll();
 
 	int i, count = engine->GetPlayerCount();
 	int * ids = new int [count];
@@ -49,23 +58,32 @@ int	CPlayerDatabase::Load(IPersistentInterface * engine, bool reset)
 	}
 	
 	delete [] ids;
-	return i;
+
+	dirty = false;
+
+	return true;
 }
 
-int	CPlayerDatabase::LoadInitial(void)
+bool	CPlayerDatabase::LoadInitial(void)
 {
 	if(m_ConfigFile.IsEmpty())
 	{
 		CFileDialog configDlg(true, _T(".csv"), _T("config.csv"), 0, _T("CSV (Comma delimited) | *.csv"));
 		if(configDlg.DoModal() == IDCANCEL)
-			return 0;
+			return false;
 		m_ConfigFile = configDlg.GetPathName();
 	}
 
 	CStringArray	config;
 	CCsvFile	csv(m_ConfigFile, CFile::modeRead);
 
-	csv.Read(config);	//skip header
+	RemoveAll();
+
+	//pubb, 07-09-20, read 'Charge to Net Pub'
+	csv.Read(config);
+	Charge = _ttoi(config[0]);
+	if(Charge != 0)		//if the first line is 'charge', the second line is title. otherwise, the first line is just title.
+		csv.Read(config);	//skip header
 	int count;
 	for(count = 0; csv.Read(config); count++)
 	{
@@ -83,12 +101,12 @@ int	CPlayerDatabase::LoadInitial(void)
 
 	Update();
 
-	return count;
+	return true;
 }
 
 bool	CPlayerDatabase::Save(IPersistentInterface * engine)
 {
-	if(!engine)
+	if(!engine || !dirty)
 		return false;
 
 	//pubb, 07-08-23, will do BeginTx in it itself
@@ -122,6 +140,7 @@ bool	CPlayerDatabase::Save(IPersistentInterface * engine)
 		return false;
 	}
 
+	dirty = false;
 	return true;
 }
 
@@ -148,6 +167,8 @@ INT_PTR	CPlayerDatabase::Add(CPlayer * player)
 {
 	if(GetFirstSamePlayer(player->NickNames[0]) >= 0)
 		return -1;
+	if(!dirty)
+		dirty = true;
 	return CArray<CPlayer *, CPlayer *>::Add(player);
 }
 
@@ -167,6 +188,8 @@ void CPlayerDatabase::Add(CRecgame * rg)
 		{
 			player = new CPlayer;
 			player->NickNames.Add(rg->Players[i].Name);
+			if(!dirty)
+				dirty = true;
 			CArray<CPlayer *, CPlayer *>::Add(player);
 		}
 		player->PlayCount++;
@@ -430,14 +453,23 @@ void CPlayerDatabase::Update(CTime from, CTime to)
 			continue;
 		if(rg->RecordTime > to)
 			break;
+		//debug
+		if(rg->RecordTime.GetMonth() == 9 && rg->RecordTime.GetDay() == 21)
+		{
+			int i = 0;
+		}
 		Add(rg);
 	}
 }
 
 int CPlayerDatabase::GetAllCostFee(void)
 {
-	/* XXX, pubb, 07-08-28, not a good way */
-	return 1025;
+	//pubb, 07-09-20
+	if(Charge)
+		return Charge;
+	else
+		/* XXX, pubb, 07-08-28, not a good way */
+		return 1025;
 }
 
 void	CPlayerDatabase::GetRatings(CTime when)
@@ -449,4 +481,21 @@ void	CPlayerDatabase::Free(void)
 {
 	for(int i = 0; i < GetCount(); i++)
 		delete GetAt(i);
+}
+
+void	CPlayerDatabase::CopyNickNames(void)
+{
+	if(this == &theApp.Players)
+		return;
+
+	INT_PTR	index;
+	for(int i = 0; i < GetCount(); i++)
+	{
+		if((index = theApp.Players.GetFirstSamePlayer(GetAt(i)->NickNames[0])) >= 0 && /* not copied before */ GetAt(i)->NickNames.GetCount() <= 1)
+		{
+			//According to the msdn, Copy will overwrite the destination array with source
+			//GetAt(i)->NickNames.RemoveAll();
+			GetAt(i)->NickNames.Copy(theApp.Players[index]->NickNames);
+		}
+	}
 }

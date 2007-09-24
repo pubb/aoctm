@@ -20,7 +20,7 @@ public:
 	INT_PTR	Add(CPlayer * player);
 	void	Add(CRecgame * rg);
 
-	int	Load(IPersistentInterface * engine, bool reset = false);
+	bool	Load(IPersistentInterface * engine, bool reset = false);
 	bool	Save(IPersistentInterface * engine);
 	void	Reset(IPersistentInterface * engine);
 
@@ -35,10 +35,14 @@ public:
 	int GetAllPlayCount(void);
 	void	GetRatings(CTime when = CTime::GetCurrentTime());
 
+	void	CopyNickNames(void);
+
 private:
+	bool	dirty;
 	CString	m_ConfigFile;
+	int		Charge;		//charge to Net Pub
 
 	void	Revert(void);
-	int		LoadInitial(void);
+	bool	LoadInitial(void);
 	void	UpdateRatings(CRecgame * rg);
 };

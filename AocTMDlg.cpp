@@ -189,8 +189,9 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 	wndProgress.SetRange(0,count);
 	wndProgress.SetText(_T("Loading Recorded Game files..."));
 
+	//pubb, 07-09-22, no DB operations now
 	//by mep for performance
-	theApp.Engine->BeginTx();
+	//theApp.Engine->BeginTx();
 
 	for(int i = 0; i < count; i++)
 	{
@@ -234,13 +235,15 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 		}
 	}
 
-	theApp.Engine->Commit();
+	//pubb, 07-09-22
+	//theApp.Engine->Commit();
 
 	wndProgress.Hide();
 
 	if(loadnew)
 		theApp.Players.Update();
 
+	players.CopyNickNames();
 	ShowReport(&players);;
 	Refresh();
 

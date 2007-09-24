@@ -76,6 +76,8 @@ BOOL CReportDlg::OnInitDialog()
 		//pubb, 07-09-18, to generate ratings before the report ( 5 minutes )
 		theApp.Players.Update(CTime(0), m_pPlayerDB->m_pRecgameDB->GetFirstGameTime() - CTimeSpan(0, 0, 5, 0));
 		CopyInitRatings();	//store ratings before this show up in InitRating
+		//pubb, 07-09-22, restore the normal ratings
+		theApp.Players.Update();
 		m_pPlayerDB->Update();
 
 		for(i = 0; i < m_pPlayerDB->GetCount(); i++)

@@ -1434,15 +1434,21 @@ bool SQLitePersisten::ClearRecgames(void)
 	const char* unused = 0;
 	TCHAR* queryStr;
 
+	//pubb, 07-09-18, add transaction support
+	if(!BeginTx())
+		return false;
+
 	queryStr = _T("delete from t_RecGame");
 	int ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
+		Rollback();
 		return false;
 	}
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
+		Rollback();
 		return false;
 	}
 	else
@@ -1454,11 +1460,13 @@ bool SQLitePersisten::ClearRecgames(void)
 	ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
+		Rollback();
 		return false;
 	}
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
+		Rollback();
 		return false;
 	}
 	else
@@ -1470,11 +1478,13 @@ bool SQLitePersisten::ClearRecgames(void)
 	ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
+		Rollback();
 		return false;
 	}
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
+		Rollback();
 		return false;
 	}
 	else
@@ -1482,6 +1492,7 @@ bool SQLitePersisten::ClearRecgames(void)
 		sqlite3_finalize(stmt);
 	}
 
+	Commit();
 	return true;
 }
 

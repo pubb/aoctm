@@ -136,6 +136,9 @@ BOOL CAocTMApp::InitInstance()
 	//pubb, 07-08-04
 	Players.Save(Engine);
 	
+	//pubb, 07-09-18
+	Recgames.Save(Engine);
+
 	//pubb, 07-09-18, explicitly clear memory
 	Recgames.Free();
 	Players.Free();

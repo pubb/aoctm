@@ -157,9 +157,12 @@ void CGraphDlg::ShowRatingCurve(void)
 		m_Graph.Segments[segment] = t.Format(_T("%m.%d"));
 		//XXX, pubb, 07-09-09, not a good way m_LastGame change the global variable
 		theApp.Players.GetRatings(t);
+		//m_pPlayers->GetRatings(t);
 		for(serie = 0; serie < m_pPlayers->GetCount(); serie++)
 		{
+			//pubb, 07-09-18, use local DB
 			int rating = theApp.Players[theApp.Players.GetFirstSamePlayer(m_pPlayers->GetAt(serie)->NickNames[0])]->Rating;	//XXX, in order to get the correct Ratings from the main db
+			//int rating = m_pPlayers->GetAt(serie)->Rating;
 			m_Graph.Data[serie][segment] = rating -  /* XXX, for more clear display */1000;
 		}
 	}

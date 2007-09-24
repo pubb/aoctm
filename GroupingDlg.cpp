@@ -83,8 +83,10 @@ void CGroupingDlg::OnNMDblclkPlayers(NMHDR *pNMHDR, LRESULT *pResult)
 		return;
 
 	for(int i = 0; i < selected; i++)
+	{
 		if(index == m_Selected.GetItemData(i))
 			return;
+	}
 	
 	InsertSelected(name, theApp.Players[index]->Rating, index);
 }
@@ -254,11 +256,26 @@ void CGroupingDlg::Refresh(void)
 		InsertPlayers(theApp.Players[i]->NickNames[0], i);
 
 	if(theApp.bCurrent)
+	{
 		for(i = 0; i < 8 && theApp.CurrentPlayers[i] >= 0; i++)
 		{
 			index = theApp.CurrentPlayers[i];
 			InsertSelected(theApp.Players[index]->NickNames[0], theApp.Players[index]->Rating, index);
 		}
+	}
+
+	int group1 = 0, group2 = 0;
+	for(int i = 0; i < m_Group1.GetItemCount(); i++)
+	{
+		group1 += _ttoi(m_Selected.GetItemText((int)m_Group1.GetItemData(i), 1));
+		group2 += _ttoi(m_Selected.GetItemText((int)m_Group2.GetItemData(i), 1));
+	}
+	CString	str;
+	if(m_Group1.GetItemCount() == 0)
+		str = _T("Double click, Double click, Double click, ...");
+	else
+		str.Format(_T("Group1: %d, Group2: %d, Delta Rating: %d"), group1, group2, group1 - group2);
+	GetDlgItem(IDC_MSG)->SetWindowText(str);
 }
 
 int CGroupingDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
