@@ -39,7 +39,6 @@ public:
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnBnClickedInit();
 	afx_msg void OnClose();
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 
@@ -52,4 +51,6 @@ public:
 	afx_msg void OnStatistic();
 	afx_msg void OnGrouping();
 	afx_msg void OnFee();
+	afx_msg void OnConfigCharge();
+	afx_msg void OnConfigPlayer();
 };

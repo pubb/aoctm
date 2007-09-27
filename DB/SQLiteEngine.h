@@ -43,6 +43,10 @@ public:
 	 */
 	virtual bool UpdateRecGame(/*in*/ CRecgame & recGame);	//recGame.ID is set to the preferred position with the same ID in the DB.
 
+	virtual bool LoadCharge(CArray<CPaidFee *, CPaidFee *> * charge, int id);
+	virtual bool SaveCharge(CArray<CPaidFee *, CPaidFee *> * charge, int id);
+	virtual bool DeleteCharge(int id);
+
 	//by mep for performance
 	virtual bool BeginTx();
 	virtual bool Commit();

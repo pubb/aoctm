@@ -205,7 +205,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Config.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ConfigChargeDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ConfigPlayerDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FeeDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FeeInDlg.cpp"
 				>
 			</File>
 			<File
@@ -371,7 +387,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ConfigChargeDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ConfigPlayerDlg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\FeeDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FeeInDlg.h"
 				>
 			</File>
 			<File

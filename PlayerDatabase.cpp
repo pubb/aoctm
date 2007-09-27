@@ -4,7 +4,7 @@
 #include "AocTM.h"
 
 CPlayerDatabase::CPlayerDatabase(void)
-: m_pRecgameDB(NULL), dirty(false), Charge(0)
+: m_pRecgameDB(NULL), dirty(false)
 {
 }
 
@@ -21,21 +21,8 @@ INT_PTR CPlayerDatabase::GetFirstSamePlayer(CString name)
 	return -1;
 }
 
-bool	CPlayerDatabase::Load(IPersistentInterface * engine, bool reset)
+bool	CPlayerDatabase::Load(IPersistentInterface * engine)
 {
-	if(reset)
-	{
-		if(LoadInitial())
-		{
-			dirty = true;
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
 	if(!engine)
 		return false;
 
@@ -60,46 +47,6 @@ bool	CPlayerDatabase::Load(IPersistentInterface * engine, bool reset)
 	delete [] ids;
 
 	dirty = false;
-
-	return true;
-}
-
-bool	CPlayerDatabase::LoadInitial(void)
-{
-	if(m_ConfigFile.IsEmpty())
-	{
-		CFileDialog configDlg(true, _T(".csv"), _T("config.csv"), 0, _T("CSV (Comma delimited) | *.csv"));
-		if(configDlg.DoModal() == IDCANCEL)
-			return false;
-		m_ConfigFile = configDlg.GetPathName();
-	}
-
-	CStringArray	config;
-	CCsvFile	csv(m_ConfigFile, CFile::modeRead);
-
-	RemoveAll();
-
-	//pubb, 07-09-20, read 'Charge to Net Pub'
-	csv.Read(config);
-	Charge = _ttoi(config[0]);
-	if(Charge != 0)		//if the first line is 'charge', the second line is title. otherwise, the first line is just title.
-		csv.Read(config);	//skip header
-	int count;
-	for(count = 0; csv.Read(config); count++)
-	{
-		CPlayer	*player = new CPlayer;
-		player->InitRating = player->Rating = _ttoi(config[0]);
-		CPaidFee *fee = new CPaidFee;
-		fee->Money = _ttoi(config[1]);
-		player->Record_PaidFee.Add(fee);
-		for(int i = 2; i < config.GetCount(); i++)
-			if(!config[i].IsEmpty())
-				player->NickNames.Add(config[i]);
-		Add(player);
-		config.RemoveAll();
-	}
-
-	Update();
 
 	return true;
 }
@@ -146,14 +93,8 @@ bool	CPlayerDatabase::Save(IPersistentInterface * engine)
 
 void	CPlayerDatabase::RemoveAll(void)
 {
-	for(int i = 0; i < GetCount(); i++)
-		delete GetAt(i);
+	Free();
 	CArray <CPlayer *, CPlayer *>::RemoveAll();
-}
-
-void	CPlayerDatabase::Reset(IPersistentInterface * engine)
-{
-	Load(engine, true);
 }
 
 void	CPlayerDatabase::Revert(void)
@@ -462,16 +403,6 @@ void CPlayerDatabase::Update(CTime from, CTime to)
 	}
 }
 
-int CPlayerDatabase::GetAllCostFee(void)
-{
-	//pubb, 07-09-20
-	if(Charge)
-		return Charge;
-	else
-		/* XXX, pubb, 07-08-28, not a good way */
-		return 1025;
-}
-
 void	CPlayerDatabase::GetRatings(CTime when)
 {
 	Update(CTime(0), when);
@@ -498,4 +429,9 @@ void	CPlayerDatabase::CopyNickNames(void)
 			GetAt(i)->NickNames.Copy(theApp.Players[index]->NickNames);
 		}
 	}
+}
+
+void	CPlayerDatabase::SetDirty(bool d)
+{
+	dirty = d;
 }

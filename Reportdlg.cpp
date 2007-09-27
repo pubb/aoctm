@@ -127,6 +127,9 @@ BOOL CReportDlg::OnInitDialog()
 			m_List.SetItemText(nItem, 10, str);*/
 		}
 	}
+
+	m_List.SetExtendedStyle(LVS_EX_FULLROWSELECT);
+
 	return true;
 }
 

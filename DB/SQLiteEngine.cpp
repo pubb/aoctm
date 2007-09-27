@@ -34,10 +34,11 @@
  * all 'Payed' to 'Paid'
  */
 //pubb, 07-08-02, move from .h file
+//pubb, 07-09-26, no 'auto increment' property according to manual
 const TCHAR* sqliteTableDefs[] = {
 _T("create table t_Player \
 (  \
-	player_id integer primary key autoincrement, \
+	player_id integer primary key, \
 	fee	integer default 0, \
 	initrating integer default ") DEF_RATING_STR _T(", \
 	rating integer default ") DEF_RATING_STR _T(", \
@@ -47,7 +48,7 @@ _T("create table t_Player \
 );"),
 _T("create table t_RecGame \
 ( \
-	recgame_id integer primary key autoincrement, \
+	recgame_id integer primary key, \
 	filename text, \
 	recordtime integer, \
 	playtime integer, \
@@ -350,34 +351,7 @@ SQLitePersisten::SavePlayer(/*inout*/ CPlayer& player)
 	}
 
 	//INSERT to t_PaidFee
-	for(i = 0; i < player.Record_PaidFee.GetSize(); i++)
-	{
-		sqlite3_stmt *stmt;
-		const char* unused = 0;
-
-		const TCHAR* insertStr = _T("insert into t_PaidFee values (?, ?, ?)");
-
-		int ret = SQLITE3_PREPARE(m_DB, insertStr, stmt, unused);
-		
-		if( ret != SQLITE_OK)
-		{
-			return false;
-		}
-
-		sqlite3_bind_int(stmt, 1, player.ID);
-		sqlite3_bind_int(stmt, 2, (int)player.Record_PaidFee[i]->PayTime.GetTime());
-		sqlite3_bind_int(stmt, 3, player.Record_PaidFee[i]->Money);
-
-		if(sqlite3_step(stmt) != SQLITE_DONE)
-		{
-			sqlite3_finalize(stmt);
-			return false;
-		}
-		else
-		{
-			sqlite3_finalize(stmt);
-		}
-	}
+	SaveCharge(&player.Record_PaidFee, player.ID);
 
 	return true;
 }
@@ -440,24 +414,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 		if(player.NickNames.GetCount() <= 0)
 			return false;
 
-		const TCHAR* queryStr3 = _T("select paytime, fee from t_PaidFee where player_id = ?");
-
-		ret = SQLITE3_PREPARE(m_DB, queryStr3, stmt, unused);
-
-		if( ret != SQLITE_OK)
-		{
-			return false;
-		}
-
-		sqlite3_bind_int(stmt, 1, player.ID);
-
-		while(sqlite3_step(stmt) != SQLITE_DONE)
-		{
-			CPaidFee * payedFee = new CPaidFee;
-			payedFee->PayTime = (CTime)sqlite3_column_int(stmt, 0);
-			payedFee->Money = sqlite3_column_int(stmt, 1);
-			player.Record_PaidFee.Add(payedFee);
-		}
+		LoadCharge(&player.Record_PaidFee, player.ID);
 
 		/* pubb, 07-09-04
 		 * move it to CPlayerDatabase::Update() with no DB operations
@@ -622,24 +579,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 
 		sqlite3_finalize(stmt);	
 
-		const TCHAR* queryStr3 = _T("select paytime, fee from t_PaidFee where player_id = ?");
-
-		ret = SQLITE3_PREPARE(m_DB, queryStr3, stmt, unused);
-
-		if( ret != SQLITE_OK)
-		{
-			return false;
-		}
-
-		sqlite3_bind_int(stmt, 1, player.ID);
-
-		while(sqlite3_step(stmt) != SQLITE_DONE)
-		{
-			CPaidFee * payedFee = new CPaidFee;
-			payedFee->PayTime = (CTime)sqlite3_column_int(stmt, 0);
-			payedFee->Money = sqlite3_column_int(stmt, 1);
-			player.Record_PaidFee.Add(payedFee);
-		}
+		LoadCharge(&player.Record_PaidFee, player.ID);
 
 		/* pubb, 07-09-04
 		 * do it in PlayerDatabase::Update() with no DB operations
@@ -903,7 +843,8 @@ bool SQLitePersisten::ClearPlayers(void)
 		sqlite3_finalize(stmt);
 	}
 
-	queryStr = _T("delete from t_PaidFee");
+	//pubb, 07-09-26, don't delete 'NetBar Charge' information
+	queryStr = _T("delete from t_PaidFee where player_id != 0");
 	ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
@@ -1593,3 +1534,93 @@ SQLiteEnginFactory::Create()
 SQLiteEnginFactory factory;
 
 SelfRegister sqliteSelfRegister(_T("SQLite"), &factory);
+
+bool SQLitePersisten::LoadCharge(CArray<CPaidFee *, CPaidFee *> * charge, int id)
+{
+	sqlite3_stmt *stmt;
+	const char* unused = 0;
+
+	const TCHAR* queryStr3 = _T("select paytime, fee from t_PaidFee where player_id = ?");
+
+	int ret = SQLITE3_PREPARE(m_DB, queryStr3, stmt, unused);
+
+	if( ret != SQLITE_OK)
+	{
+		return false;
+	}
+
+	sqlite3_bind_int(stmt, 1, id);
+
+	while(sqlite3_step(stmt) != SQLITE_DONE)
+	{
+		CPaidFee * payedFee = new CPaidFee;
+		payedFee->PayTime = (CTime)sqlite3_column_int(stmt, 0);
+		payedFee->Money = sqlite3_column_int(stmt, 1);
+		charge->Add(payedFee);
+	}
+
+	return true;
+}
+
+bool SQLitePersisten::SaveCharge(CArray<CPaidFee *, CPaidFee *> * charge, int id)
+{
+	for(int i = 0; i < charge->GetSize(); i++)
+	{
+		sqlite3_stmt *stmt;
+		const char* unused = 0;
+
+		const TCHAR* insertStr = _T("insert into t_PaidFee values (?, ?, ?)");
+
+		int ret = SQLITE3_PREPARE(m_DB, insertStr, stmt, unused);
+		
+		if( ret != SQLITE_OK)
+		{
+			return false;
+		}
+
+		sqlite3_bind_int(stmt, 1, id);
+		sqlite3_bind_int(stmt, 2, (int)charge->GetAt(i)->PayTime.GetTime());
+		sqlite3_bind_int(stmt, 3, charge->GetAt(i)->Money);
+
+		if(sqlite3_step(stmt) != SQLITE_DONE)
+		{
+			sqlite3_finalize(stmt);
+			return false;
+		}
+		else
+		{
+			sqlite3_finalize(stmt);
+		}
+	}
+
+	return true;
+}
+
+bool SQLitePersisten::DeleteCharge(int id)
+{
+	sqlite3_stmt *stmt;
+	const char* unused = 0;
+
+	const TCHAR* deleteStr3 = _T("delete from t_PaidFee where player_id = ?");
+
+	int ret = SQLITE3_PREPARE(m_DB, deleteStr3, stmt, unused);
+	
+	if( ret != SQLITE_OK)
+	{
+		return false;
+	}
+
+	sqlite3_bind_int(stmt, 1, id);
+
+	if(sqlite3_step(stmt) != SQLITE_DONE)
+	{
+		sqlite3_finalize(stmt);
+		return false;
+	}
+	else
+	{
+		sqlite3_finalize(stmt);
+	}
+
+	return true;
+}

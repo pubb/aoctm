@@ -10,6 +10,8 @@
 #include "progresswnd.h"
 #include "Statdlg.h"
 #include "feedlg.h"
+#include "configchargedlg.h"
+#include "configplayerdlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -71,13 +73,14 @@ BEGIN_MESSAGE_MAP(CAocTMDlg, CDialog)
 	ON_WM_DROPFILES()
 	ON_WM_CREATE()
 	ON_WM_RBUTTONUP()
-	ON_BN_CLICKED(IDC_INIT, &CAocTMDlg::OnBnClickedInit)
 	ON_WM_CLOSE()
 	ON_WM_LBUTTONDBLCLK()
 	ON_COMMAND(ID_VIEWHISTORY, &CAocTMDlg::OnViewHistory)
 	ON_COMMAND(ID_STATISTIC, &CAocTMDlg::OnStatistic)
 	ON_COMMAND(ID_GROUPING, &CAocTMDlg::OnGrouping)
 	ON_COMMAND(ID_FEE, &CAocTMDlg::OnFee)
+	ON_COMMAND(ID_CONFIG_CHARGE, &CAocTMDlg::OnConfigCharge)
+	ON_COMMAND(ID_CONFIG_PLAYERINITIALIZE, &CAocTMDlg::OnConfigPlayer)
 END_MESSAGE_MAP()
 
 
@@ -288,11 +291,6 @@ void CAocTMDlg::OnRButtonUp(UINT nFlags, CPoint point)
 
 }
 
-void CAocTMDlg::OnBnClickedInit()
-{
-	theApp.Players.Reset(theApp.Engine);
-}
-
 void CAocTMDlg::OnClose()
 {
 	GdiplusShutdown(gdiplusToken); //fred
@@ -346,4 +344,16 @@ void CAocTMDlg::OnFee(void)
 void CAocTMDlg::Refresh(void)
 {
 	GetDlgItem(IDC_DATABASE)->SetWindowText(_T("Recgames from ") + theApp.Recgames.GetFirstGameTime().Format(_T("%Y-%m-%d %H'%M'%S")) + _T(" to ") + theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
+}
+
+void CAocTMDlg::OnConfigCharge(void)
+{
+	CConfigChargeDlg	dlg;
+	dlg.DoModal();
+}
+
+void CAocTMDlg::OnConfigPlayer(void)
+{
+	CConfigPlayerDlg	dlg;
+	dlg.DoModal();
 }

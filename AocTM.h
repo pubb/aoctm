@@ -11,6 +11,7 @@
 #include "recgamedatabase.h"
 #include "playerdatabase.h"
 #include "db/sqliteengine.h"
+#include "config.h"
 
 // CAocTMApp:
 // See AocTM.cpp for the implementation of this class
@@ -24,6 +25,7 @@ public:
 	IPersistentInterface *Engine;
 	CRecgameDatabase Recgames;
 	CPlayerDatabase	Players;
+	CConfig	Config;
 
 	bool	OpenDatabase(void);
 

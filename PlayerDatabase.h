@@ -20,9 +20,10 @@ public:
 	INT_PTR	Add(CPlayer * player);
 	void	Add(CRecgame * rg);
 
-	bool	Load(IPersistentInterface * engine, bool reset = false);
+	bool	Load(IPersistentInterface * engine);
 	bool	Save(IPersistentInterface * engine);
-	void	Reset(IPersistentInterface * engine);
+
+	void	SetDirty(bool d = true);
 
 	void	RemoveAll(void);
 
@@ -31,7 +32,6 @@ public:
 	INT_PTR GetFirstSamePlayer(CString name);
 
 	int GetAllPaidFee(void);
-	int GetAllCostFee(void);
 	int GetAllPlayCount(void);
 	void	GetRatings(CTime when = CTime::GetCurrentTime());
 
@@ -43,6 +43,5 @@ private:
 	int		Charge;		//charge to Net Pub
 
 	void	Revert(void);
-	bool	LoadInitial(void);
 	void	UpdateRatings(CRecgame * rg);
 };

@@ -17,6 +17,9 @@
 #define IDD_DIALOG1                     139
 #define IDD_GRAPH                       139
 #define IDR_REPORTPOPMENU               140
+#define IDD_FEE_IN                      141
+#define IDD_CONFIG_CHARGE               142
+#define IDD_CONFIG_PLAYER               143
 #define IDC_ReportList                  1000
 #define IDC_PLAYERS                     1002
 #define IDC_SELECTED                    1003
@@ -30,12 +33,16 @@
 #define IDC_NEW                         1010
 #define IDC_INPUT                       1010
 #define IDC_CANCEL                      1010
+#define IDC_IDD_PLAYER_DELETE           1010
+#define IDC_PLAYER_DELETE               1010
 #define IDC_EDITNAME                    1011
 #define IDC_EDITRATING                  1012
 #define IDC_BUTTON1                     1014
 #define IDC_KEEP                        1014
 #define IDC_INIT                        1014
 #define IDC_SAVE                        1014
+#define IDC_DELETE                      1014
+#define IDC_PLAYER_ADD                  1014
 #define IDC_SPINRATING                  1015
 #define IDC_LIST1                       1016
 #define IDC_DATABASEDUE                 1017
@@ -43,6 +50,18 @@
 #define IDC_LIST                        1018
 #define IDC_EXCHANGE                    1019
 #define IDC_LIST2                       1020
+#define IDC_FEE_MONEY                   1022
+#define IDC_FEE_DATE                    1023
+#define IDC_FEE_SPIN                    1024
+#define IDC_FEE_LIST                    1025
+#define IDC_CHARGE_DATE                 1026
+#define IDC_CHARGE_MONEY                1027
+#define IDC_CHARGE_MONEY_SPIN           1028
+#define IDC_CHARGE_ADD                  1029
+#define IDC_CHARGE_DELETE               1030
+#define IDC_CHARGE_LIST                 1031
+#define IDC_TAB1                        1032
+#define IDC_PLAYER_LIST                 1033
 #define ID_32779                        32779
 #define ID_32780                        32780
 #define ID_32781                        32781
@@ -54,14 +73,17 @@
 #define ID__RATINGCURVE                 32787
 #define ID__USEDCIVS                    32788
 #define ID__TECHSTAT                    32789
+#define ID_CONFIG                       32792
+#define ID_CONFIG_CHARGE                32793
+#define ID_CONFIG_PLAYERINITIALIZE      32794
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1021
+#define _APS_NEXT_RESOURCE_VALUE        144
+#define _APS_NEXT_COMMAND_VALUE         32795
+#define _APS_NEXT_CONTROL_VALUE         1034
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

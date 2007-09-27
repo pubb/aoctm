@@ -66,10 +66,6 @@ BOOL CAocTMApp::InitInstance()
 	SetRegistryKey(_T("AOC Team Manager"));
 
 
-	Engine = PersistentEngineFactory::CreatePersistentEngine(_T("SQLite"));
-	if(Engine == NULL)
-		AfxMessageBox(_T("Database Engine Initialize FAILED."));
-
 	CFile f;
 	if(!f.Open(DB_NAME, CFile::modeRead))
 	{
@@ -85,6 +81,11 @@ BOOL CAocTMApp::InitInstance()
 		_tgetcwd(cwd, 256);
 		DB_File = CString(cwd) + _T("\\") + DB_NAME;
 	}
+
+	Engine = PersistentEngineFactory::CreatePersistentEngine(_T("SQLite"));
+	if(Engine == NULL)
+		AfxMessageBox(_T("Database Engine Initialize FAILED."));
+
 
 	Engine->CreateNewDatabase(DB_File);
 /*
@@ -104,6 +105,8 @@ BOOL CAocTMApp::InitInstance()
 	//pubb, 07-08-04, open once, and close once during the program runs
 	//huangjie, 07-08-03, we must open database explicit
 	Engine-> Open(DB_File);
+
+	Config.Load(Engine);
 
 	Recgames.Initialize();
 	Recgames.Load(Engine);
@@ -138,6 +141,8 @@ BOOL CAocTMApp::InitInstance()
 	
 	//pubb, 07-09-18
 	Recgames.Save(Engine);
+
+	Config.Save(Engine);
 
 	//pubb, 07-09-18, explicitly clear memory
 	Recgames.Free();

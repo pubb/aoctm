@@ -22,11 +22,12 @@ protected:
 
 private:
 	virtual BOOL OnInitDialog(void);
+	void	Refresh(void);
 
 public:
 	CXListCtrl m_List;
-public:
+
 	afx_msg void OnBnClickedSave();
-public:
 	afx_msg void OnBnClickedCancel();
+	afx_msg void OnNMDblclkList(NMHDR *pNMHDR, LRESULT *pResult);
 };

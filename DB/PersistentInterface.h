@@ -37,6 +37,10 @@ public:
 	//XXX pubb, 07-08-03, we need to update a recgame if we import a BAD recgame before. one occasion for BAD is 'no resign msg' in it so we can hardly decide who wins
 	virtual bool UpdateRecGame(/*in*/ CRecgame & recGame) = 0;
 
+	virtual bool LoadCharge(CArray<class CPaidFee *, class CPaidFee *> * charge, int id) = 0;
+	virtual bool SaveCharge(CArray<CPaidFee *, CPaidFee *> * charge, int id) = 0;
+	virtual bool DeleteCharge(int id) = 0;
+
 	//by mep for performance
 	virtual bool BeginTx() = 0;
 	virtual bool Commit() = 0;
