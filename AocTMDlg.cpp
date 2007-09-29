@@ -144,7 +144,7 @@ BOOL CAocTMDlg::OnInitDialog()
 
 	Refresh();
 
-	m_List.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_NOSORTHEADER);
+	m_List.SetExtendedStyle(m_List.GetExtendedStyle() | LVS_EX_FULLROWSELECT);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -415,9 +415,11 @@ void CAocTMDlg::Refresh(void)
 				team_position = 8 + lose_index++;
 			}
 			m_List.SetItemText(j, team_position, str);
-			//xlistctrl.old
+#ifdef	XLISTCTRL_OLD
 			//m_List.SetItemTextColor(j, team_position, player_color[k]);
-			//m_List.SetItemColors(j, team_position, player_color[k], ::GetSysColor(COLOR_WINDOW));
+#else
+			m_List.SetItemColors(j, team_position, player_color[k], ::GetSysColor(COLOR_WINDOW));
+#endif
 		}
 		//save recgame index in DB
 		m_List.SetItemData(j++, i);

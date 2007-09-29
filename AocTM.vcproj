@@ -43,8 +43,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/D XLISTCTRLLIB_STATIC"
 				Optimization="0"
-				AdditionalIncludeDirectories=""
+				AdditionalIncludeDirectories="XListCtrl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -71,7 +72,7 @@
 				AdditionalOptions="/NODEFAULTLIB:msvcrt"
 				AdditionalDependencies="Gdiplus.lib zlib.lib db/sqlite3.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="XListCtrl/bin"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -130,6 +131,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/D XLISTCTRLLIB_STATIC"
 				AdditionalIncludeDirectories="XListCtrl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				MinimalRebuild="false"
@@ -153,8 +155,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib db/sqlite3.lib gdiplus.lib xgraph10.lib"
+				AdditionalDependencies="zlib.lib db/sqlite3.lib gdiplus.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="XListCtrl/bin"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -308,26 +311,6 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="XListCtrl"
-				>
-				<File
-					RelativePath=".\XListCtrl\ReportCtrl.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\XListCtrl\XComboList.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\XListCtrl\XHeaderCtrl.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\XListCtrl\XListCtrl.cpp"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="Grouping"
 				>
 				<File
@@ -469,23 +452,59 @@
 				Name="XListCtrl"
 				>
 				<File
-					RelativePath=".\XListCtrl\MemDC.h"
+					RelativePath=".\XListCtrl\XListCtrl\AdvComboBox.h"
 					>
 				</File>
 				<File
-					RelativePath=".\XListCtrl\ReportCtrl.h"
+					RelativePath=".\XListCtrl\XListCtrl\AdvComboEdit.h"
 					>
 				</File>
 				<File
-					RelativePath=".\XListCtrl\XComboList.h"
+					RelativePath=".\XListCtrl\XListCtrl\DropListBox.h"
 					>
 				</File>
 				<File
-					RelativePath=".\XListCtrl\XHeaderCtrl.h"
+					RelativePath=".\XListCtrl\XListCtrl\DropScrollBar.h"
 					>
 				</File>
 				<File
-					RelativePath=".\XListCtrl\XListCtrl.h"
+					RelativePath=".\XListCtrl\XListCtrl\DropWnd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\XListCtrl\XListCtrl\MemDC.h"
+					>
+				</File>
+				<File
+					RelativePath=".\XListCtrl\XListCtrl\SortCStringArray.h"
+					>
+				</File>
+				<File
+					RelativePath=".\XListCtrl\XListCtrl\VisualStylesXP.h"
+					>
+				</File>
+				<File
+					RelativePath=".\XListCtrl\XListCtrl\XCombo.h"
+					>
+				</File>
+				<File
+					RelativePath=".\XListCtrl\XListCtrl\XComboList.h"
+					>
+				</File>
+				<File
+					RelativePath=".\XListCtrl\XListCtrl\XEdit.h"
+					>
+				</File>
+				<File
+					RelativePath=".\XListCtrl\XListCtrl\XHeaderCtrl.h"
+					>
+				</File>
+				<File
+					RelativePath=".\XListCtrl\XListCtrl\XListCtrl.h"
+					>
+				</File>
+				<File
+					RelativePath=".\XListCtrl\XListCtrl\XTrace.h"
 					>
 				</File>
 			</Filter>

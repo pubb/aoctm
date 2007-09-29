@@ -62,6 +62,5 @@ public:
 public:
 	afx_msg void OnBnClickedRecDelete();
 	afx_msg void OnDtnDatetimechange(NMHDR *pNMHDR, LRESULT *pResult);
-public:
 	afx_msg void OnBnClickedRecDismiss();
 };

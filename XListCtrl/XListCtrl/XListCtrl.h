@@ -23,6 +23,8 @@
 #endif
 #include "XEdit.h"
 
+//XXX, pubb, 07-09-29, to inherit CReportCtrl to enable Sort function
+#include "reportctrl.h"
 
 #if defined XLISTCTRLLIB_STATIC
 	#define XLISTCTRLLIBDLLEXPORT
@@ -199,7 +201,9 @@ struct XLISTCTRLDATA
 ///////////////////////////////////////////////////////////////////////////////
 // CXListCtrl class
 
-class XLISTCTRLLIBDLLEXPORT CXListCtrl : public CListCtrl
+//XXX, pubb, 07-09-29, to enable Sort
+//class XLISTCTRLLIBDLLEXPORT CXListCtrl : public CListCtrl
+class XLISTCTRLLIBDLLEXPORT CXListCtrl : public CReportCtrl
 {
 // Construction
 public:

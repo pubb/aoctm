@@ -154,7 +154,9 @@ void CXListCtrl::SubclassHeaderControl()
 	// "A Multiline Header Control Inside a CListCtrl" for easy way
 	// to determine if the header control exists.
 
-	CHeaderCtrl* pHeader = GetHeaderCtrl();
+	//XXX, pubb, 07-09-29, for CReportCtrl
+	//CHeaderCtrl* pHeader = GetHeaderCtrl();
+	const CHeaderCtrl* pHeader = GetHeaderCtrl();
 	if (pHeader)
 	{
 		VERIFY(m_HeaderCtrl.SubclassWindow(pHeader->m_hWnd));
@@ -519,7 +521,9 @@ int CXListCtrl::DrawImage(int nItem,
 	int nWidth = 0;
 	rect.left += m_HeaderCtrl.GetSpacing();
 
-	CImageList* pImageList = GetImageList(LVSIL_SMALL);
+	//XXX, pubb, 07-09-29, for CReportCtrl
+	//CImageList* pImageList = GetImageList(LVSIL_SMALL);
+	CImageList* pImageList = CListCtrl::GetImageList(LVSIL_SMALL);
 	if (pImageList)
 	{
 		SIZE sizeImage;
@@ -865,7 +869,9 @@ void CXListCtrl::OnPaint()
 		CRect rc;
 		GetWindowRect(&rc);
 		ScreenToClient(&rc);
-		CHeaderCtrl* pHC = GetHeaderCtrl();
+		//XXX, pubb, 07-09-29, for CReportCtrl
+		//CHeaderCtrl* pHC = GetHeaderCtrl();
+		const CHeaderCtrl* pHC = GetHeaderCtrl();
 		if (pHC != NULL)
 		{
 			CRect rcH;
@@ -1832,6 +1838,9 @@ BOOL CXListCtrl::OnColumnClick(NMHDR* pNMHDR, LRESULT* pResult)
 		}
 	}
 
+	//XXX, pubb, 07-09-29, for Sort
+	CReportCtrl::OnColumnclick(pNMHDR, pResult);
+
 	*pResult = 0;
 	return FALSE;		// return FALSE to send message to parent also -
 						// NOTE:  MSDN documentation is incorrect
@@ -2523,12 +2532,14 @@ LRESULT CXListCtrl::OnXEditKillFocus(WPARAM, LPARAM)
 	if (m_pEdit && ::IsWindow(m_pEdit->m_hWnd))
 	{
 		m_pEdit->GetWindowText(str);
+		//XXX, pubb, 07-09-29, allow NULL string
+		/*
 		if (str.IsEmpty())
 		{
 			// restore original string
 			str = m_strInitialString;
 		}
-
+		*/
 		m_pEdit->DestroyWindow();
 		delete m_pEdit;
 	}
