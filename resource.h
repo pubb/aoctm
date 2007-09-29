@@ -35,6 +35,7 @@
 #define IDC_CANCEL                      1010
 #define IDC_IDD_PLAYER_DELETE           1010
 #define IDC_PLAYER_DELETE               1010
+#define IDC_REC_DISMISS                 1010
 #define IDC_EDITNAME                    1011
 #define IDC_EDITRATING                  1012
 #define IDC_BUTTON1                     1014
@@ -43,6 +44,7 @@
 #define IDC_SAVE                        1014
 #define IDC_DELETE                      1014
 #define IDC_PLAYER_ADD                  1014
+#define IDC_REC_DELETE                  1014
 #define IDC_SPINRATING                  1015
 #define IDC_LIST1                       1016
 #define IDC_DATABASEDUE                 1017
@@ -62,6 +64,10 @@
 #define IDC_CHARGE_LIST                 1031
 #define IDC_TAB1                        1032
 #define IDC_PLAYER_LIST                 1033
+#define IDC_DATETIMEPICKER1             1036
+#define IDC_DATETIME_TO                 1036
+#define IDC_DATETIME_FROM               1037
+#define IDC_REC_LIST                    1038
 #define ID_32779                        32779
 #define ID_32780                        32780
 #define ID_32781                        32781
@@ -81,9 +87,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        144
+#define _APS_NEXT_RESOURCE_VALUE        145
 #define _APS_NEXT_COMMAND_VALUE         32795
-#define _APS_NEXT_CONTROL_VALUE         1034
+#define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

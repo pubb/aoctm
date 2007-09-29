@@ -12,6 +12,19 @@
 
 #include "renamer/renamer.h"
 
+COLORREF	player_color[9] =
+{
+ 	RGB(0, 0, 0), 
+	RGB(0, 0, 192), 
+	RGB(224, 0, 0),
+	RGB(0, 192, 0),
+	RGB(192, 192, 0),
+	RGB(0, 192, 192),
+	RGB(192, 0, 128),
+	RGB(128, 128, 128),
+	RGB(255, 128, 0)
+};
+
 #ifdef _DEBUG
 /*
 #undef THIS_FILE

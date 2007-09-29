@@ -63,6 +63,9 @@ CAocTMDlg::CAocTMDlg(CWnd* pParent /*=NULL*/)
 void CAocTMDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_REC_LIST, m_List);
+	DDX_Control(pDX, IDC_DATETIME_FROM, m_From);
+	DDX_Control(pDX, IDC_DATETIME_TO, m_To);
 }
 
 BEGIN_MESSAGE_MAP(CAocTMDlg, CDialog)
@@ -81,6 +84,10 @@ BEGIN_MESSAGE_MAP(CAocTMDlg, CDialog)
 	ON_COMMAND(ID_FEE, &CAocTMDlg::OnFee)
 	ON_COMMAND(ID_CONFIG_CHARGE, &CAocTMDlg::OnConfigCharge)
 	ON_COMMAND(ID_CONFIG_PLAYERINITIALIZE, &CAocTMDlg::OnConfigPlayer)
+	ON_BN_CLICKED(IDC_REC_DELETE, &CAocTMDlg::OnBnClickedRecDelete)
+	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIME_FROM, &CAocTMDlg::OnDtnDatetimechange)
+	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIME_TO, &CAocTMDlg::OnDtnDatetimechange)
+	ON_BN_CLICKED(IDC_REC_DISMISS, &CAocTMDlg::OnBnClickedRecDismiss)
 END_MESSAGE_MAP()
 
 
@@ -110,11 +117,34 @@ BOOL CAocTMDlg::OnInitDialog()
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
+	//SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-	GdiplusStartup(&gdiplusToken,   &gdiplusStartupInput,   NULL);     //FRED
+	//GdiplusStartup(&gdiplusToken,   &gdiplusStartupInput,   NULL);     //FRED
+
+	m_List.InsertColumn(0, _T("No."), LVCFMT_LEFT, 30, -1);
+	m_List.InsertColumn(1, _T("Time"), LVCFMT_LEFT, 110, -1);
+	m_List.InsertColumn(2, _T("Map"), LVCFMT_LEFT, 50, -1);
+	m_List.InsertColumn(3, _T("Duration"), LVCFMT_LEFT, 60, -1);
+
+	int i = 4;
+	m_List.InsertColumn(i, _T("Winner-1"), LVCFMT_LEFT, 100, -1);
+	m_List.InsertColumn(i + 1, _T("Winner-2"), LVCFMT_LEFT, 100, -1);
+	m_List.InsertColumn(i + 2, _T("Winner-3"), LVCFMT_LEFT, 100, -1);
+	m_List.InsertColumn(i + 3, _T("Winner-4"), LVCFMT_LEFT, 100, -1);
+	m_List.InsertColumn(i + 4, _T("Loser-1"), LVCFMT_LEFT, 100, -1);
+	m_List.InsertColumn(i + 5, _T("Loser-2"), LVCFMT_LEFT, 100, -1);
+	m_List.InsertColumn(i + 6, _T("Loser-3"), LVCFMT_LEFT, 100, -1);
+	m_List.InsertColumn(i + 7, _T("Loser-4"), LVCFMT_LEFT, 100, -1);
+
+	CTime t = CTime::GetCurrentTime() - CTimeSpan(7, 0, 0, 0);	//display recgames for recent 7 days
+	m_From.SetTime(&t);
+	t = CTime::GetCurrentTime() + CTimeSpan(1, 0, 0, 0);	//for future drag&drop
+	m_To.SetTime(&t);
+
 	Refresh();
+
+	m_List.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_NOSORTHEADER);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -136,6 +166,7 @@ void CAocTMDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 //fred
+#if 0
 void CAocTMDlg::OnPaint()
 {
 	 Graphics   graphics(GetDC()->m_hDC);     
@@ -164,6 +195,7 @@ void CAocTMDlg::OnPaint()
 		CDialog::OnPaint();
 	}
 }
+#endif
 
 // The system calls this function to obtain the cursor to display while the user drags
 //  the minimized window.
@@ -257,6 +289,8 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 
 int CAocTMDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	lpCreateStruct->style |= LVS_NOSORTHEADER;
+
 	if (CDialog::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -344,6 +378,52 @@ void CAocTMDlg::OnFee(void)
 void CAocTMDlg::Refresh(void)
 {
 	GetDlgItem(IDC_DATABASE)->SetWindowText(_T("Recgames from ") + theApp.Recgames.GetFirstGameTime().Format(_T("%Y-%m-%d %H'%M'%S")) + _T(" to ") + theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
+
+	m_List.SetRedraw(false);
+	m_List.DeleteAllItems();
+
+	CTime from, to;
+	CRecgame * rec;
+	m_From.GetTime(from);
+	m_To.GetTime(to);
+	for(int i = 0, j = 0; i < theApp.Recgames.GetCount(); i++)
+	{
+		rec = theApp.Recgames[i];
+		if(rec->RecordTime < from || rec->RecordTime > to)
+			continue;
+
+		CString str;
+		str.Format(_T("%d"), j + 1);
+		m_List.InsertItem(j, str);
+		m_List.SetItemText(j, 1, rec->RecordTime.Format(_T("%y-%m-%d %H:%M:%S")));
+		m_List.SetItemText(j, 2, rec->Map.Name);
+		m_List.SetItemText(j, 3, rec->PlayTime.Format(_T("%H:%M:%S")));
+
+		//fill players table
+		int winner = rec->GetWinnerTeam();
+		int win_index, lose_index, k;
+		for(k = 1, win_index = lose_index = 0; k <= 8 && k < rec->Players.GetCount() && !rec->Players[k].Name.IsEmpty(); k++)
+		{
+			str.Format(_T("[%s]%s"), civ_name[rec->Players[k].Civ], rec->Players[k].Name);
+			int team_position;
+			if(rec->Players[k].Team == winner)
+			{
+				team_position = 4 + win_index++;
+			}
+			else
+			{
+				team_position = 8 + lose_index++;
+			}
+			m_List.SetItemText(j, team_position, str);
+			//xlistctrl.old
+			//m_List.SetItemTextColor(j, team_position, player_color[k]);
+			//m_List.SetItemColors(j, team_position, player_color[k], ::GetSysColor(COLOR_WINDOW));
+		}
+		//save recgame index in DB
+		m_List.SetItemData(j++, i);
+	}
+	m_List.SetRedraw();
+	m_List.UpdateWindow();
 }
 
 void CAocTMDlg::OnConfigCharge(void)
@@ -356,4 +436,60 @@ void CAocTMDlg::OnConfigPlayer(void)
 {
 	CConfigPlayerDlg	dlg;
 	dlg.DoModal();
+}
+
+void CAocTMDlg::OnBnClickedRecDelete()
+{
+	POSITION pos = m_List.GetFirstSelectedItemPosition();
+	if(!pos)
+		return;
+
+	if(AfxMessageBox(_T("Permanent delete, r u sure?"), MB_OKCANCEL) == IDCANCEL)
+		return;
+
+	while(pos)
+	{
+		int nItem = m_List.GetNextSelectedItem(pos);
+		INT_PTR index = m_List.GetItemData(nItem);
+
+		int	data;
+		for(int i = 0; i < m_List.GetItemCount(); i++)
+		{
+			data = m_List.GetItemData(i);
+			if(data > index)
+			{
+				m_List.SetItemData(i, data - 1);
+			}
+		}
+
+		delete theApp.Recgames[index];
+		theApp.Recgames.RemoveAt(index);
+	}
+
+	//XXX, can't delete list before remove recgame DB, see Andytalk::LogDlg.cpp
+	//but still bugs, so comment it, let Refresh() do it.
+#if 0
+	pos = m_List.GetFirstSelectedItemPosition();
+	while(pos)
+	{
+		m_List.DeleteItem(m_List.GetNextSelectedItem(pos));
+	}
+#else
+	Refresh();
+#endif
+
+	theApp.Recgames.SetDirty();
+}
+
+void CAocTMDlg::OnDtnDatetimechange(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMDATETIMECHANGE pDTChange = reinterpret_cast<LPNMDATETIMECHANGE>(pNMHDR);
+
+	Refresh();
+
+	*pResult = 0;
+}
+void CAocTMDlg::OnBnClickedRecDismiss()
+{
+	OnCancel();
 }

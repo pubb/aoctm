@@ -3,7 +3,7 @@
 #include "AocTM.h"
 
 CRecgameDatabase::CRecgameDatabase(void)
-: dirty(false)
+: Dirty(false)
 {
 }
 
@@ -91,7 +91,7 @@ int	CRecgameDatabase::Load(IPersistentInterface * engine)
 
 	RemoveAll();
 
-	dirty = false;
+	Dirty = false;
 
 	int i, count = engine->GetRecgameCount();
 	if(count <= 0)
@@ -120,7 +120,7 @@ int	CRecgameDatabase::Load(IPersistentInterface * engine)
 bool CRecgameDatabase::Save(IPersistentInterface *engine)
 {
 	//by mep for performance
-	if(!engine || !dirty)
+	if(!engine || !Dirty)
 		return false;
 
 	engine->ClearRecgames();
@@ -149,7 +149,7 @@ bool CRecgameDatabase::Save(IPersistentInterface *engine)
 		return false;
 	}
 
-	dirty = false;
+	Dirty = false;
 	return true;
 }
 
@@ -201,8 +201,8 @@ bool	CRecgameDatabase::Add(CRecgame * rg)
 			break;
 	InsertAt(i, rg);
 
-	if(!dirty)
-		dirty = true;
+	if(!Dirty)
+		Dirty = true;
 	return true;
 }
 
@@ -265,4 +265,9 @@ void	CRecgameDatabase::Free(void)
 {
 	for(int i = 0; i < GetCount(); i++)
 		delete GetAt(i);
+}
+
+void	CRecgameDatabase::SetDirty(bool dirty)
+{
+	Dirty = dirty;
 }

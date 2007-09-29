@@ -168,7 +168,9 @@ void CReportDlg::OnBnClickedOk()
 
 	for(int i = 0; i < m_List.GetItemCount(); i++)
 	{
+		//xlistctrl.old
 		for(int j = 0; j < m_List.GetColumnCount(); j++)
+		//for(int j = 0; j < m_List.GetColumns(); j++)
 			a[j] = m_List.GetItemText(i, j);
 		csv.WriteLine(a);
 	}

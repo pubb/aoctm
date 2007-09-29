@@ -4,7 +4,9 @@
 #pragma once
 //pic control fred
  #include   <Gdiplus.h>   
- using   namespace   Gdiplus;   
+#include "xlistctrl\xlistctrl.h"
+#include "afxdtctl.h"
+using   namespace   Gdiplus;   
 //end 
 
 // CAocTMDlg dialog
@@ -32,7 +34,7 @@ protected:
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
-	afx_msg void OnPaint();
+	//afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
@@ -53,4 +55,13 @@ public:
 	afx_msg void OnFee();
 	afx_msg void OnConfigCharge();
 	afx_msg void OnConfigPlayer();
+public:
+	CXListCtrl m_List;
+	CDateTimeCtrl m_From;
+	CDateTimeCtrl m_To;
+public:
+	afx_msg void OnBnClickedRecDelete();
+	afx_msg void OnDtnDatetimechange(NMHDR *pNMHDR, LRESULT *pResult);
+public:
+	afx_msg void OnBnClickedRecDismiss();
 };

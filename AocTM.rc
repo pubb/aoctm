@@ -121,14 +121,22 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,16,WS_GROUP
 END
 
-IDD_AocTM_DIALOG DIALOGEX 0, 0, 280, 108
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+IDD_AocTM_DIALOG DIALOGEX 0, 0, 464, 298
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "AOC Team Manager"
+MENU IDR_MAINPOPMENU
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    CONTROL         "Drag&&Drop GAME RECORD files in.",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,81,39,117,12,WS_EX_TRANSPARENT
-    LTEXT           "Recgames from xxxx-xx-xx xx'xx'xx to xxxx-xx-xx xx'xx'xx",IDC_DATABASE,7,93,213,8
+    CONTROL         "Drag&&Drop GAME RECORD files in.",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,173,279,117,12,WS_EX_TRANSPARENT
+    LTEXT           "Recgames from xxxx-xx-xx xx'xx'xx to xxxx-xx-xx xx'xx'xx",IDC_DATABASE,133,7,201,8
+    LTEXT           "From:",IDC_STATIC,7,7,20,8
+    LTEXT           "To:",IDC_STATIC,340,7,12,8
+    CONTROL         "",IDC_DATETIME_TO,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,357,7,100,15
+    CONTROL         "",IDC_DATETIME_FROM,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,32,7,100,15
+    CONTROL         "",IDC_REC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,24,450,244
+    PUSHBUTTON      "D&elete",IDC_REC_DELETE,89,277,50,14
+    PUSHBUTTON      "&Dismiss",IDC_REC_DISMISS,305,277,50,14
 END
 
 IDD_REPORT DIALOGEX 0, 0, 352, 231
@@ -254,9 +262,9 @@ BEGIN
     IDD_AocTM_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 273
+        RIGHTMARGIN, 457
         TOPMARGIN, 7
-        BOTTOMMARGIN, 101
+        BOTTOMMARGIN, 291
     END
 
     IDD_REPORT, DIALOG
@@ -341,12 +349,12 @@ END
 
 IDR_MAINPOPMENU MENU 
 BEGIN
-    POPUP "Selections"
+    POPUP "&Functions"
     BEGIN
         MENUITEM "&Win/Lose",                   ID_VIEWHISTORY
         MENUITEM "&Technical",                  ID_STATISTIC
         MENUITEM "&Grouping",                   ID_GROUPING
-        MENUITEM "&Fee",                        ID_FEE
+        MENUITEM "F&ee",                        ID_FEE
         POPUP "&Config"
         BEGIN
             MENUITEM "C&harge",                     ID_CONFIG_CHARGE

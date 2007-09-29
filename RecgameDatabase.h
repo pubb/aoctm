@@ -35,6 +35,7 @@ public:
 	bool	Save(IPersistentInterface * engine);
 	void	RemoveAll(void);
 	void	Free(void);
+	void	SetDirty(bool dirty = true);
 
 	CString	GetMapName(int id);		//called in recgame initialization, from map_id to map_name
 	CTime	GetFirstGameTime(void);
@@ -44,7 +45,7 @@ public:
 	bool Add(CRecgame * rg);
 
 private:
-	bool	dirty;
+	bool	Dirty;
 	CLanguage	m_lang;
 	CString m_str_table[100];
 	CString	m_game_path, m_rec_path;
