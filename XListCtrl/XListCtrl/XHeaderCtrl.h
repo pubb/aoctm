@@ -1,19 +1,22 @@
-// XHeaderCtrl.h
+// XHeaderCtrl.h  Version 1.4
 //
-// This software is released into the public domain.
-// You are free to use it in any way you like.
+// Author:  Hans Dietrich
+//          hdietrich@gmail.com
 //
-// This software is provided "as is" with no expressed
-// or implied warranty.  I accept no liability for any
-// damage or loss of business that this software may cause.
+// License:
+//     This software is released into the public domain.  You are free to use
+//     it in any way you like, except that you may not sell this source code.
+//
+//     This software is provided "as is" with no expressed or implied warranty.
+//     I accept no liability for any damage or loss of business that this 
+//     software may cause.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef XHEADERCTRL_H
 #define XHEADERCTRL_H
 
-#include <tchar.h>
-#include "MemDC.h"
+#define DT_DEFAULT	((UINT)-1)		//+++
 
 #define FLATHEADER_TEXT_MAX	80
 
@@ -42,9 +45,16 @@ public:
 
 // Attributes
 public:
+	void SetListCtrl(CListCtrl *pListCtrl) { m_pListCtrl = pListCtrl; }
 	BOOL ModifyProperty(WPARAM wParam, LPARAM lParam);
 	int GetSpacing() { return m_iSpacing; }
 	void SetSpacing(int nSpacing) { m_iSpacing = nSpacing; }
+	UINT GetAlignment() { return m_nFormat; }						//+++
+	void SetAlignment(UINT nFormat) { m_nFormat = nFormat; }		//+++
+	COLORREF GetTextColor() { return m_rgbText; }					//+++
+	void SetTextColor(COLORREF rgbText) { m_rgbText = rgbText; }	//+++
+	BOOL GetDividerLines() { return m_bDividerLines; }				//+++
+	void EnableDividerLines(BOOL bEnable) { m_bDividerLines = bEnable; }	//+++
 
 // Overrides
 public:
@@ -56,13 +66,17 @@ public:
 
 // Implementation
 protected:
+	CListCtrl * m_pListCtrl;	//+++
+	UINT m_nFormat;				//+++
+	COLORREF m_rgbText;			//+++
+	BOOL m_bDividerLines;		//+++
 	BOOL m_bDoubleBuffer;
+	BOOL m_bStaticBorder;
+	BOOL m_bResizing;
 	int m_iSpacing;
 	SIZE m_sizeImage;
 	SIZE m_sizeArrow;
-	BOOL m_bStaticBorder;
 	UINT m_nDontDropCursor;
-	BOOL m_bResizing;
 	UINT m_nClickFlags;
 	CPoint m_ptClickPoint;
 
@@ -80,14 +94,16 @@ protected:
 // Generated message map functions
 protected:
 	//{{AFX_MSG(CXHeaderCtrl)
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnPaint();
+	afx_msg void OnSysColorChange();
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+	//}}AFX_MSG
 	afx_msg LRESULT OnDeleteItem(WPARAM wparam, LPARAM lparam);
 	afx_msg LRESULT OnInsertItem(WPARAM wparam, LPARAM lparam);
 	afx_msg LRESULT OnLayout(WPARAM wparam, LPARAM lparam);
 	afx_msg LRESULT OnSetImageList(WPARAM wparam, LPARAM lparam);
-	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
-	afx_msg void OnPaint();
-	afx_msg void OnSysColorChange();
-	//}}AFX_MSG
+
 	DECLARE_MESSAGE_MAP()
 };
 

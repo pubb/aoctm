@@ -39,12 +39,12 @@ END_MESSAGE_MAP()
 
 ///////////////////////////////////////////////////////////////////////////////
 // ctor
-CXComboList::CXComboList(CWnd *pParent)
+CXComboList::CXComboList(CWnd *pParent) :
+	m_pParent(pParent),
+	m_nCount(0),
+	m_bFirstTime(TRUE)
 {
-	m_pParent = pParent;
 	ASSERT(m_pParent);
-	m_nCount = 0;
-	m_bFirstTime = TRUE;
 }
 
 CXComboList::~CXComboList()
@@ -55,7 +55,7 @@ CXComboList::~CXComboList()
 // SetActive
 void CXComboList::SetActive(int nScrollBarWidth)
 {
-	//TRACE0("in CXComboList::SetActive\n");
+	XLISTCTRL_TRACE(_T("in CXComboList::SetActive\n"));
 
 	if (!::IsWindow(m_ListBox.m_hWnd))
 		return;
@@ -146,8 +146,7 @@ void CXComboList::SendRegisteredMessage(UINT nMsg, WPARAM wParam, LPARAM lParam)
 void CXComboList::OnLButtonDown(UINT nFlags, CPoint point) 
 {
 	SendRegisteredMessage(WM_XCOMBOLIST_LBUTTONUP, 0, 0);
-
-	CWnd::OnLButtonUp(nFlags, point);
+	CWnd::OnLButtonUp(nFlags, point);	//????? why up
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,7 +162,7 @@ BOOL CXComboList::PreTranslateMessage(MSG* pMsg)
 			// scroll bar
 			///////////////////////////////////////////////////////////////////
 
-			//TRACE("   WM_KEYDOWN\n");
+			//XLISTCTRL_TRACE("   WM_KEYDOWN\n");
 
 			SCROLLINFO si = 
 			{
@@ -268,7 +267,8 @@ BOOL CXComboList::PreTranslateMessage(MSG* pMsg)
 // OnKillFocus
 void CXComboList::OnKillFocus(CWnd* pNewWnd) 
 {
-	//TRACE0("in CXComboList::OnKillFocus\n");
+	XLISTCTRL_TRACE(_T("in CXComboList::OnKillFocus\n"));
+
 	CWnd::OnKillFocus(pNewWnd);
 
 	m_nCount++;
@@ -282,6 +282,8 @@ void CXComboList::OnKillFocus(CWnd* pNewWnd)
 // OnCreate
 int CXComboList::OnCreate(LPCREATESTRUCT lpCreateStruct) 
 {
+	XLISTCTRL_TRACE(_T("in CXComboList::OnCreate\n"));
+
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -367,6 +369,8 @@ void CXComboList::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar*)
 // OnDestroy
 void CXComboList::OnDestroy() 
 {
+	XLISTCTRL_TRACE(_T("in CXComboList::OnDestroy\n"));
+
 	KillTimer(1);
 
 	if (::IsWindow(m_ListBox.m_hWnd))
@@ -392,7 +396,7 @@ void CXComboList::OnTimer(UINT nIDEvent)
 
 	BOOL bOutside;
 	int nIndex = m_ListBox.ItemFromPoint(point, bOutside);
-	//TRACE("   nIndex=%d  bOutside=%d\n", nIndex, bOutside);
+	//XLISTCTRL_TRACE("   nIndex=%d  bOutside=%d\n", nIndex, bOutside);
 
 	if (!bOutside)
 	{
