@@ -42,6 +42,8 @@ public:
 	CTime	GetLatestGameTime(void);
 	INT_PTR	GetFirstSameRecgame(CRecgame * rg);
 
+	CString	GetRecPath(void);
+
 	bool Add(CRecgame * rg);
 
 private:

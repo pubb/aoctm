@@ -7,7 +7,7 @@ class Renamer
 {
 public:
 	//Renamer(CString path);
-	Renamer(CString path = _T(""));
+	Renamer();
 	virtual ~Renamer();
 
 	CStringArray m_Prefixes;
@@ -19,12 +19,12 @@ public:
 	//Pattern×Ö·û´®ËµÃ÷£º
 	void SetPattern(CString pattern);
 	//void Parse();
-	CTime Parse(CString file);
+	//07-10-11, pubb, to be a static function for better usage
+	static CTime Parse(CString file);
 
 private:
-	int ToMonth(CString& s);
-	CString m_Path;
-
+	//07-10-11, pubb, to be a static function for better usage
+	static int ToMonth(CString& s);
 };
 
 

@@ -155,7 +155,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib db/sqlite3.lib gdiplus.lib"
+				AdditionalDependencies="zlib.lib db/sqlite3.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="XListCtrl/bin"
 				GenerateDebugInformation="true"

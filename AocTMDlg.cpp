@@ -12,6 +12,7 @@
 #include "feedlg.h"
 #include "configchargedlg.h"
 #include "configplayerdlg.h"
+#include "renamer/renamer.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -58,6 +59,7 @@ CAocTMDlg::CAocTMDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CAocTMDlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_hAccelTable = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_ACCELERATOR1));
 }
 
 void CAocTMDlg::DoDataExchange(CDataExchange* pDX)
@@ -88,6 +90,7 @@ BEGIN_MESSAGE_MAP(CAocTMDlg, CDialog)
 	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIME_FROM, &CAocTMDlg::OnDtnDatetimechange)
 	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIME_TO, &CAocTMDlg::OnDtnDatetimechange)
 	ON_BN_CLICKED(IDC_REC_DISMISS, &CAocTMDlg::OnBnClickedRecDismiss)
+	ON_COMMAND(ID_ACCELERATOR_LOAD, (AFX_PMSG)&CAocTMDlg::OnAcceleratorLoad)
 END_MESSAGE_MAP()
 
 
@@ -327,7 +330,7 @@ void CAocTMDlg::OnRButtonUp(UINT nFlags, CPoint point)
 
 void CAocTMDlg::OnClose()
 {
-	GdiplusShutdown(gdiplusToken); //fred
+//	GdiplusShutdown(gdiplusToken); //fred
 
 	CDialog::OnClose();
 }
@@ -468,6 +471,9 @@ void CAocTMDlg::OnBnClickedRecDelete()
 		theApp.Recgames.RemoveAt(index);
 	}
 
+	//07-10-11, do update() when one or more recgames are deleted.
+	theApp.Players.Update();
+
 	//XXX, can't delete list before remove recgame DB, see Andytalk::LogDlg.cpp
 	//but still bugs, so comment it, let Refresh() do it.
 #if 0
@@ -494,4 +500,75 @@ void CAocTMDlg::OnDtnDatetimechange(NMHDR *pNMHDR, LRESULT *pResult)
 void CAocTMDlg::OnBnClickedRecDismiss()
 {
 	OnCancel();
+}
+
+bool CAocTMDlg::OnAcceleratorLoad()
+{
+	CString strPath = theApp.Recgames.GetRecPath();
+
+	if(strPath.IsEmpty())
+		return false;
+
+	TCHAR oldpath[MAX_PATH];
+	::GetCurrentDirectory(MAX_PATH, oldpath);
+	::SetCurrentDirectory(strPath);
+
+	bool loadnew = false;
+	CFileFind finder;
+	BOOL bWorking = finder.FindFile(_T("*.mgx"));
+	while(bWorking)
+	{
+		bWorking = finder.FindNextFile();
+
+		//07-10-11, pubb, to speedup, analyze the filename before process
+		{
+			if(Renamer::Parse(finder.GetFileName()) <= theApp.Recgames.GetLatestGameTime())
+				continue;
+		}
+		
+		CRecgame *rg = new CRecgame;
+
+		if(!rg->Read(finder.GetFilePath()))
+		{
+			delete rg;
+			continue;
+		}
+		
+		if(rg->PlayTime < TIME_4_INCOMPLETE)	//if play time less than 20 min, consider it an INCOMPLETE game
+		{
+			delete rg;
+			continue;
+		}
+
+		if(theApp.Recgames.Add(rg))
+		{
+			if(!loadnew)
+				loadnew = true;
+		}
+		else
+		{
+			delete rg;
+		}
+	}
+
+	if(loadnew)
+	{
+		theApp.Players.Update();
+		Refresh();
+	}
+
+	::SetCurrentDirectory(oldpath);
+	return loadnew;
+}
+
+BOOL   CAocTMDlg::PreTranslateMessage(MSG*   pMsg)
+{   
+	if(m_hAccelTable)
+	{
+		if(::TranslateAccelerator(m_hWnd, m_hAccelTable, pMsg))
+		{
+			return(TRUE);
+		}   
+	}   
+	return   CDialog::PreTranslateMessage(pMsg);   
 }

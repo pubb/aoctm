@@ -128,13 +128,14 @@ CAPTION "AOC Team Manager"
 MENU IDR_MAINPOPMENU
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    CONTROL         "Drag&&Drop GAME RECORD files in.",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,173,279,117,12,WS_EX_TRANSPARENT
+    CONTROL         "Drag&&Drop GAME RECORD files in, or press F5.",IDC_STATIC,
+                    "Static",SS_LEFTNOWORDWRAP | WS_GROUP,144,277,152,8,WS_EX_TRANSPARENT
     LTEXT           "Recgames from xxxx-xx-xx xx'xx'xx to xxxx-xx-xx xx'xx'xx",IDC_DATABASE,133,7,201,8
     LTEXT           "From:",IDC_STATIC,7,7,20,8
     LTEXT           "To:",IDC_STATIC,340,7,12,8
     CONTROL         "",IDC_DATETIME_TO,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,357,7,100,15
     CONTROL         "",IDC_DATETIME_FROM,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,32,7,100,15
-    CONTROL         "",IDC_REC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,24,450,244
+    CONTROL         "",IDC_REC_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,24,450,244
     PUSHBUTTON      "D&elete",IDC_REC_DELETE,89,277,50,14
     PUSHBUTTON      "&Dismiss",IDC_REC_DISMISS,305,277,50,14
 END
@@ -358,7 +359,7 @@ BEGIN
         POPUP "&Config"
         BEGIN
             MENUITEM "C&harge",                     ID_CONFIG_CHARGE
-            MENUITEM "Player &Initialize",          ID_CONFIG_PLAYERINITIALIZE
+            MENUITEM "&Player",                     ID_CONFIG_PLAYERINITIALIZE
         END
     END
 END
@@ -371,6 +372,17 @@ BEGIN
         MENUITEM "Used&Civs",                   ID__USEDCIVS
         MENUITEM "&TechStat",                   ID__TECHSTAT
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR1 ACCELERATORS 
+BEGIN
+    VK_F5,          ID_ACCELERATOR_LOAD,    VIRTKEY, NOINVERT
 END
 
 

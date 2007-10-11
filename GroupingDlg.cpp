@@ -14,7 +14,7 @@ IMPLEMENT_DYNAMIC(CGroupingDlg, CDialog)
 CGroupingDlg::CGroupingDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CGroupingDlg::IDD, pParent), maindlg(NULL)
 {
-
+	m_hAccelTable = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_ACCELERATOR1));
 }
 
 CGroupingDlg::~CGroupingDlg()
@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CGroupingDlg, CDialog)
 	ON_WM_DROPFILES()
 	ON_NOTIFY(NM_DBLCLK, IDC_GROUP1, &CGroupingDlg::OnNMDblclkGroup1)
 	ON_NOTIFY(NM_DBLCLK, IDC_GROUP2, &CGroupingDlg::OnNMDblclkGroup2)
+	ON_COMMAND(ID_ACCELERATOR_LOAD, (AFX_PMSG)&CGroupingDlg::OnAcceleratorLoad)
 END_MESSAGE_MAP()
 
 
@@ -347,4 +348,22 @@ void CGroupingDlg::OnNMDblclkGroup2(NMHDR *pNMHDR, LRESULT *pResult)
 		return;
 
 	OnExchange(m_Group1.GetNextSelectedItem(pos), p->iItem);
+}
+
+void CGroupingDlg::OnAcceleratorLoad()
+{
+	if(maindlg && maindlg->OnAcceleratorLoad())
+		Refresh();
+}
+
+BOOL   CGroupingDlg::PreTranslateMessage(MSG*   pMsg)
+{   
+	if(m_hAccelTable)
+	{
+		if(::TranslateAccelerator(m_hWnd, m_hAccelTable, pMsg))
+		{
+			return(TRUE);
+		}   
+	}   
+	return   CDialog::PreTranslateMessage(pMsg);   
 }

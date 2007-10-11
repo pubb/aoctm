@@ -271,3 +271,8 @@ void	CRecgameDatabase::SetDirty(bool dirty)
 {
 	Dirty = dirty;
 }
+
+CString	CRecgameDatabase::GetRecPath(void)
+{
+	return m_rec_path;
+}

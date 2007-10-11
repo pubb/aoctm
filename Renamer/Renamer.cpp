@@ -2,8 +2,9 @@
 #include "stdafx.h"
 #include "Renamer.h"
 
-Renamer::Renamer(CString path)
-: m_Path(path)
+//07-10-11, pubb, m_Path is of no use now
+//Renamer::Renamer(CString path)
+Renamer::Renamer()
 {
 	m_Prefixes.Add(_T("recorded game"));
 	m_Prefixes.Add(_T("ÒÑ¼ÇÂ¼ÓÎÏ·"));
@@ -114,6 +115,9 @@ CTime	Renamer::Parse(CString file)
 	}
 	/* XXX, SET year to be 2007 in case that the machine time is not correct in many places */
 	year = 2007;
+
+	if(result[1] < 1 || result[1] > 12 || day < 1 || day > 31 || result[3] < 0 || result[3] > 24 || result[4] < 0 || result[4] > 60 || result[5] < 0 || result[5] > 60)
+		return CTime(0);
 
 	return CTime(year /* YEAR */, result[1] /* MONTH */, day /* DAY */, result[3] /* HOUR */, result[4] /* MINUTE */, result[5] /* SECOND */);
 }

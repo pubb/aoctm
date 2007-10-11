@@ -17,8 +17,8 @@ public:
 	CAocTMDlg(CWnd* pParent = NULL);	// standard constructor
 //fred
 	//pic
-	GdiplusStartupInput   gdiplusStartupInput;     
-    ULONG_PTR   gdiplusToken;     
+	//GdiplusStartupInput   gdiplusStartupInput;     
+    //ULONG_PTR   gdiplusToken;     
 
 // Dialog Data
 	enum { IDD = IDD_AocTM_DIALOG };
@@ -43,24 +43,25 @@ public:
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnClose();
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
-
-private:
-	void ShowReport(CPlayerDatabase * players);
-	void Refresh(void);
-
-public:
 	afx_msg void OnViewHistory();
 	afx_msg void OnStatistic();
 	afx_msg void OnGrouping();
 	afx_msg void OnFee();
 	afx_msg void OnConfigCharge();
 	afx_msg void OnConfigPlayer();
-public:
-	CXListCtrl m_List;
-	CDateTimeCtrl m_From;
-	CDateTimeCtrl m_To;
-public:
 	afx_msg void OnBnClickedRecDelete();
 	afx_msg void OnDtnDatetimechange(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedRecDismiss();
+	afx_msg bool OnAcceleratorLoad();
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+
+private:
+	void ShowReport(CPlayerDatabase * players);
+	void Refresh(void);
+
+	CXListCtrl m_List;
+	CDateTimeCtrl m_From;
+	CDateTimeCtrl m_To;
+	HACCEL     m_hAccelTable;
 };

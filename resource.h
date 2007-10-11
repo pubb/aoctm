@@ -20,6 +20,7 @@
 #define IDD_FEE_IN                      141
 #define IDD_CONFIG_CHARGE               142
 #define IDD_CONFIG_PLAYER               143
+#define IDR_ACCELERATOR1                145
 #define IDC_ReportList                  1000
 #define IDC_PLAYERS                     1002
 #define IDC_SELECTED                    1003
@@ -82,13 +83,14 @@
 #define ID_CONFIG                       32792
 #define ID_CONFIG_CHARGE                32793
 #define ID_CONFIG_PLAYERINITIALIZE      32794
+#define ID_ACCELERATOR_LOAD             32795
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        145
-#define _APS_NEXT_COMMAND_VALUE         32795
+#define _APS_NEXT_RESOURCE_VALUE        146
+#define _APS_NEXT_COMMAND_VALUE         32797
 #define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -26,6 +26,7 @@ private:
 	CXListCtrl m_Selected;
 	CListCtrl m_Group1;
 	CListCtrl m_Group2;
+	HACCEL     m_hAccelTable;
 
 	void	InsertPlayers(CString name, int data);
 	void	InsertSelected(CString name, int rating, int data);
@@ -43,8 +44,10 @@ private:
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg void OnNMDblclkGroup1(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMDblclkGroup2(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnAcceleratorLoad();
 	
 	void OnExchange(int index1, int index2);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 public:
 	CAocTMDlg	* maindlg;

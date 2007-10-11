@@ -168,11 +168,10 @@ bool CRecgame::Read(CString file)
 
 	//Analyze the filename and retrieve corrected Game Time from it.
 	int index = file.ReverseFind('\\');
-	Renamer ren(file.Mid(0, index + 1));	//that's the PATH
 	file = file.Mid(index + 1);	//only FILENAME
 	
 	FileName = file;
-	RecordTime = ren.Parse(file);
+	RecordTime = Renamer::Parse(file);
 
 	Loaded = true;
 
