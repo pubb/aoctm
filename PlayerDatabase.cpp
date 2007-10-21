@@ -134,7 +134,7 @@ void CPlayerDatabase::Add(CRecgame * rg)
 			CArray<CPlayer *, CPlayer *>::Add(player);
 		}
 		player->PlayCount++;
-		if(!rg->IsLoser(i))
+		if(rg->IsWinner(i))
 			player->WinCount++;
 		player->UpdateTime = rg->RecordTime;
 
@@ -352,7 +352,7 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 		if(index < 0)
 			continue;
 
-		if(rg->IsLoser(i))
+		if(!rg->IsWinner(i))
 			GetAt(index)->Rating -= deltaR;
 		else
 			GetAt(index)->Rating += deltaR;

@@ -77,7 +77,7 @@ _T("create table t_PlayerInGame \
 _T("create table t_ChatInfo \
 ( \
 	recgame_id integer, \
-	name text, \
+	player_num integer, \
 	isingame integer, \
 	chattime integer, \
 	target integer, \
@@ -1043,11 +1043,12 @@ SQLitePersisten::SaveRecGame(/*in*/ CRecgame& recGame)
 		}
 	}
 
+	//07-10-21, pubb, no storage for chat info. no use for our occasion.
 	for(i = 0; i < recGame.ChatB4Game.GetSize(); i++)
 	{
 		const TCHAR* insertStr2 = 
 			_T("insert into t_ChatInfo ")
-			_T("(recgame_id, name, isingame, chattime, target, content)")
+			_T("(recgame_id, player_num, isingame, chattime, target, content)")
 			_T(" values (?, ?, 0, ?, ?, ?)");
 
 		int ret = SQLITE3_PREPARE(m_DB, insertStr2, stmt, unused);
@@ -1058,7 +1059,7 @@ SQLitePersisten::SaveRecGame(/*in*/ CRecgame& recGame)
 		}
 
 		sqlite3_bind_int(stmt, 1, recGame.ID);
-		SQLITE3_BIND_TEXT(stmt, 2, recGame.ChatB4Game[i]->Name);
+		sqlite3_bind_int(stmt, 2, recGame.ChatB4Game[i]->Player_Num);
 		sqlite3_bind_int(stmt, 3, (int)recGame.ChatB4Game[i]->Time.GetTotalSeconds());
 		sqlite3_bind_int(stmt, 4, recGame.ChatB4Game[i]->Target);
 		SQLITE3_BIND_TEXT(stmt, 5, recGame.ChatB4Game[i]->Content);
@@ -1079,7 +1080,7 @@ SQLitePersisten::SaveRecGame(/*in*/ CRecgame& recGame)
 	{
 		const TCHAR* insertStr2 = 
 			_T("insert into t_ChatInfo ")
-			_T("(recgame_id, name, isingame, chattime, target, content)")
+			_T("(recgame_id, player_num, isingame, chattime, target, content)")
 			_T(" values (?, ?, 1, ?, ?, ?)");
 
 		int ret = SQLITE3_PREPARE(m_DB, insertStr2, stmt, unused);
@@ -1090,7 +1091,7 @@ SQLitePersisten::SaveRecGame(/*in*/ CRecgame& recGame)
 		}
 
 		sqlite3_bind_int(stmt, 1, recGame.ID);
-		SQLITE3_BIND_TEXT(stmt, 2, recGame.ChatInGame[i]->Name);
+		sqlite3_bind_int(stmt, 2, recGame.ChatInGame[i]->Player_Num);
 		sqlite3_bind_int(stmt, 3, (int)recGame.ChatInGame[i]->Time.GetTotalSeconds());
 		sqlite3_bind_int(stmt, 4, recGame.ChatInGame[i]->Target);
 		SQLITE3_BIND_TEXT(stmt, 5, recGame.ChatInGame[i]->Content);
@@ -1105,6 +1106,7 @@ SQLitePersisten::SaveRecGame(/*in*/ CRecgame& recGame)
 			sqlite3_finalize(stmt);
 		}
 	}
+
 	return true;
 }
 
@@ -1216,52 +1218,12 @@ SQLitePersisten::LoadRecGame(/*in out*/ CRecgame& recGame)
 
 	sqlite3_finalize(stmt);
 
-	const TCHAR* queryStr3 = _T("select name, chattime, target, content")
-		_T(" from t_ChatInfo where recgame_id = ? and isingame = 0");
+	//07-10-21, pubb, dont load chatinfo at this time for quick load
+	//do it when double click a recgame in dialog
+#if 0
+	LoadChatInfo(recGame);
+#endif
 
-	ret = SQLITE3_PREPARE(m_DB, queryStr3, stmt, unused);
-
-	if( ret != SQLITE_OK)
-	{
-		return false;
-	}
-
-	sqlite3_bind_int(stmt, 1, recGame.ID);
-
-	while(sqlite3_step(stmt) != SQLITE_DONE)
-	{
-		CChatInfo * chatInfo = new CChatInfo;
-		chatInfo->Name = (const TCHAR*)SQLITE3_COLUMN_TEXT(stmt, 0);
-		chatInfo->Time = CTimeSpan(sqlite3_column_int(stmt, 1));
-		chatInfo->Target = sqlite3_column_int(stmt, 2);
-		chatInfo->Content = (const TCHAR*)SQLITE3_COLUMN_TEXT(stmt, 3);
-		recGame.ChatB4Game.Add(chatInfo);
-	}
-	sqlite3_finalize(stmt);
-
-	const TCHAR* queryStr4 = _T("select name, chattime, target, content")
-		_T(" from t_ChatInfo where recgame_id = ? and isingame = 1");
-
-	ret = SQLITE3_PREPARE(m_DB, queryStr4, stmt, unused);
-
-	if( ret != SQLITE_OK)
-	{
-		return false;
-	}
-
-	sqlite3_bind_int(stmt, 1, recGame.ID);
-
-	while(sqlite3_step(stmt) != SQLITE_DONE)
-	{
-		CChatInfo * chatInfo = new CChatInfo;
-		chatInfo->Name = (const TCHAR*)SQLITE3_COLUMN_TEXT(stmt, 0);
-		chatInfo->Time = CTimeSpan(sqlite3_column_int(stmt, 1));
-		chatInfo->Target = sqlite3_column_int(stmt, 2);
-		chatInfo->Content = (const TCHAR*)SQLITE3_COLUMN_TEXT(stmt, 3);
-		recGame.ChatInGame.Add(chatInfo);
-	}
-	sqlite3_finalize(stmt);
-	
 	return true;
 }
 
@@ -1621,6 +1583,60 @@ bool SQLitePersisten::DeleteCharge(int id)
 	{
 		sqlite3_finalize(stmt);
 	}
+
+	return true;
+}
+
+bool SQLitePersisten::LoadChatInfo(CRecgame & recGame)
+{
+	sqlite3_stmt *stmt;
+	const char* unused = 0;
+	
+	const TCHAR* queryStr3 = _T("select player_num, chattime, target, content")
+		_T(" from t_ChatInfo where recgame_id = ? and isingame = 0");
+
+	int ret = SQLITE3_PREPARE(m_DB, queryStr3, stmt, unused);
+
+	if( ret != SQLITE_OK)
+	{
+		return false;
+	}
+
+	sqlite3_bind_int(stmt, 1, recGame.ID);
+
+	while(sqlite3_step(stmt) != SQLITE_DONE)
+	{
+		CChatInfo * chatInfo = new CChatInfo;
+		chatInfo->Player_Num = sqlite3_column_int(stmt, 0);
+		chatInfo->Time = CTimeSpan(sqlite3_column_int(stmt, 1));
+		chatInfo->Target = sqlite3_column_int(stmt, 2);
+		chatInfo->Content = (const TCHAR*)SQLITE3_COLUMN_TEXT(stmt, 3);
+		recGame.ChatB4Game.Add(chatInfo);
+	}
+	sqlite3_finalize(stmt);
+
+	const TCHAR* queryStr4 = _T("select player_num, chattime, target, content")
+		_T(" from t_ChatInfo where recgame_id = ? and isingame = 1");
+
+	ret = SQLITE3_PREPARE(m_DB, queryStr4, stmt, unused);
+
+	if( ret != SQLITE_OK)
+	{
+		return false;
+	}
+
+	sqlite3_bind_int(stmt, 1, recGame.ID);
+
+	while(sqlite3_step(stmt) != SQLITE_DONE)
+	{
+		CChatInfo * chatInfo = new CChatInfo;
+		chatInfo->Player_Num = sqlite3_column_int(stmt, 0);
+		chatInfo->Time = CTimeSpan(sqlite3_column_int(stmt, 1));
+		chatInfo->Target = sqlite3_column_int(stmt, 2);
+		chatInfo->Content = (const TCHAR*)SQLITE3_COLUMN_TEXT(stmt, 3);
+		recGame.ChatInGame.Add(chatInfo);
+	}
+	sqlite3_finalize(stmt);
 
 	return true;
 }

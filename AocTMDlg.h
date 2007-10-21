@@ -64,4 +64,6 @@ private:
 	CDateTimeCtrl m_From;
 	CDateTimeCtrl m_To;
 	HACCEL     m_hAccelTable;
+public:
+	afx_msg void OnNMDblclkRecList(NMHDR *pNMHDR, LRESULT *pResult);
 };

@@ -54,20 +54,26 @@ CMapInfo::operator = (CMapInfo& rh)
 	return *this;
 }
 
-CChatInfo::CChatInfo(unsigned char * chat)
+CChatInfo::CChatInfo(unsigned char * chat, CTimeSpan time)
 {
-	//format : "pubb:1"
+	//format: "@#nNAME: msg", for example, "@#4pubb: 1"
+	CString str(chat);
+	Player_Num = _ttoi(str.Mid(2, 1));
+	int index = str.Find(':');
+	if(index >= 3)	//"@#0-- ..." is a game tip msg
+		Content = str.Mid(index + 2);
+	Time = time;
+	Target = 0;	//not used now
 }
 
 CChatInfo::CChatInfo(void)
 {
-
 }
 
 //huangjie, 07-08-03, copy constructor
 CChatInfo::CChatInfo(CChatInfo& rh)
 {
-	Name = rh.Name;
+	Player_Num = rh.Player_Num;
 	Time = rh.Time;
 	Target = rh.Target;
 	Content = rh.Content;
@@ -77,7 +83,7 @@ CChatInfo::CChatInfo(CChatInfo& rh)
 CChatInfo&
 CChatInfo::operator = (CChatInfo& rh)
 {
-	Name = rh.Name;
+	Player_Num = rh.Player_Num;
 	Time = rh.Time;
 	Target = rh.Target;
 	Content = rh.Content;
@@ -393,9 +399,11 @@ void CRecgame::getGameData(void)
 	short unit_type_id;
 	int object_id;
 	short unit_num;
+	/*
 	int hour;
 	int minute;
 	int second;
+	*/
 	CStringArray  str_chat;
 
 	unsigned char map_buff[100];
@@ -419,7 +427,7 @@ void CRecgame::getGameData(void)
 	map_load_flg = 0;
 	for(int j = 0; j <= 8 ; j++){
 		data_ref[j] = 0;
-		player_resign[j] = false;
+		player_resign[j] = true;	//assume everyone to be loser
 	}
 
 	int maptype_len_jp  = (int)_tcslen(maptype_jp);
@@ -820,7 +828,7 @@ void CRecgame::getGameData(void)
 			str_edit += CString(chat_msg) + _T("\r\n");
 
 			/* pubb, 07-08-02, copy chAocTMsg. it's stored in format like "pubb:1" */
-			CChatInfo * chat = new CChatInfo(chat_msg);
+			CChatInfo * chat = new CChatInfo(chat_msg, 0);
 			ChatB4Game.Add(chat);
 		}
 	}
@@ -904,6 +912,14 @@ void CRecgame::getGameData(void)
 				memset(chat_msg, 0, 256);
 				memcpy(chat_msg, &m_pt_body[pos], chat_len);
 				
+				//07-10-20, pubb, store ChatInGame
+				if(CString(chat_msg).Find(_T(":")) >= 3)	//if it's a game tip msg or wrong format, then skip
+				{
+					CChatInfo * chat = new CChatInfo(chat_msg, Timecnt2CTimeSpan(time_cnt));
+					ChatInGame.Add(chat);
+				}
+
+				/*
 				hour   = (int)(time_cnt/1000/3600);
 				minute = ((int)(time_cnt/1000/60))%60;
 				second = ((int)(time_cnt/1000))%60;
@@ -911,7 +927,7 @@ void CRecgame::getGameData(void)
 				str_chat.Add(str_work);
 
 				str_edit = str_edit + CString(chat_msg) + _T("\r\n");
-
+				*/
 				pos += chat_len;
 			}
 			else{ 
@@ -1161,6 +1177,12 @@ void	CRecgame::FillWinner(void)
 {
 	int winteam = GetWinnerTeam();
 
+	if(winteam == 0)
+		SetResignFromChat();
+
+	if((winteam = GetWinnerTeam()) == 0)
+		return;
+
 	for(int i = 1; i <= 8; i++)
 	{
 		if(Players[i].Team == winteam)
@@ -1198,9 +1220,13 @@ int		CRecgame::GetWinnerTeam(void)
 	 * no resign msg, then take viewer as a loser and the other team is winner team.
 	 * it's not a good way, because 'out of sync' game will be in this catelog too.
 	 */
+
 	if(max_index == 0)
+#if 0		
 		max_index = Players[ViewerID].Team;
-		//return 0;	//not a good way too, maybe need check chat msg for 'resign?' or 'gg'
+#else
+		return 0;	//assume an incomplete game
+#endif
 
 	return max_index == 1 ? 2 : 1;
 }
@@ -1210,7 +1236,29 @@ CTimeSpan	CRecgame::Timecnt2CTimeSpan(int time_cnt)
 	return CTimeSpan(0, time_cnt/1000/3600, (time_cnt/1000/60)%60, (time_cnt/1000)%60);
 }
 
-bool	CRecgame::IsLoser(int player_id)
+bool	CRecgame::IsWinner(int player_id)
 {
-	return(player_resign[player_id]);
+	return(!player_resign[player_id]);
+}
+
+void	CRecgame::SetResignFromChat(void)
+{
+	int	i, team_lose[9];	//team_lose[0] is nonsense. most of time, it's two teams occupying slots no.1 and no. 2
+	memset(team_lose, 0, sizeof(team_lose));
+
+	for(i = 0; i < ChatInGame.GetCount(); i++)
+	{
+		CString msg = ChatInGame[i]->Content;
+		if(msg.Find(_T("resign")) >= 0 || msg.Find(_T("RESIGN")) >= 0 || msg.Find(_T("gg")) >= 0 || msg.Find(_T("gg")) >= 0)
+		{
+			//07-10-21, pubb, store to playeringame directly, ignore Chat information when load
+			//team_lose[Players[ChatInGame[i]->Player_Num].Team]++;
+			Players[ChatInGame[i]->Player_Num].ResignTime = PlayTime;
+		}
+	}
+}
+
+bool CRecgame::LoadChatInfo(class IPersistentInterface * engine)
+{
+	return engine->LoadChatInfo(*this);
 }

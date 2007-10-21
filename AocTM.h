@@ -51,3 +51,6 @@ private:
 #define FIRSTGAME_FEE_TIME	CTime(2007, 7, 1, 0, 0, 0)
 
 extern CAocTMApp theApp;
+
+//07-10-21, pubb, self-defined macro
+#undef	XLISTCTRL_OLD

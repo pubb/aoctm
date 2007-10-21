@@ -46,7 +46,7 @@ public:
 	virtual bool LoadCharge(CArray<CPaidFee *, CPaidFee *> * charge, int id);
 	virtual bool SaveCharge(CArray<CPaidFee *, CPaidFee *> * charge, int id);
 	virtual bool DeleteCharge(int id);
-
+	virtual bool LoadChatInfo(CRecgame & recGame);
 	//by mep for performance
 	virtual bool BeginTx();
 	virtual bool Commit();

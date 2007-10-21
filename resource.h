@@ -21,6 +21,7 @@
 #define IDD_CONFIG_CHARGE               142
 #define IDD_CONFIG_PLAYER               143
 #define IDR_ACCELERATOR1                145
+#define IDD_GAMEINFO                    146
 #define IDC_ReportList                  1000
 #define IDC_PLAYERS                     1002
 #define IDC_SELECTED                    1003
@@ -50,6 +51,7 @@
 #define IDC_LIST1                       1016
 #define IDC_DATABASEDUE                 1017
 #define IDC_DATABASE                    1017
+#define IDC_TITLE                       1017
 #define IDC_LIST                        1018
 #define IDC_EXCHANGE                    1019
 #define IDC_LIST2                       1020
@@ -69,6 +71,8 @@
 #define IDC_DATETIME_TO                 1036
 #define IDC_DATETIME_FROM               1037
 #define IDC_REC_LIST                    1038
+#define IDC_CHATB4GAME                  1039
+#define IDC_CHATINGAME                  1040
 #define ID_32779                        32779
 #define ID_32780                        32780
 #define ID_32781                        32781
@@ -89,9 +93,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        146
+#define _APS_NEXT_RESOURCE_VALUE        147
 #define _APS_NEXT_COMMAND_VALUE         32797
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_CONTROL_VALUE         1041
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

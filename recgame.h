@@ -61,12 +61,14 @@ public:
 	CChatInfo(CChatInfo&);
 	CChatInfo& operator = (CChatInfo&);
 
-	CChatInfo(unsigned char *chat);
+	CChatInfo(unsigned char *chat, CTimeSpan time);
 	CChatInfo(void);
 
-	CString	Name;									//说话人
+	//07-10-20, pubb, change to store ID instead of name
+	//CString Name;
+	int	Player_Num;									//说话人
 	CTimeSpan	Time;									//说话时间
-	int	Target;										//说话对象
+	int	Target;										//说话对象，0-普通；1-全体（‘*’）；2-同组（‘？’）；3-对方（‘!’），暂时没用上
 	CString	Content;								//说话内容
 };
 
@@ -105,9 +107,10 @@ public:
 	bool	Read(CString file);
 	bool	Load(class IPersistentInterface * engine);
 	bool	Save(class IPersistentInterface * engine);
+	bool	LoadChatInfo(class IPersistentInterface * engine);
 	/* pubb, 07-07-26 */
 	int		GetWinnerTeam(void);
-	bool	IsLoser(int player_id);
+	bool	IsWinner(int player_id);
 
 private:
 	/* pubb, 07-08,02, copy from original recgame structure */
@@ -148,6 +151,9 @@ private:
 	/* pubb, 07-07-25, add */
 	/* pubb, 07-07-31, move to 'private' */
 	void	FillWinner(void);
+	//07-10-20, pubb, add for more accurate winner msg
+	//07-10-21, pubb, return void instead of int
+	void	SetResignFromChat(void);
 	/* pubb, 07-08-02, construct CTime object */
 	CTimeSpan	Timecnt2CTimeSpan(int timecnt);
 	

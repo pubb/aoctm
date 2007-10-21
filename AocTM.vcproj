@@ -231,6 +231,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GameInfoDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GraphDlg.cpp"
 				>
 			</File>
@@ -390,6 +394,10 @@
 			</File>
 			<File
 				RelativePath=".\FeeInDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameInfoDlg.h"
 				>
 			</File>
 			<File

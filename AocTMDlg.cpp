@@ -13,6 +13,7 @@
 #include "configchargedlg.h"
 #include "configplayerdlg.h"
 #include "renamer/renamer.h"
+#include "gameinfodlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -91,6 +92,7 @@ BEGIN_MESSAGE_MAP(CAocTMDlg, CDialog)
 	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIME_TO, &CAocTMDlg::OnDtnDatetimechange)
 	ON_BN_CLICKED(IDC_REC_DISMISS, &CAocTMDlg::OnBnClickedRecDismiss)
 	ON_COMMAND(ID_ACCELERATOR_LOAD, (AFX_PMSG)&CAocTMDlg::OnAcceleratorLoad)
+	ON_NOTIFY(NM_DBLCLK, IDC_REC_LIST, &CAocTMDlg::OnNMDblclkRecList)
 END_MESSAGE_MAP()
 
 
@@ -380,7 +382,9 @@ void CAocTMDlg::OnFee(void)
 
 void CAocTMDlg::Refresh(void)
 {
-	GetDlgItem(IDC_DATABASE)->SetWindowText(_T("Recgames from ") + theApp.Recgames.GetFirstGameTime().Format(_T("%Y-%m-%d %H'%M'%S")) + _T(" to ") + theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
+	CString str;
+	str.Format(_T("%3d games (%s to %s)"), theApp.Recgames.GetCount(), theApp.Recgames.GetFirstGameTime().Format(_T("%Y-%m-%d %H'%M'%S")), theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
+	SetDlgItemText(IDC_TITLE, str);
 
 	m_List.SetRedraw(false);
 	m_List.DeleteAllItems();
@@ -395,7 +399,6 @@ void CAocTMDlg::Refresh(void)
 		if(rec->RecordTime < from || rec->RecordTime > to)
 			continue;
 
-		CString str;
 		str.Format(_T("%d"), j + 1);
 		m_List.InsertItem(j, str);
 		m_List.SetItemText(j, 1, rec->RecordTime.Format(_T("%y-%m-%d %H:%M:%S")));
@@ -404,6 +407,13 @@ void CAocTMDlg::Refresh(void)
 
 		//fill players table
 		int winner = rec->GetWinnerTeam();
+		//07-10-20, pubb, no winner / loser condition
+		COLORREF	background_color = ::GetSysColor(COLOR_WINDOW);
+		if(winner == 0)
+		{
+			background_color = RGB(220,220,220);
+			winner = 1;
+		}
 		int win_index, lose_index, k;
 		for(k = 1, win_index = lose_index = 0; k <= 8 && k < rec->Players.GetCount() && !rec->Players[k].Name.IsEmpty(); k++)
 		{
@@ -421,7 +431,7 @@ void CAocTMDlg::Refresh(void)
 #ifdef	XLISTCTRL_OLD
 			//m_List.SetItemTextColor(j, team_position, player_color[k]);
 #else
-			m_List.SetItemColors(j, team_position, player_color[k], ::GetSysColor(COLOR_WINDOW));
+			m_List.SetItemColors(j, team_position, player_color[k], background_color);
 #endif
 		}
 		//save recgame index in DB
@@ -445,30 +455,40 @@ void CAocTMDlg::OnConfigPlayer(void)
 
 void CAocTMDlg::OnBnClickedRecDelete()
 {
-	POSITION pos = m_List.GetFirstSelectedItemPosition();
-	if(!pos)
-		return;
-
-	if(AfxMessageBox(_T("Permanent delete, r u sure?"), MB_OKCANCEL) == IDCANCEL)
-		return;
-
-	while(pos)
+	if(GetKeyState(VK_SHIFT)<0)
 	{
-		int nItem = m_List.GetNextSelectedItem(pos);
-		INT_PTR index = m_List.GetItemData(nItem);
+		if(AfxMessageBox(_T("Delete ALL?"), MB_OKCANCEL) == IDCANCEL)
+			return;
 
-		int	data;
-		for(int i = 0; i < m_List.GetItemCount(); i++)
+		theApp.Recgames.RemoveAll();
+	}
+	else
+	{
+		POSITION pos = m_List.GetFirstSelectedItemPosition();
+		if(!pos)
+			return;
+
+		if(AfxMessageBox(_T("Permanent delete, r u sure?"), MB_OKCANCEL) == IDCANCEL)
+			return;
+
+		while(pos)
 		{
-			data = m_List.GetItemData(i);
-			if(data > index)
-			{
-				m_List.SetItemData(i, data - 1);
-			}
-		}
+			int nItem = m_List.GetNextSelectedItem(pos);
+			INT_PTR index = m_List.GetItemData(nItem);
 
-		delete theApp.Recgames[index];
-		theApp.Recgames.RemoveAt(index);
+			int	data;
+			for(int i = 0; i < m_List.GetItemCount(); i++)
+			{
+				data = m_List.GetItemData(i);
+				if(data > index)
+				{
+					m_List.SetItemData(i, data - 1);
+				}
+			}
+
+			delete theApp.Recgames[index];
+			theApp.Recgames.RemoveAt(index);
+		}
 	}
 
 	//07-10-11, do update() when one or more recgames are deleted.
@@ -571,4 +591,17 @@ BOOL   CAocTMDlg::PreTranslateMessage(MSG*   pMsg)
 		}   
 	}   
 	return   CDialog::PreTranslateMessage(pMsg);   
+}
+
+void CAocTMDlg::OnNMDblclkRecList(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	POSITION pos = m_List.GetFirstSelectedItemPosition();
+	if(!pos)
+		return;
+	
+	CGameInfoDlg dlg;
+	dlg.m_Recgame = theApp.Recgames[m_List.GetItemData(m_List.GetNextSelectedItem(pos))];
+	dlg.DoModal();
+
+	*pResult = 0;
 }

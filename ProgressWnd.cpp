@@ -110,7 +110,9 @@ BOOL CProgressWnd::Create(CWnd* pParent, LPCTSTR pszTitle, BOOL bSmooth /* = FAL
         pParent = AfxGetMainWnd();
 
     // Create popup window
-    bSuccess = CreateEx(WS_EX_DLGMODALFRAME|WS_EX_TOPMOST, // Extended style
+	//07-10-20, pubb, no TOPMOST
+    //bSuccess = CreateEx(WS_EX_DLGMODALFRAME|WS_EX_TOPMOST, // Extended style
+	bSuccess = CreateEx(WS_EX_DLGMODALFRAME, // Extended style
                         csClassName,                       // Classname
                         pszTitle,                          // Title
                         WS_POPUP|WS_BORDER|WS_CAPTION,     // style
