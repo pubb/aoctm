@@ -66,4 +66,5 @@ private:
 	HACCEL     m_hAccelTable;
 public:
 	afx_msg void OnNMDblclkRecList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedSummary();
 };

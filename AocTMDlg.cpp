@@ -32,6 +32,7 @@ public:
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL OnInitDialog();
 
 // Implementation
 protected:
@@ -40,6 +41,16 @@ protected:
 
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 {
+}
+
+BOOL CAboutDlg::OnInitDialog(void)
+{
+	CDialog::OnInitDialog();
+
+	CString str;
+	str.Format(_T("AocTM v%s build %s"), AOCTM_VERSION, CTime::GetCurrentTime().Format(_T("%y%m%d")));
+	SetDlgItemText(IDC_VERSION, str);
+	return TRUE;
 }
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
@@ -93,6 +104,7 @@ BEGIN_MESSAGE_MAP(CAocTMDlg, CDialog)
 	ON_BN_CLICKED(IDC_REC_DISMISS, &CAocTMDlg::OnBnClickedRecDismiss)
 	ON_COMMAND(ID_ACCELERATOR_LOAD, (AFX_PMSG)&CAocTMDlg::OnAcceleratorLoad)
 	ON_NOTIFY(NM_DBLCLK, IDC_REC_LIST, &CAocTMDlg::OnNMDblclkRecList)
+	ON_BN_CLICKED(IDC_SUMMARY, &CAocTMDlg::OnBnClickedSummary)
 END_MESSAGE_MAP()
 
 
@@ -383,7 +395,7 @@ void CAocTMDlg::OnFee(void)
 void CAocTMDlg::Refresh(void)
 {
 	CString str;
-	str.Format(_T("%3d games (%s to %s)"), theApp.Recgames.GetCount(), theApp.Recgames.GetFirstGameTime().Format(_T("%Y-%m-%d %H'%M'%S")), theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H'%M'%S")));
+	str.Format(_T("%3d games (%s to %s)"), theApp.Recgames.GetCount(), theApp.Recgames.GetFirstGameTime().Format(_T("%Y-%m-%d %H:%M:%S")), theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H:%M:%S")));
 	SetDlgItemText(IDC_TITLE, str);
 
 	m_List.SetRedraw(false);
@@ -604,4 +616,37 @@ void CAocTMDlg::OnNMDblclkRecList(NMHDR *pNMHDR, LRESULT *pResult)
 	dlg.DoModal();
 
 	*pResult = 0;
+}
+
+void CAocTMDlg::OnBnClickedSummary()
+{
+	int index;
+	CPlayerDatabase	players;
+	CRecgameDatabase recgames;
+	players.m_pRecgameDB = &recgames;
+
+	POSITION pos = m_List.GetFirstSelectedItemPosition();
+	if(pos)
+	{
+		while(pos)
+		{
+			index = m_List.GetItemData(m_List.GetNextSelectedItem(pos));
+			players.Add(theApp.Recgames[index]);
+			recgames.Add(theApp.Recgames[index]);
+		}
+	}
+	else
+	{
+		for(int i = 0; i < m_List.GetItemCount(); i++)
+		{
+			index = m_List.GetItemData(i);
+			players.Add(theApp.Recgames[index]);
+			recgames.Add(theApp.Recgames[index]);
+		}
+	}
+
+	players.CopyNickNames();
+	ShowReport(&players);;
+	
+	players.Free();
 }

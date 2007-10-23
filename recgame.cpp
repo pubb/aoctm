@@ -147,6 +147,17 @@ CPlayerInGame::operator = (CPlayerInGame& rh)
 CRecgame::CRecgame()
 : ID(0), Loaded(false)
 {
+	//pubb, 07-10-23, moved from getGameData()
+	ViewerID = 0;
+
+	map_load_flg = 0;
+	for(int j = 0; j <= 8 ; j++){
+		data_ref[j] = 0;
+		player_resign[j] = true;	//assume everyone to be loser
+	}
+
+	map_size.cx = 0;
+	map_size.cy = 0;
 }
 
 CRecgame::~CRecgame()
@@ -422,14 +433,6 @@ void CRecgame::getGameData(void)
 	//pubb, 07-08-02, map_id not public now.
 	int map_id = -1;
 
-	ViewerID = 0;
-
-	map_load_flg = 0;
-	for(int j = 0; j <= 8 ; j++){
-		data_ref[j] = 0;
-		player_resign[j] = true;	//assume everyone to be loser
-	}
-
 	int maptype_len_jp  = (int)_tcslen(maptype_jp);
 	int maptype_len_en  = (int)_tcslen(maptype_en);
 	int maptype_len_sp  = (int)_tcslen(maptype_sp);
@@ -438,14 +441,9 @@ void CRecgame::getGameData(void)
 	int maptype_len_c2  = (int)_tcslen(maptype_c2);
 	int maptype_len_kr  = (int)_tcslen(maptype_kr);
 
-	
-	map_size.cx = 0;
-	map_size.cy = 0;
-
 	if(m_header_len == 0){
 		return ;
 	}
-
 	
 	for(i = m_header_len; i > 18000; i--){
 		
@@ -1178,10 +1176,11 @@ void	CRecgame::FillWinner(void)
 	int winteam = GetWinnerTeam();
 
 	if(winteam == 0)
+	{
 		SetResignFromChat();
-
-	if((winteam = GetWinnerTeam()) == 0)
-		return;
+		if((winteam = GetWinnerTeam()) == 0)
+			return;
+	}
 
 	for(int i = 1; i <= 8; i++)
 	{
@@ -1243,10 +1242,7 @@ bool	CRecgame::IsWinner(int player_id)
 
 void	CRecgame::SetResignFromChat(void)
 {
-	int	i, team_lose[9];	//team_lose[0] is nonsense. most of time, it's two teams occupying slots no.1 and no. 2
-	memset(team_lose, 0, sizeof(team_lose));
-
-	for(i = 0; i < ChatInGame.GetCount(); i++)
+	for(int i = 0; i < ChatInGame.GetCount(); i++)
 	{
 		CString msg = ChatInGame[i]->Content;
 		if(msg.Find(_T("resign")) >= 0 || msg.Find(_T("RESIGN")) >= 0 || msg.Find(_T("gg")) >= 0 || msg.Find(_T("gg")) >= 0)

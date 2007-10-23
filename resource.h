@@ -73,6 +73,9 @@
 #define IDC_REC_LIST                    1038
 #define IDC_CHATB4GAME                  1039
 #define IDC_CHATINGAME                  1040
+#define IDC_VERSION                     1041
+#define IDC_BUTTON3                     1042
+#define IDC_SUMMARY                     1042
 #define ID_32779                        32779
 #define ID_32780                        32780
 #define ID_32781                        32781
@@ -95,7 +98,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        147
 #define _APS_NEXT_COMMAND_VALUE         32797
-#define _APS_NEXT_CONTROL_VALUE         1041
+#define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

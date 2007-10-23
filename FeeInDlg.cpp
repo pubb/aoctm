@@ -43,7 +43,7 @@ BOOL CFeeInDlg::OnInitDialog()
 	if(!m_pPlayer)
 		return FALSE;
 
-	SetWindowText(m_pPlayer->NickNames[0]);
+	SetWindowText(_T("Money In from ") + m_pPlayer->NickNames[0]);
 
 	m_List.InsertColumn(0, _T("Date"), LVCFMT_LEFT, 120, -1);
 	m_List.InsertColumn(1, _T("Money"), LVCFMT_LEFT, 50, -1);

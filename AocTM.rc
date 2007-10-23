@@ -116,7 +116,7 @@ CAPTION "About AocTM"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "AocTM Version 1.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
+    LTEXT           "AocTM v""AOCTM_VERSION""  build yymmdd",IDC_VERSION,40,10,136,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2007 of pubb\nCredit to mep, onfire, fred and andy",IDC_STATIC,40,25,119,23
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,16,WS_GROUP
 END
@@ -129,15 +129,14 @@ MENU IDR_MAINPOPMENU
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     CONTROL         "Drag&&Drop GAME RECORD files in, or press F5.",IDC_STATIC,
-                    "Static",SS_LEFTNOWORDWRAP | WS_GROUP,144,277,152,8,WS_EX_TRANSPARENT
-    LTEXT           "nnn games (xxxx-xx-xx xx'xx'xx' to xxxx-xx-xx xx'xx'xx')",IDC_TITLE,138,7,188,8
-    LTEXT           "From:",IDC_STATIC,7,7,20,8
-    LTEXT           "To:",IDC_STATIC,340,7,12,8
+                    "Static",SS_LEFTNOWORDWRAP | WS_GROUP,209,283,152,8,WS_EX_TRANSPARENT
+    CTEXT           "nnn games (xxxx-xx-xx xx'xx'xx' to xxxx-xx-xx xx'xx'xx')",IDC_TITLE,110,7,243,8
     CONTROL         "",IDC_DATETIME_TO,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,357,7,100,15
-    CONTROL         "",IDC_DATETIME_FROM,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,32,7,100,15
+    CONTROL         "",IDC_DATETIME_FROM,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,7,7,100,15
     CONTROL         "",IDC_REC_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,24,450,244
-    PUSHBUTTON      "D&elete",IDC_REC_DELETE,89,277,50,14
-    PUSHBUTTON      "&Dismiss",IDC_REC_DISMISS,305,277,50,14
+    PUSHBUTTON      "D&elete",IDC_REC_DELETE,128,277,50,14
+    PUSHBUTTON      "&Dismiss",IDC_REC_DISMISS,382,277,50,14
+    PUSHBUTTON      "&Summary",IDC_SUMMARY,35,277,50,14
 END
 
 IDD_REPORT DIALOGEX 0, 0, 352, 231
@@ -207,7 +206,7 @@ END
 
 IDD_FEE_IN DIALOGEX 0, 0, 199, 87
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
+CAPTION "Money In"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     EDITTEXT        IDC_FEE_MONEY,138,26,42,14,ES_AUTOHSCROLL | ES_NUMBER
@@ -220,7 +219,7 @@ END
 
 IDD_CONFIG_CHARGE DIALOGEX 0, 0, 199, 87
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Config Netbar Charge"
+CAPTION "Money Out"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     EDITTEXT        IDC_CHARGE_MONEY,138,26,42,14,ES_AUTOHSCROLL | ES_NUMBER
@@ -377,7 +376,7 @@ BEGIN
         MENUITEM "F&ee",                        ID_FEE
         POPUP "&Config"
         BEGIN
-            MENUITEM "C&harge",                     ID_CONFIG_CHARGE
+            MENUITEM "Money &Out",                  ID_CONFIG_CHARGE
             MENUITEM "&Player",                     ID_CONFIG_PLAYERINITIALIZE
         END
     END

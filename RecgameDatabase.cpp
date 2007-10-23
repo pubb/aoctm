@@ -229,8 +229,8 @@ INT_PTR	CRecgameDatabase::GetFirstSameRecgame(CRecgame * rg)
 		if(rg_db->PlayerNum != rg->PlayerNum || _abs64((rg_db->RecordTime - rg->RecordTime).GetTotalSeconds()) >= 5 * 60)
 			continue;
 
-		//speedup! if it's a newer recgame, just return -1
-		if(rg_db->RecordTime < rg->RecordTime)
+		//speedup! because the game DB is sorted in RecordTime, so if it's a newer recgame, just return -1
+		if(rg_db->RecordTime < rg->RecordTime && (rg->RecordTime - rg_db->RecordTime).GetTotalSeconds() >= 5 * 60)
 			return -1;
 
 		for(j = 0; j <= rg_db->PlayerNum; j++)
