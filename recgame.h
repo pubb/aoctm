@@ -123,6 +123,9 @@ private:
 	CString m_str_table[100];
 	*/
 
+	//pubb, 07-10-24, to specify 'RecordTime from file modified time', that'll be subbed by PlayTime
+	bool	bSpecialRecordTime;
+
 	SIZE		map_size;
 	int			map_load_flg;
 	char		map_data[57600];

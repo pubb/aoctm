@@ -2710,6 +2710,8 @@ void CXListCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 		}
 
-		SetCurSel(nTrial, TRUE);	// set new selection, scroll into view
+		//pubb, 07-10-24, disable 'ensurevisible when pressed a key'
+		//SetCurSel(nTrial, TRUE);	// set new selection, scroll into view
+		SetCurSel(nTrial);
 	}
 }

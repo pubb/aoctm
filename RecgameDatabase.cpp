@@ -123,12 +123,17 @@ bool CRecgameDatabase::Save(IPersistentInterface *engine)
 	if(!engine || !Dirty)
 		return false;
 
+	//load chatinfo before clearrecgames() because we don't load it at startup.
+	LoadChatInfo(engine);
+
+	bool flag = true;
+
 	engine->ClearRecgames();
 
 	if( !engine->BeginTx() )
 		return false;
-	
-	bool flag = true;
+
+	flag = true;
 	for(int i = 0; i < GetCount(); i++)
 	{
 		//pubb, 07-08-12, mep's bug.
@@ -275,4 +280,22 @@ void	CRecgameDatabase::SetDirty(bool dirty)
 CString	CRecgameDatabase::GetRecPath(void)
 {
 	return m_rec_path;
+}
+
+//pubb, 07-10-24, load chatinfo before clearrecgames(), because we don't load it at startup
+bool	CRecgameDatabase::LoadChatInfo(IPersistentInterface *engine)
+{
+	if(!engine->BeginTx())
+		return false;
+
+	for(int i = 0; i < GetCount(); i++)
+	{
+		if(!GetAt(i)->LoadChatInfo(engine))
+		{
+			engine->Rollback();
+			return false;
+		}
+	}
+	engine->Commit();
+	return true;
 }

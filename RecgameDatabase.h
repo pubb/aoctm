@@ -53,4 +53,5 @@ private:
 	CString	m_game_path, m_rec_path;
 
 	CString GetAOCRegistry(void);
+	bool LoadChatInfo(IPersistentInterface *engine);
 };

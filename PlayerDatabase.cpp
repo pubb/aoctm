@@ -394,11 +394,6 @@ void CPlayerDatabase::Update(CTime from, CTime to)
 			continue;
 		if(rg->RecordTime > to)
 			break;
-		//debug
-		if(rg->RecordTime.GetMonth() == 9 && rg->RecordTime.GetDay() == 21)
-		{
-			int i = 0;
-		}
 		Add(rg);
 	}
 }

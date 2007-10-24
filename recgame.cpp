@@ -145,7 +145,7 @@ CPlayerInGame::operator = (CPlayerInGame& rh)
 }
 
 CRecgame::CRecgame()
-: ID(0), Loaded(false)
+: ID(0), Loaded(false), bSpecialRecordTime(false)
 {
 	//pubb, 07-10-23, moved from getGameData()
 	ViewerID = 0;
@@ -181,14 +181,21 @@ bool CRecgame::Read(CString file)
 	//prepare the space for later load. they are all accessed through 'Players[i]' directly
 	Players.SetSize(9);
 
-	getGameData();
-
 	//Analyze the filename and retrieve corrected Game Time from it.
 	int index = file.ReverseFind('\\');
-	file = file.Mid(index + 1);	//only FILENAME
+	FileName = file.Mid(index + 1);	//only FILENAME
 	
-	FileName = file;
-	RecordTime = Renamer::Parse(file);
+	RecordTime = Renamer::Parse(FileName);
+
+	if(RecordTime == CTime(0))		//if the filename was renamed manually, then use 'file create time' for RecordTime
+	{
+		CFileStatus status;
+		CFile::GetStatus(file, status);
+		RecordTime = status.m_mtime;
+		bSpecialRecordTime = true;
+	}
+
+	getGameData();
 
 	Loaded = true;
 
@@ -1052,6 +1059,11 @@ void CRecgame::getGameData(void)
 	//pubb, 07-08-02, convert to CTimeSpan
 	PlayTime = Timecnt2CTimeSpan(time_cnt);
 	
+	//pubb, 07-10-24, adjust RecordTime when it's from file modified time
+	//XXX, assuming that real time is 3/4 of game time
+	if(bSpecialRecordTime)
+		RecordTime -= CTimeSpan(PlayTime.GetTotalSeconds() * 3 / 4);
+
 	//pubb, 07-08-02, no need now
 	//AnalyzeChat(str_edit, ChatInGame);
 
@@ -1194,7 +1206,7 @@ void	CRecgame::FillWinner(void)
 int		CRecgame::GetWinnerTeam(void)
 {
 	int i;
-	int	team_lose[9];	//team_lose[0] is nonsense. most of time, it's two teams occupying slots no.1 and no. 2
+	int	team_lose[9];	//team_lose[0] is 'no group'. most of time, it's two teams occupying slots no.1 and no. 2
 
 	if(PlayTime < TIME_4_INCOMPLETE)
 		return 0;
@@ -1205,6 +1217,17 @@ int		CRecgame::GetWinnerTeam(void)
 	{
 		if(Players[i].ResignTime != CTimeSpan(0))
 			team_lose[Players[i].Team]++;
+	}
+
+	//pubb, 07-10-24, to deal with 'no group' situation
+	//move 'no group' team to 'another' team
+	//XXX, not a good way
+	if(team_lose[0] > 0)
+	{
+		if(team_lose[1] == 0)
+			team_lose[1] = team_lose[0];
+		else
+			team_lose[2] = team_lose[0];
 	}
 
 	int max = 0, max_index = 0;
