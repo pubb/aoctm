@@ -42,22 +42,27 @@ BOOL CConfigPlayerDlg::OnInitDialog()
 
 	CString str;
 
-	m_List.InsertColumn(0, _T("Player ID"), LVCFMT_LEFT, 120, -1);
-	m_List.InsertColumn(1, _T("InitRating"), LVCFMT_LEFT, 50, -1);
+	m_List.InsertColumn(0, _T("COM"), LVCFMT_LEFT, 20, -1);
+	m_List.InsertColumn(1, _T("Player ID (check for COM)"), LVCFMT_LEFT, 150, -1);
+	m_List.InsertColumn(2, _T("InitRating"), LVCFMT_LEFT, 50, -1);
 	for(int i = 0; i < 8; i++)	//8 nicks shown at most
 	{
 		str.Format(_T("Nick%d"), i);
-		m_List.InsertColumn(i + 2, str, LVCFMT_LEFT, 120, -1);
+		m_List.InsertColumn(i + 3, str, LVCFMT_LEFT, 120, -1);
 	}
 
 	for(int i = 0; i < theApp.Players.GetCount(); i++)
 	{
-		m_List.InsertItem(i, theApp.Players[i]->NickNames[0]);
-		str.Format(_T("%d"), theApp.Players[i]->InitRating);
-		m_List.SetItemText(i, 1, str);
-		for(int j = 1; j < theApp.Players[i]->NickNames.GetCount(); j++)
+		CPlayer * player = theApp.Players[i];
+		m_List.InsertItem(i, _T(""));
+		//pubb, 07-10-25, set checked for COM players
+		m_List.SetCheckbox(i, 0, player->IsComputer);
+		m_List.SetItemText(i, 1, player->NickNames[0]);
+		str.Format(_T("%d"), player->InitRating);
+		m_List.SetItemText(i, 2, str);
+		for(int j = 1; j < player->NickNames.GetCount(); j++)
 		{
-			m_List.SetItemText(i, j + 1, theApp.Players[i]->NickNames[j]);
+			m_List.SetItemText(i, j + 2, player->NickNames[j]);
 		}
 		m_List.SetItemData(i, i);
 	}
@@ -79,40 +84,66 @@ void CConfigPlayerDlg::OnBnClickedOk()
 #ifdef	XLISTCTRL_OLD
 	m_List.EndEdit();
 #endif
-
+	//XXX, pubb, 07-10-26, assuming Dirty is true
+	//not a good way. better check whether Checkbox state is changed, but it's too costful for coding
+	/*
 	if(!Dirty)
 	{
 		OnOK();
 		return;
 	}
+	*/
+
+	//07-10-25, clear names buffer in case of multi OK pressed in one session
+	names.RemoveAll();
 
 	for(i = 0; i < m_List.GetItemCount(); i++)
 	{
 		index = m_List.GetItemData(i);
-		if(m_List.GetItemText(i, 0).IsEmpty())
+		if(m_List.GetItemText(i, 1).IsEmpty())
 		{
-			for(j = 0; j < 8 && m_List.GetItemText(i, j + 2).IsEmpty(); j++)
+			for(j = 0; j < 8 && m_List.GetItemText(i, j + 3).IsEmpty(); j++)
 			{
 			}
 			if(j == 8)
 			{
-				AfxMessageBox(_T("Empty Name?"));
+				AfxMessageBox(_T("There's Empty Name!"));
 				return;
 			}
-			m_List.SetItemText(i, 0, m_List.GetItemText(i, j + 2));
-			m_List.SetItemText(i, j + 2, _T(""));
+			m_List.SetItemText(i, 0, m_List.GetItemText(i, j + 3));
+			m_List.SetItemText(i, j + 3, _T(""));
 		}
 	
+		str = m_List.GetItemText(i, 1);
+		//pubb, 07-10-25, also save to names to check duplicate
+		if(IsDuplicatedName(str))
+			return;
 		CPlayer * player = theApp.Players[index];
+		//pubb, 07-10-26, COM checkbox
+		switch(m_List.GetItemCheckedState(i, 0))
+		{
+		case 0:
+			player->IsComputer = false;
+			break;
+		case 1:
+			player->IsComputer = true;
+			break;
+		default:
+			AfxMessageBox(_T("BAD checkbox state!"));
+			return;
+		}
 		player->NickNames.RemoveAll();
-		player->NickNames.Add(m_List.GetItemText(i, 0));
-		rating = _ttoi(m_List.GetItemText(i, 1));
+		player->NickNames.Add(str);
+		rating = _ttoi(m_List.GetItemText(i, 2));
 		player->InitRating = (rating == 0 ? DEF_RATING : rating);
 		for(j = 0; j < 8; j++)
 		{
-			str = m_List.GetItemText(i, j + 2);
+			str = m_List.GetItemText(i, j + 3);
 			if(!str.IsEmpty())
 			{
+				//pubb, 07-10-25, also save to names to check duplicate
+				if(IsDuplicatedName(str))
+					return;
 				player->NickNames.Add(str);
 			}
 		}
@@ -132,10 +163,11 @@ void CConfigPlayerDlg::OnNMClickPlayerList(NMHDR *pNMHDR, LRESULT *pResult)
 	int nItem = pNMIA->iItem;
 	int	nSubItem = pNMIA->iSubItem;
 
+	if(nSubItem != 0)
 #ifdef	XLISTCTRL_OLD
 	m_List.StartEdit(nItem, nSubItem);
 #else
-	m_List.SetEdit(nItem, nSubItem);
+		m_List.SetEdit(nItem, nSubItem);
 #endif
 
 	Dirty = true;
@@ -190,4 +222,22 @@ void CConfigPlayerDlg::OnBnClickedPlayerDelete()
 	theApp.Players.RemoveAt(index);
 	
 	Dirty = true;
+}
+
+/*
+ * pubb, 07-10-25, check duplicate name.
+ * if found, report error by afxmessagebox, if not, add it to the names buffer for later check
+ */
+bool CConfigPlayerDlg::IsDuplicatedName(CString name)
+{
+	for(int i = 0; i < names.GetCount(); i++)
+	{
+		if(name == names[i])
+		{
+			AfxMessageBox(_T("Duplicate Name: ") + name);
+			return true;
+		}
+	}
+	names.Add(name);
+	return false;
 }

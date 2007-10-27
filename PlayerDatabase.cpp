@@ -14,10 +14,15 @@ CPlayerDatabase::~CPlayerDatabase(void)
 
 INT_PTR CPlayerDatabase::GetFirstSamePlayer(CString name)
 {
+	CString str;
 	for(int i = 0; i < GetCount(); i++)
+	{
 		for(int j = 0; j < GetAt(i)->NickNames.GetCount(); j++)
+		{
 			if(name == GetAt(i)->NickNames[j])
 				return i;
+		}
+	}
 	return -1;
 }
 
@@ -56,13 +61,13 @@ bool	CPlayerDatabase::Save(IPersistentInterface * engine)
 	if(!engine || !dirty)
 		return false;
 
-	//pubb, 07-08-23, will do BeginTx in it itself
-	engine->ClearPlayers();
-
+	//pubb, 07-10-26, do transaction before calling ClearPlayers()
 	//XXX, pubb, 07-08-11, clear table and then reinsert everything
 	//by mep for performance
 	if(!engine->BeginTx())
 		return false;
+
+	engine->ClearPlayers();
 
 	
 	bool flag = true;
@@ -374,7 +379,11 @@ int CPlayerDatabase::GetAllPlayCount(void)
 {
 	int count = 0;
 	for(int i = 0; i < GetCount(); i++)
+	{
+		if(GetAt(i)->IsComputer)
+			continue;
 		count += GetAt(i)->PlayCount;
+	}
 
 	return count;
 }

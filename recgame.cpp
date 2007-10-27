@@ -852,6 +852,9 @@ void CRecgame::getGameData(void)
 	time_cnt = 0;
 
 	for(; pos < (long)m_body_len - 3;){
+		//XXX, pubb, 07-10-26, invalid 'pos' value returned after a time of loop for a certain rec
+		if(pos < 0)
+			break;
 
 		type = *((int*)&m_pt_body[pos]);
 		pos += 4;

@@ -128,6 +128,8 @@ void CFeeDlg::Refresh(void)
 	for(int i = 0; i < theApp.Players.GetCount(); i++)
 	{
 		CPlayer * player = theApp.Players[i];
+		if(player->IsComputer)
+			continue;
 		nItem = m_List.InsertItem(i, player->NickNames[0]);
 		str.Format(_T("%d"), player->PlayCount);
 		m_List.SetItemText(nItem, 1, str);

@@ -8,7 +8,7 @@ CPaidFee::CPaidFee(void)
 }
 
 CPlayer::CPlayer(void)
-: ID(-1), Fee(0), InitRating(DEF_RATING)
+: ID(-1), IsComputer(false), InitRating(DEF_RATING)
 {
 	Initialize();
 }

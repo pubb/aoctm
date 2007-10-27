@@ -85,6 +85,9 @@ BOOL CReportDlg::OnInitDialog()
 			playcount = m_pPlayerDB->GetAt(i)->PlayCount;
 			if(!playcount)
 				continue;
+			//pubb, 07-10-25, ignore computer players
+			if(m_pPlayerDB->GetAt(i)->IsComputer)
+			    continue;
 			nItem = m_List.InsertItem(i, m_pPlayerDB->GetAt(i)->NickNames[0]);
 			str.Format(_T("%d"), playcount);
 			m_List.SetItemText(nItem, 1, str);
@@ -185,8 +188,18 @@ void CReportDlg::OnNMDblclkReportlist(NMHDR *pNMHDR, LRESULT *pResult)
 	if(!m_pPlayerDB)
 		return;
 
+	CPlayerDatabase players;
+	players.m_pRecgameDB = m_pPlayerDB->m_pRecgameDB;
+	for(int i = 0; i < m_pPlayerDB->GetCount(); i++)
+	{
+		CPlayer * player = m_pPlayerDB->GetAt(i);
+		if(player->IsComputer)
+			continue;
+		players.Add(player);
+	}
+	
 	CGraphDlg dlg;
-	dlg.m_pPlayers = m_pPlayerDB;
+	dlg.m_pPlayers = &players;
 	dlg.DoModal();
 
 	*pResult = 0;
@@ -222,7 +235,10 @@ void CReportDlg::OnShowChart(UINT command)
 	POSITION pos = m_List.GetFirstSelectedItemPosition();
 	while(pos)
 	{		
-		selected_players.Add(m_pPlayerDB->GetAt(m_List.GetItemData(m_List.GetNextSelectedItem(pos))));
+		CPlayer * player = m_pPlayerDB->GetAt(m_List.GetItemData(m_List.GetNextSelectedItem(pos)));
+		if(player->IsComputer)
+			continue;
+		selected_players.Add(player);
 	}
 	
 	switch(command)

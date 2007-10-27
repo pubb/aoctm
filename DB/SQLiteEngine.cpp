@@ -39,7 +39,7 @@ const TCHAR* sqliteTableDefs[] = {
 _T("create table t_Player \
 (  \
 	player_id integer primary key, \
-	fee	integer default 0, \
+	iscomputer	integer default 0, \
 	initrating integer default ") DEF_RATING_STR _T(", \
 	rating integer default ") DEF_RATING_STR _T(", \
 	playcount integer default 0, \
@@ -246,7 +246,7 @@ SQLitePersisten::SavePlayer(/*inout*/ CPlayer& player)
 
 	//INSERT to t_Player
 	/* allocate an auto-incremental 'player_id' automatically, and get it out again */
-	const TCHAR* insertStr = _T("insert into t_Player (fee,	initrating, rating,	playcount, wincount, updatetime) values (?, ?, ?, ?, ?, ?)");
+	const TCHAR* insertStr = _T("insert into t_Player (iscomputer, initrating, rating,	playcount, wincount, updatetime) values (?, ?, ?, ?, ?, ?)");
 
 	int ret = SQLITE3_PREPARE(m_DB, insertStr, stmt, unused);
 	
@@ -255,7 +255,7 @@ SQLitePersisten::SavePlayer(/*inout*/ CPlayer& player)
 		return false;
 	}
 
-	sqlite3_bind_int(stmt, 1, player.Fee);
+	sqlite3_bind_int(stmt, 1, player.IsComputer);
 	sqlite3_bind_int(stmt, 2, player.InitRating);
 	sqlite3_bind_int(stmt, 3, player.Rating);
 	sqlite3_bind_int(stmt, 4, player.PlayCount);
@@ -365,7 +365,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 
 	if(player.ID > 0)
 	{
-		const TCHAR* queryStr = _T("select fee, initrating, rating, playcount, wincount, updatetime from t_Player where player_id = ?");
+		const TCHAR* queryStr = _T("select iscomputer, initrating, rating, playcount, wincount, updatetime from t_Player where player_id = ?");
 
 		int ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 		
@@ -378,7 +378,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 
 		if(sqlite3_step(stmt) != SQLITE_DONE)
 		{
-			player.Fee = sqlite3_column_int(stmt, 0);
+			player.IsComputer = (bool)sqlite3_column_int(stmt, 0);
 			player.InitRating = sqlite3_column_int(stmt, 1);
 			player.Rating = sqlite3_column_int(stmt, 2);
 			player.PlayCount = sqlite3_column_int(stmt, 3);
@@ -532,7 +532,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 
 		sqlite3_finalize(stmt);	
 
-		const TCHAR* queryStr = _T("select fee, initrating, rating, playcount, wincount, updatetime from t_Player where player_id = ?");
+		const TCHAR* queryStr = _T("select iscomputer, initrating, rating, playcount, wincount, updatetime from t_Player where player_id = ?");
 
 		ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 		
@@ -545,7 +545,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 
 		if(sqlite3_step(stmt) != SQLITE_DONE)
 		{
-			player.Fee = sqlite3_column_int(stmt, 0);
+			player.IsComputer = (bool)sqlite3_column_int(stmt, 0);
 			player.InitRating = sqlite3_column_int(stmt, 1);
 			player.Rating = sqlite3_column_int(stmt, 2);
 			player.PlayCount = sqlite3_column_int(stmt, 3);
@@ -796,11 +796,14 @@ SQLitePersisten::DeletePlayer(/*in*/ CPlayer& player)
  * DELETE all items for t_Player and t_PlayerName
  * by MEPP
  */
+//pubb, 07-10-26, dont do transaction. let outside caller (CPlayerDatabase::Save()) to do it
 bool SQLitePersisten::ClearPlayers(void)
 {
+	/*
 	//by mep for performance
 	if(!BeginTx())
 		return false;
+	*/
 
 	sqlite3_stmt *stmt;
 	const char* unused = 0;
@@ -810,14 +813,14 @@ bool SQLitePersisten::ClearPlayers(void)
 	int ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
-		Rollback();
+//		Rollback();
 		return false;
 	}
 
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
-		Rollback();
+//		Rollback();
 		return false;
 	}
 	else
@@ -829,13 +832,13 @@ bool SQLitePersisten::ClearPlayers(void)
 	ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
-		Rollback();
+//		Rollback();
 		return false;
 	}
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
-		Rollback();
+//		Rollback();
 		return false;
 	}
 	else
@@ -848,13 +851,13 @@ bool SQLitePersisten::ClearPlayers(void)
 	ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
-		Rollback();
+//		Rollback();
 		return false;
 	}
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
-		Rollback();
+//		Rollback();
 		return false;
 	}
 	else
@@ -862,7 +865,7 @@ bool SQLitePersisten::ClearPlayers(void)
 		sqlite3_finalize(stmt);
 	}
 
-	Commit();
+//	Commit();
 
 	return true;
 }
@@ -1337,21 +1340,22 @@ bool SQLitePersisten::ClearRecgames(void)
 	const char* unused = 0;
 	TCHAR* queryStr;
 
+	//pubb, 07-10-27, move to outside function to make a full transaction
 	//pubb, 07-09-18, add transaction support
-	if(!BeginTx())
-		return false;
+	//if(!BeginTx())
+	//	return false;
 
 	queryStr = _T("delete from t_RecGame");
 	int ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
-		Rollback();
+		//Rollback();
 		return false;
 	}
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
-		Rollback();
+		//Rollback();
 		return false;
 	}
 	else
@@ -1363,13 +1367,13 @@ bool SQLitePersisten::ClearRecgames(void)
 	ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
-		Rollback();
+		//Rollback();
 		return false;
 	}
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
-		Rollback();
+		//Rollback();
 		return false;
 	}
 	else
@@ -1381,13 +1385,13 @@ bool SQLitePersisten::ClearRecgames(void)
 	ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);
 	if( ret != SQLITE_OK)
 	{
-		Rollback();
+		//Rollback();
 		return false;
 	}
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
-		Rollback();
+		//Rollback();
 		return false;
 	}
 	else
@@ -1395,7 +1399,7 @@ bool SQLitePersisten::ClearRecgames(void)
 		sqlite3_finalize(stmt);
 	}
 
-	Commit();
+	//Commit();
 	return true;
 }
 

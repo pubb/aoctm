@@ -124,16 +124,20 @@ bool CRecgameDatabase::Save(IPersistentInterface *engine)
 		return false;
 
 	//load chatinfo before clearrecgames() because we don't load it at startup.
-	LoadChatInfo(engine);
+	if(!LoadChatInfo(engine))
+		return false;
 
-	bool flag = true;
-
-	engine->ClearRecgames();
-
+	//pubb, 07-10-27, move to begin of the db operations
 	if( !engine->BeginTx() )
 		return false;
 
-	flag = true;
+	if(!engine->ClearRecgames())
+	{
+		engine->Rollback();
+		return false;
+	}
+
+	bool flag = true;
 	for(int i = 0; i < GetCount(); i++)
 	{
 		//pubb, 07-08-12, mep's bug.

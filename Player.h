@@ -50,7 +50,9 @@ public:
 	int	PlayCount;				//所打场次总计
 	int	WinCount;				//所赢场次总计
 	CTime	UpdateTime;			//最近更新时间
-	int	Fee;					//玩家当前剩余会费
+	//pubb, 07-10-26, no Fee property now
+	//int	Fee;					//玩家当前剩余会费
+	bool	IsComputer;			//是电脑玩家
 
 	//by mep
 	//for technic statistic
@@ -83,3 +85,6 @@ public:
 #define	DEF_RATING	1500
 #define	DEF_RATING_STR	_T("1500")
 #define	MAX_TIMESPAN	CTimeSpan(99999999)
+
+//pubb, 07-10-25, for computer players
+#define COMPUTER    (_T("@#-"))
