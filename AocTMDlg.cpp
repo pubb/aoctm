@@ -99,8 +99,8 @@ BEGIN_MESSAGE_MAP(CAocTMDlg, CDialog)
 	ON_COMMAND(ID_CONFIG_CHARGE, &CAocTMDlg::OnConfigCharge)
 	ON_COMMAND(ID_CONFIG_PLAYERINITIALIZE, &CAocTMDlg::OnConfigPlayer)
 	ON_BN_CLICKED(IDC_REC_DELETE, &CAocTMDlg::OnBnClickedRecDelete)
-	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIME_FROM, &CAocTMDlg::OnDtnDatetimechange)
-	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_DATETIME_TO, &CAocTMDlg::OnDtnDatetimechange)
+	ON_NOTIFY(DTN_CLOSEUP, IDC_DATETIME_FROM, &CAocTMDlg::OnDtnDatetimechange)
+	ON_NOTIFY(DTN_CLOSEUP, IDC_DATETIME_TO, &CAocTMDlg::OnDtnDatetimechange)
 	ON_BN_CLICKED(IDC_REC_DISMISS, &CAocTMDlg::OnBnClickedRecDismiss)
 	ON_COMMAND(ID_ACCELERATOR_LOAD, (AFX_PMSG)&CAocTMDlg::OnAcceleratorLoad)
 	ON_NOTIFY(NM_DBLCLK, IDC_REC_LIST, &CAocTMDlg::OnNMDblclkRecList)
@@ -443,7 +443,9 @@ void CAocTMDlg::Refresh(void)
 #ifdef	XLISTCTRL_OLD
 			//m_List.SetItemTextColor(j, team_position, player_color[k]);
 #else
-			m_List.SetItemColors(j, team_position, player_color[k], background_color);
+			//pubb, 07-10-31, it should use Player->Color, but we still use 'k' for better display before '2v1' condition solved correctly
+			m_List.SetItemColors(j, team_position, player_color[rec->Players[k].Color], background_color);
+			//m_List.SetItemColors(j, team_position, player_color[k], background_color);
 #endif
 		}
 		//save recgame index in DB

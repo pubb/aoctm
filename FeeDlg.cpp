@@ -53,7 +53,7 @@ BOOL CFeeDlg::OnInitDialog()
 }
 void CFeeDlg::OnBnClickedSave()
 {
-	CFileDialog dlg(FALSE, _T(".csv"), _T("fee.csv"), OFN_OVERWRITEPROMPT, _T("CSV (Comma delimited) | *.csv"));
+	CFileDialog dlg(FALSE, _T(".csv"), _T("fee.csv"), OFN_OVERWRITEPROMPT, _T("CSV (Comma delimited, *.csv)|*.csv||"));
 	if(dlg.DoModal() == IDCANCEL)
 		return;
 	CString	csvfile = dlg.GetPathName();
@@ -123,7 +123,8 @@ void CFeeDlg::Refresh(void)
 
 	int nItem, cost = theApp.Config.GetAllCostFee(), count = theApp.Players.GetAllPlayCount();
 	float eachcost = count == 0 ? 0 : (float)1.0 * cost / count;
-	
+	int income = 0;
+
 	CString str;
 	for(int i = 0; i < theApp.Players.GetCount(); i++)
 	{
@@ -133,6 +134,7 @@ void CFeeDlg::Refresh(void)
 		nItem = m_List.InsertItem(i, player->NickNames[0]);
 		str.Format(_T("%d"), player->PlayCount);
 		m_List.SetItemText(nItem, 1, str);
+		income += player->GetPaidFee();
 		str.Format(_T("%d"), player->GetPaidFee());
 		m_List.SetItemText(nItem, 2, str);
 		str.Format(_T("%d"), (int)(player->GetPaidFee() - eachcost * player->PlayCount));
@@ -141,4 +143,13 @@ void CFeeDlg::Refresh(void)
 
 	//pubb, 07-09-04, restore
 	theApp.Players.Update();
+
+	str.Format(_T("Money In: %d"), income);
+	SetDlgItemText(IDC_MONEY_IN_TOTAL, str);
+	str.Format(_T("Money Out: %d"), cost);
+	SetDlgItemText(IDC_MONEY_OUT_TOTAL, str);
+	str.Format(_T("Money Left: %d"), income - cost);
+	SetDlgItemText(IDC_MONEY_LEFT_TOTAL, str);
+	str.Format(_T("Play Count: %d"), count);
+	SetDlgItemText(IDC_PLAYCOUNT_TOTAL, str);
 }

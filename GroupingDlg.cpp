@@ -254,7 +254,8 @@ void CGroupingDlg::Refresh(void)
 
 	int i, index;
 	for(i = 0; i < theApp.Players.GetCount(); i++)
-		InsertPlayers(theApp.Players[i]->NickNames[0], i);
+		if(!theApp.Players[i]->IsComputer)
+			InsertPlayers(theApp.Players[i]->NickNames[0], i);
 
 	if(theApp.bCurrent)
 	{

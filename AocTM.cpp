@@ -69,7 +69,7 @@ BOOL CAocTMApp::InitInstance()
 	CFile f;
 	if(!f.Open(DB_NAME, CFile::modeRead))
 	{
-		CFileDialog dbDlg(true, _T(".aoc"), DB_NAME, 0, _T("AOC (Database File) | *.aoc"));
+		CFileDialog dbDlg(true, _T(".aoc"), DB_NAME, 0, _T("AOC Database File (*.aoc)|*.aoc|All Files (*.*)|*.*||"));
 		if(dbDlg.DoModal() == IDCANCEL)
 			return FALSE;
 		DB_File = dbDlg.GetPathName();

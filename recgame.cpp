@@ -12,9 +12,23 @@
 
 #include "renamer/renamer.h"
 
+//pubb, 07-10-31, change it to start from blue, since no one use player_color[0]
+/*
 COLORREF	player_color[9] =
 {
  	RGB(0, 0, 0), 
+	RGB(0, 0, 192), 
+	RGB(224, 0, 0),
+	RGB(0, 192, 0),
+	RGB(192, 192, 0),
+	RGB(0, 192, 192),
+	RGB(192, 0, 128),
+	RGB(128, 128, 128),
+	RGB(255, 128, 0)
+};
+*/
+COLORREF	player_color[8] =
+{
 	RGB(0, 0, 192), 
 	RGB(224, 0, 0),
 	RGB(0, 192, 0),
@@ -488,7 +502,8 @@ void CRecgame::getGameData(void)
 		
 		player_name_len = *(int*)(&m_pt_header[pos]);
 		pos += 4;
-		
+
+		//XXX, pubb, 07-10-31, this code segment should be considered specially for '2 v 1' condition
 		if(data_ref[i] != 0){
 			
 			memset(t_player_name, 0, 256);
@@ -601,6 +616,9 @@ void CRecgame::getGameData(void)
 	pos += 821;
 
 	
+	//FIXME, pubb, 07-10-31, this code segment should be considered specially for '2 v 1' condition
+	//it actually fills the real players' data. if 2 player control 1 real player, the latter one will have no data found in this code segment
+	/*
 	j = 1;
 	
 	for(; pos < trigger_pos; pos++){
@@ -622,7 +640,50 @@ void CRecgame::getGameData(void)
 				Players[j].Civ = m_pt_header[pos];
 				pos += 1;
 				pos += 3;
-				Players[j].Color = m_pt_header[pos];
+				//'color + 1', 0 for blue
+				Players[j].Color = m_pt_header[pos] + 1;
+				j++;
+				
+				if(j > PlayerNum){
+					break;
+				}
+			}
+		}
+	}
+	*/
+	for(j = 1; pos < trigger_pos; pos++)
+	{
+		int civ, color;
+
+		player_name_len = (int)strlen(Players[j].name_key);
+		
+		ret = memcmp(&m_pt_header[pos], Players[j].name_key, player_name_len);
+		
+		if(ret == 0){
+			str_len = *((short*)&m_pt_header[pos-2]) - 1;
+
+			if(str_len == player_name_len){
+				pos += (player_name_len + 1);
+				pos += 807;
+				length = *((short*)&m_pt_header[pos]);
+				pos += 4;
+				pos += length * 8;
+				pos += 5;
+				civ = m_pt_header[pos];
+				pos += 1;
+				pos += 3;
+				//pubb, 07-10-31, 0 for 'blue'
+				color = m_pt_header[pos];
+
+				for(int k = 1; k < 9; k++)
+				{
+					if(data_ref[k] == j)
+					{
+						Players[k].Civ = civ;
+						Players[k].Color = color;
+					}
+				}
+
 				j++;
 				
 				if(j > PlayerNum){
@@ -632,7 +693,6 @@ void CRecgame::getGameData(void)
 		}
 	}
 
-	
 	for(i = m_header_len - 18000; i > 100000; i--){
 
 		if((m_pt_header[i-1] == ':' && m_pt_header[i] == ' ') || (m_pt_header[i-1] == 0xa1 && m_pt_header[i] == 'G')){ 
@@ -804,8 +864,23 @@ void CRecgame::getGameData(void)
 	for(j = 0; j < 8; j++)
 	{
 		//pubb, 07-08-04, set Players.Team
-//		player_team[j+1] = m_pt_header[pos+j] -1;
-		Players[j+1].Team = m_pt_header[pos+j] -1;
+		//pubb, 07-10-31, if not set team (that's '-' in the game), then set it manually
+		if(m_pt_header[pos+j] - 1 == 0)
+		{
+			int team = 1;
+			for(int i = 0; i <= j; i++)
+			{
+				if(Players[i+1].Team == 1)
+					team = 2;
+			}
+			Players[j+1].Team = team;
+		}
+		else
+		{
+			//		player_team[j+1] = m_pt_header[pos+j] -1;
+			Players[j+1].Team = m_pt_header[pos+j] -1;
+		}
+
 	/*
 		if(m_pt_header[pos+j] - 1 == 0){
 			player_team[j+1] = _T("-");
@@ -1222,6 +1297,8 @@ int		CRecgame::GetWinnerTeam(void)
 			team_lose[Players[i].Team]++;
 	}
 
+	//pubb, 07-10-31, non-zero Team be set already
+	/*
 	//pubb, 07-10-24, to deal with 'no group' situation
 	//move 'no group' team to 'another' team
 	//XXX, not a good way
@@ -1232,6 +1309,7 @@ int		CRecgame::GetWinnerTeam(void)
 		else
 			team_lose[2] = team_lose[0];
 	}
+	*/
 
 	int max = 0, max_index = 0;
 	for(i = 1; i <= 8; i++)

@@ -141,7 +141,7 @@ void CReportDlg::OnBnClickedOk()
 	if(!m_pPlayerDB)
 		return;
 
-	CFileDialog dlg(FALSE, _T(".csv"), _T("stat.csv"), OFN_OVERWRITEPROMPT, _T("CSV (Comma delimited) | *.csv"));
+	CFileDialog dlg(FALSE, _T(".csv"), _T("stat.csv"), OFN_OVERWRITEPROMPT, _T("CSV (Comma delimited, *.csv)|*.csv||"));
 	if(dlg.DoModal() == IDCANCEL)
 		return;
 	CString	csvfile = dlg.GetPathName();

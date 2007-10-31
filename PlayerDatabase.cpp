@@ -68,7 +68,6 @@ bool	CPlayerDatabase::Save(IPersistentInterface * engine)
 		return false;
 
 	engine->ClearPlayers();
-
 	
 	bool flag = true;
 	for(int i = 0; i < GetCount(); i++)
@@ -122,7 +121,9 @@ void CPlayerDatabase::Add(CRecgame * rg)
 {
 	CPlayer * player;
 
-	for(int i = 1; i <= rg->PlayerNum; i++)
+	//pubb, 07-10-31, PlayerNum is not equal to players' number for '2v1' condition
+	//for(int i = 1; i <= rg->PlayerNum; i++)
+	for(int i = 1; i < 9; i++)
 	{
 		if(rg->Players[i].Name.IsEmpty())
 			continue;
