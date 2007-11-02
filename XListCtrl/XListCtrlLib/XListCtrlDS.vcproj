@@ -169,8 +169,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying file..."
-				CommandLine="mkdir ..\bin 2&gt; nul&#x0D;&#x0A;copy $(Outdir)\$(TargetName).lib ..\bin 1&gt; nul&#x0D;&#x0A;"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -248,8 +248,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Copying file..."
-				CommandLine="mkdir ..\bin 2&gt; nul&#x0D;&#x0A;copy $(Outdir)\$(TargetName).lib ..\bin 1&gt; nul&#x0D;&#x0A;"
+				Description=""
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
