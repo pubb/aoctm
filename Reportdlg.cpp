@@ -75,7 +75,7 @@ BOOL CReportDlg::OnInitDialog()
 
 		//pubb, 07-09-18, to generate ratings before the report ( 5 minutes )
 		theApp.Players.Update(CTime(0), m_pPlayerDB->m_pRecgameDB->GetFirstGameTime() - CTimeSpan(0, 0, 5, 0));
-		CopyInitRatings();	//store ratings before this show up in InitRating
+		CopyPlayers();	//store ratings before this show up in InitRating
 		//pubb, 07-09-22, restore the normal ratings
 		theApp.Players.Update();
 		m_pPlayerDB->Update();
@@ -188,18 +188,20 @@ void CReportDlg::OnNMDblclkReportlist(NMHDR *pNMHDR, LRESULT *pResult)
 	if(!m_pPlayerDB)
 		return;
 
-	CPlayerDatabase players;
-	players.m_pRecgameDB = m_pPlayerDB->m_pRecgameDB;
-	for(int i = 0; i < m_pPlayerDB->GetCount(); i++)
-	{
-		CPlayer * player = m_pPlayerDB->GetAt(i);
-		if(player->IsComputer)
-			continue;
-		players.Add(player);
-	}
-	
+	CPlayerDatabase selected_players;
+	selected_players.m_pRecgameDB = m_pPlayerDB->m_pRecgameDB;
+
+	POSITION pos = m_List.GetFirstSelectedItemPosition();
+	if(!pos)
+		return;
+	CPlayer * player = m_pPlayerDB->GetAt(m_List.GetItemData(m_List.GetNextSelectedItem(pos)));
+	selected_players.Add(player);
+
 	CGraphDlg dlg;
-	dlg.m_pPlayers = &players;
+	dlg.m_nCommand = SHOW_RATINGCURVE;
+	dlg.m_pPlayers = &selected_players;
+	dlg.m_FirstGame = m_pPlayerDB->m_pRecgameDB->GetFirstGameTime();
+	dlg.m_LastGame = m_pPlayerDB->m_pRecgameDB->GetLatestGameTime();
 	dlg.DoModal();
 
 	*pResult = 0;
@@ -261,7 +263,7 @@ void CReportDlg::OnShowChart(UINT command)
 	dlg.DoModal();
 }
 
-void CReportDlg::CopyInitRatings(void)
+void CReportDlg::CopyPlayers(void)
 {
 	//copy ratings from players' database
 	INT_PTR index;
@@ -272,6 +274,7 @@ void CReportDlg::CopyInitRatings(void)
 		if(index >= 0)
 		{
 			(*m_pPlayerDB)[i]->InitRating = theApp.Players[index]->Rating;
+			(*m_pPlayerDB)[i]->IsComputer = theApp.Players[index]->IsComputer;
 		}
 	}
 }

@@ -33,5 +33,5 @@ public:
 	afx_msg void OnShowChart(UINT command);
 
 private:
-	void CopyInitRatings();
+	void CopyPlayers();
 };
