@@ -22,6 +22,19 @@
 
 // CAboutDlg dialog used for App About
 
+#define	AOCTM_VERSION	(_T("1.0beta"))
+#define AOCTM_BUILD	__AOCTM_BUILD()
+inline CString __AOCTM_BUILD(void)
+{
+	CString date =_T(__DATE__);
+	int curPos = 0;
+	int month = Renamer::ToMonth(date.Tokenize(_T(" "), curPos));
+	int day = _ttoi(date.Tokenize(_T(" "), curPos));
+	CString year = date.Tokenize(_T(" "), curPos).Right(2);
+	date.Format(_T("%s%.2d%.2d"), year, month, day);
+	return date;
+}
+
 class CAboutDlg : public CDialog
 {
 public:

@@ -22,7 +22,6 @@ public:
 	//07-10-11, pubb, to be a static function for better usage
 	static CTime Parse(CString file);
 
-private:
 	//07-10-11, pubb, to be a static function for better usage
 	static int ToMonth(CString& s);
 };
