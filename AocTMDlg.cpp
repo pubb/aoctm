@@ -48,7 +48,7 @@ BOOL CAboutDlg::OnInitDialog(void)
 	CDialog::OnInitDialog();
 
 	CString str;
-	str.Format(_T("AocTM v%s build %s"), AOCTM_VERSION, CTime::GetCurrentTime().Format(_T("%y%m%d")));
+	str.Format(_T("AocTM v%s build %s"), AOCTM_VERSION, AOCTM_BUILD);
 	SetDlgItemText(IDC_VERSION, str);
 	return TRUE;
 }
@@ -443,9 +443,8 @@ void CAocTMDlg::Refresh(void)
 #ifdef	XLISTCTRL_OLD
 			//m_List.SetItemTextColor(j, team_position, player_color[k]);
 #else
-			//pubb, 07-10-31, it should use Player->Color, but we still use 'k' for better display before '2v1' condition solved correctly
+			//pubb, 07-10-31, it should use Player->Color
 			m_List.SetItemColors(j, team_position, player_color[rec->Players[k].Color], background_color);
-			//m_List.SetItemColors(j, team_position, player_color[k], background_color);
 #endif
 		}
 		//save recgame index in DB

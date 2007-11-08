@@ -391,14 +391,29 @@ void CRecgame::getBody(unsigned char **pt_body, unsigned int *length)
 
 void CRecgame::getGameData(void)
 {
-	TCHAR maptype_jp[15] = _T("ƒ}ƒbƒv‚ÌŽí—Þ");	
-	TCHAR maptype_en[15] = _T("Map Type");		
-	TCHAR maptype_sp[15] = _T("Tipo de mapa");	
-	TCHAR maptype_de[15] = _T("Kartentyp");		
-	TCHAR maptype_cn[15] = _T("µØÍ¼ÀàÐÍ");		
-	TCHAR maptype_c2[15] = _T("¦a¹ÏÃþ§O");		
-	TCHAR maptype_kr[15] = _T("Áöµµ Á¾·\xf9");	
-	TCHAR gaia[15]       = _T("GAIA");
+	//pubb, 07-11-07, make them a group of string for any possibilities. end with 'null'
+	//pubb, 07-11-05, use CHAR instead of TCHAR to do correct compare
+	/*
+	char maptype_jp[15] = "ƒ}ƒbƒv‚ÌŽí—Þ";	
+	char maptype_en[15] = "Map Type";		
+	char maptype_sp[15] = "Tipo de mapa";	
+	char maptype_de[15] = "Kartentyp";		
+	char maptype_cn[15] = "µØÍ¼ÀàÐÍ";		
+	char maptype_c2[15] = "¦a¹ÏÃþ§O";		
+	char maptype_kr[15] = "Áöµµ Á¾·\xf9";	
+	*/
+	char maptype_str[][32] = 
+	{ "ƒ}ƒbƒv‚ÌŽí—Þ",	//jp
+	  "Map Type",		//en
+	  "Tipo de mapa",	//sp
+	  "Kartentyp",		//de
+	  "µØÍ¼ÀàÐÍ",		//cn
+	  "¦a¹ÏÃþ§O",		//tw
+	  "Áöµµ Á¾·\xf9",	//kr
+	  "µØÍ¼Àà±ð",		//cn2
+	  NULL
+	};
+	char gaia[15]       = "GAIA";
 
 	long i,j;
 	int ret;
@@ -436,7 +451,7 @@ void CRecgame::getGameData(void)
 	int minute;
 	int second;
 	*/
-	CStringArray  str_chat;
+	//CStringArray  str_chat;
 
 	unsigned char map_buff[100];
 	unsigned char age_flag[9] ={0,0,0,0,0,0,0,0,0};
@@ -445,7 +460,7 @@ void CRecgame::getGameData(void)
 	unsigned char player_number;
 	unsigned char chat_msg[256];
 	unsigned char t_player_name[256];
-	CString str_edit;
+	//CString str_edit;
 	CString t_map_name;
 	CString alt_map_name;
 	CString str_work;
@@ -454,13 +469,17 @@ void CRecgame::getGameData(void)
 	//pubb, 07-08-02, map_id not public now.
 	int map_id = -1;
 
-	int maptype_len_jp  = (int)_tcslen(maptype_jp);
-	int maptype_len_en  = (int)_tcslen(maptype_en);
-	int maptype_len_sp  = (int)_tcslen(maptype_sp);
-	int maptype_len_de  = (int)_tcslen(maptype_de);
-	int maptype_len_cn  = (int)_tcslen(maptype_cn);
-	int maptype_len_c2  = (int)_tcslen(maptype_c2);
-	int maptype_len_kr  = (int)_tcslen(maptype_kr);
+	//pubb, 07-11-07, no use now
+	/*
+	//pubb, 07-11-05, use CHAR instead of TCHAR to do correct compare
+	int maptype_len_jp  = (int)strlen(maptype_jp);
+	int maptype_len_en  = (int)strlen(maptype_en);
+	int maptype_len_sp  = (int)strlen(maptype_sp);
+	int maptype_len_de  = (int)strlen(maptype_de);
+	int maptype_len_cn  = (int)strlen(maptype_cn);
+	int maptype_len_c2  = (int)strlen(maptype_c2);
+	int maptype_len_kr  = (int)strlen(maptype_kr);
+	*/
 
 	if(m_header_len == 0){
 		return ;
@@ -664,11 +683,18 @@ void CRecgame::getGameData(void)
 
 			if(str_len == player_name_len){
 				pos += (player_name_len + 1);
+				//XXX, pubb, 07-11-04, 'length' is actually either 0 or 255(-1). just ignore it
+				//so make 'pos' increases by 816
+				/*
 				pos += 807;
 				length = *((short*)&m_pt_header[pos]);
+				length = 0;
 				pos += 4;
 				pos += length * 8;
 				pos += 5;
+				*/
+				pos += 816;
+
 				civ = m_pt_header[pos];
 				pos += 1;
 				pos += 3;
@@ -693,28 +719,26 @@ void CRecgame::getGameData(void)
 		}
 	}
 
-	for(i = m_header_len - 18000; i > 100000; i--){
-
-		if((m_pt_header[i-1] == ':' && m_pt_header[i] == ' ') || (m_pt_header[i-1] == 0xa1 && m_pt_header[i] == 'G')){ 
-
-			
-			ret = memcmp(&m_pt_header[i - 1 - maptype_len_jp], maptype_jp, maptype_len_jp);
-			
-			if(ret == 0){
-				i = i + 1;
-				memset(map_buff,'\0',100);
-				for(j = 0; j < 100; j++){
-					if(m_pt_header[i+j] == 0x0A){
-						break;
-					}
-					map_buff[j] = m_pt_header[i+j];
-					t_map_name = map_buff;
+	for(i = m_header_len - 18000; i > 100000; i--)
+	{
+		//pubb, 07-11-07, fix a bug incurred by chinese version of aoc
+		//pubb, 07-11-05, rearranged the code section for better view
+		if((m_pt_header[i-1] == ':' && m_pt_header[i] == ' ') || (m_pt_header[i-1] == 0xa1 && m_pt_header[i] == 'G') || (m_pt_header[i-1] == 0xa3 && m_pt_header[i] == 0xba /* "£º" */))
+		{ 
+			//pubb, 07-11-07, to find 'map type'
+			bool found = false;
+			for(int t = 0; maptype_str[t][0] != NULL; t++)
+			{
+				char * p = maptype_str[t];
+				int len = (int)strlen(p);
+				if(memcmp(&m_pt_header[i - 1 - len], p, len) == 0)
+				{
+					found = true;
+					break;
 				}
-				break;
 			}
-			ret = memcmp(&m_pt_header[i - 1 - maptype_len_en], maptype_en, maptype_len_en);
-			
-			if(ret == 0){
+			if(found)
+			{
 				i = i + 1;
 				memset(map_buff,'\0',100);
 				for(j = 0; j < 100; j++){
@@ -722,84 +746,15 @@ void CRecgame::getGameData(void)
 						break;
 					}
 					map_buff[j] = m_pt_header[i+j];
-					t_map_name = map_buff;
 				}
-				break;
-			}
-			ret = memcmp(&m_pt_header[i - 1 - maptype_len_sp], maptype_sp, maptype_len_sp);
-			
-			if(ret == 0){
-				i = i + 1;
-				memset(map_buff,'\0',100);
-				for(j = 0; j < 100; j++){
-					if(m_pt_header[i+j] == 0x0A){
-						break;
-					}
-					map_buff[j] = m_pt_header[i+j];
-					t_map_name = map_buff;
-				}
-				break;
-			}
-			ret = memcmp(&m_pt_header[i - 1 - maptype_len_de], maptype_de, maptype_len_de);
-			
-			if(ret == 0){
-				i = i + 1;
-				memset(map_buff,'\0',100);
-				for(j = 0; j < 100; j++){
-					if(m_pt_header[i+j] == 0x0A){
-						break;
-					}
-					map_buff[j] = m_pt_header[i+j];
-					t_map_name = map_buff;
-				}
-				break;
-			}
-			ret = memcmp(&m_pt_header[i - 1 - maptype_len_cn], maptype_cn, maptype_len_cn);
-			
-			if(ret == 0){
-				i = i + 1;
-				memset(map_buff,'\0',100);
-				for(j = 0; j < 100; j++){
-					if(m_pt_header[i+j] == 0x0A){
-						break;
-					}
-					map_buff[j] = m_pt_header[i+j];
-					t_map_name = map_buff;
-				}
-				break;
-			}
-			ret = memcmp(&m_pt_header[i - 1 - maptype_len_c2], maptype_c2, maptype_len_c2);
-			
-			if(ret == 0){
-				i = i + 1;
-				memset(map_buff,'\0',100);
-				for(j = 0; j < 100; j++){
-					if(m_pt_header[i+j] == 0x0A){
-						break;
-					}
-					map_buff[j] = m_pt_header[i+j];
-					t_map_name = map_buff;
-				}
-				break;
-			}
-			ret = memcmp(&m_pt_header[i - 1 - maptype_len_kr], maptype_kr, maptype_len_kr);
-			
-			if(ret == 0){
-				i = i + 1;
-				memset(map_buff,'\0',100);
-				for(j = 0; j < 100; j++){
-					if(m_pt_header[i+j] == 0x0A){
-						break;
-					}
-					map_buff[j] = m_pt_header[i+j];
-					t_map_name = map_buff;
-				}
+				t_map_name = map_buff;
 				break;
 			}
 		}
-		else if(m_pt_header[i] == 'A'){
-			
-			if(m_pt_header[i-3] == 'G' && m_pt_header[i-2] == 'A' && m_pt_header[i-1] == 'I'){
+		else if(m_pt_header[i] == 'A')
+		{
+			if(m_pt_header[i-3] == 'G' && m_pt_header[i-2] == 'A' && m_pt_header[i-1] == 'I')
+			{
 				t_map_name = _T("");
 				break;		
 			}
@@ -807,7 +762,8 @@ void CRecgame::getGameData(void)
 	}
 
 	Map.Name = theApp.Recgames.GetMapName(map_id);
-	if(Map.Name.IsEmpty())
+	//pubb, 07-11-05, for 'custom' map, if read the map name out from rec, then set it.
+	if(map_id == 44 && !t_map_name.IsEmpty())
 		Map.Name = t_map_name;
 	
 	pos = trigger_pos;
@@ -905,7 +861,7 @@ void CRecgame::getGameData(void)
 			
 			memset(chat_msg, 0, 256);
 			memcpy(chat_msg, &m_pt_header[j], chat_len);
-			str_edit += CString(chat_msg) + _T("\r\n");
+//			str_edit += CString(chat_msg) + _T("\r\n");
 
 			/* pubb, 07-08-02, copy chAocTMsg. it's stored in format like "pubb:1" */
 			CChatInfo * chat = new CChatInfo(chat_msg, 0);
@@ -920,13 +876,20 @@ void CRecgame::getGameData(void)
 		Map.Name = _T("scenario");
 	}
 
-	
-	str_edit = _T("");
+
+	/* body decoding
+	 * containing a serie of operations with meaningful type of 1, 2 or 4.
+	 * type 1 for command
+	 * type 2 for sync
+	 * type 4 for game start and chat in game
+	 */
+	 //	str_edit = _T("");
 
 	pos = 0;
 	time_cnt = 0;
 
 	for(; pos < (long)m_body_len - 3;){
+		//pubb, 07-11-07, maybe no need now because i've fixed a bug for decoding. but i still left it here for a time.
 		//XXX, pubb, 07-10-26, invalid 'pos' value returned after a time of loop for a certain rec
 		if(pos < 0)
 			break;
@@ -938,10 +901,10 @@ void CRecgame::getGameData(void)
 		case 4: 
 			command = *((int*)&m_pt_body[pos]);
 			pos += 4;
-			if(command == 500){ 
+			if(command == 500){		//game start with unknown 20 bytes
 				pos += 20;
 			}
-			else if(command == -1){ 
+			else if(command == -1){		//chat in game	
 				chat_len = *((int*)&m_pt_body[pos]);
 				pos += 4;
 
@@ -1020,6 +983,7 @@ void CRecgame::getGameData(void)
 
 		case 2: 
 			time_cnt += *((int*)&m_pt_body[pos]);
+
 			pos += 4;
 			command = *((int*)&m_pt_body[pos]);
 			pos += 4;
@@ -1029,7 +993,7 @@ void CRecgame::getGameData(void)
 			else{
 				pos += 0;
 			}
-			pos += 12;
+			pos += 12;	//for player's view position x (4 bytes), position y (4 bytes) and player_index (4 bytes)
 			break;
 
 		case 1: 
@@ -1045,9 +1009,9 @@ void CRecgame::getGameData(void)
 			case 0x050B:
 			case 0x060B:
 			case 0x070B:
-			case 0x080B:
+			case 0x080B:	//player_index << 8 | resign command (0x0B)
 				pos += 2;
-				player_number = *((unsigned char*)&m_pt_body[pos]);
+				player_number = *((unsigned char*)&m_pt_body[pos]);		//maybe different to player_index in cooperation mode
 				pos += 2;
 				
 				/* pubb, 07-08-02, commented because we have our own method dealing with resign msg */
@@ -1065,6 +1029,7 @@ void CRecgame::getGameData(void)
 				 */
 				Players[player_number].ResignTime = Timecnt2CTimeSpan(time_cnt);
 
+				pos += (command_len - 4);
 				break;
 			case 0x65: 
 				pos += 8;

@@ -47,6 +47,7 @@ private:
 };
 
 #define	AOCTM_VERSION	(_T("1.0beta"))
+#define AOCTM_BUILD	(_T("071108"))
 
 #define	DB_NAME	(_T("db.aoc"))
 #define	FIRSTGAME_TIME CTime(2007, 1, 1, 0, 0, 0)

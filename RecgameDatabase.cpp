@@ -190,10 +190,12 @@ CString CRecgameDatabase::GetAOCRegistry(void)
 
 CString CRecgameDatabase::GetMapName(int id)
 {
-	if( (id >= 0x09 && id <= 0x21) || id == 0x30)
+	if( (id >= 9 && id <= 33) || id == 48)
 		return m_str_table[id];
 	else
-		return _T("");
+		if(id == 44)
+			return _T("Custom unknown");
+	return _T("");
 }
 
 bool	CRecgameDatabase::Add(CRecgame * rg)
