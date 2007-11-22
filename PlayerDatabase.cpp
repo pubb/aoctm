@@ -19,7 +19,8 @@ INT_PTR CPlayerDatabase::GetFirstSamePlayer(CString name)
 	{
 		for(int j = 0; j < GetAt(i)->NickNames.GetCount(); j++)
 		{
-			if(name == GetAt(i)->NickNames[j])
+			//pubb, 07-11-20, ignore case
+			if(name.CompareNoCase(GetAt(i)->NickNames[j]) == 0)
 				return i;
 		}
 	}
