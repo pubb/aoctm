@@ -83,7 +83,8 @@ CTime	Renamer::Parse(CString file)
 	int curPos= 0;
 
 	//得到时间字符串
-	token = file.Tokenize(_T("-` "), curPos);
+	//pubb, 07-11-24, add '_' for token seperator
+	token = file.Tokenize(_T("_-` "), curPos);
 	int result[6];
 	int j = 0;
 
