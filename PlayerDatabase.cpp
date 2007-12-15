@@ -296,29 +296,71 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 	if(winteam == 0)	//'an incomplete game'.
 		return;
 
+	/* pubb, 07-12-15
+	 * for 2in1 settings, we calculate ratings as (lower+(higher-lower)*2).
+	 * for 'more vs less' settings, we add 'more' team ratings (as R_more) with an addon, that is R_more * (more - less) / more.
+	 */
+	int player_same_color[8];
+	memset(player_same_color, 0, sizeof(int) * 8);
+
 	for(i = 1; i <= 8; i++)
 	{
 		index = GetFirstSamePlayer(rg->Players[i].Name);
 		if(index < 0)
 			continue;
-		
+		int rating = GetAt(index)->Rating;
+
+		if(player_same_color[rg->Players[i].Color] == 0)
+		{
+			player_same_color[rg->Players[i].Color] = rating;
+		}
+		else
+		{
+			int tmp_rating = player_same_color[rg->Players[i].Color];
+			if(tmp_rating < rating)
+				rating = rating * 2 - tmp_rating;
+			else if(tmp_rating > rating)
+				rating = tmp_rating * 2 - rating;
+			player_same_color[rg->Players[i].Color] = rating;
+			
+			if(rg->Players[i].Team ==  winteam)
+			{
+				winner_count--;
+				R_winner -= tmp_rating;
+			}
+			else
+			{
+				loser_count--;
+				R_loser -= tmp_rating;
+			}
+		}
+
 		if(rg->Players[i].Team ==  winteam)
 		{
 			winner_count++;
-			R_winner += GetAt(index)->Rating;
+			R_winner += rating;
 		}
 		else
 		{
 			loser_count++;
-			R_loser += GetAt(index)->Rating;
+			R_loser += rating;
 		}
 	}
 	if(winner_count == 0 || loser_count == 0)
 		return;
 
+	if(winner_count > loser_count)
+	{
+		R_winner = R_winner * (winner_count * 2 - loser_count) / winner_count;
+	}
+	else if(winner_count < loser_count)
+	{
+		R_loser = R_loser * (loser_count * 2 - winner_count) / loser_count;
+	}
 	R_winner /= winner_count;
 	R_loser /= loser_count;
 	
+
 	//pubb, 07-08-26, change to use 'float' to calculate for more accuracy
 	float wlR = (float)(R_winner - R_loser);
 	/* XXX, pubb, 07-08-31
