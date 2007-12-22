@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "AocTM.h"
 #include "GroupingDlg.h"
-#include "grouping/grouping.h"
 #include "playerinputdlg.h"
 
 // CGroupingDlg dialog
@@ -12,7 +11,7 @@
 IMPLEMENT_DYNAMIC(CGroupingDlg, CDialog)
 
 CGroupingDlg::CGroupingDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CGroupingDlg::IDD, pParent), maindlg(NULL)
+	: CDialog(CGroupingDlg::IDD, pParent), maindlg(NULL), prefer4v3(FALSE)
 {
 	m_hAccelTable = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_ACCELERATOR1));
 }
@@ -28,6 +27,7 @@ void CGroupingDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SELECTED, m_Selected);
 	DDX_Control(pDX, IDC_GROUP1, m_Group1);
 	DDX_Control(pDX, IDC_GROUP2, m_Group2);
+	DDX_Check(pDX, IDC_CHECK_4v3, prefer4v3);
 }
 
 
@@ -94,56 +94,45 @@ void CGroupingDlg::OnNMDblclkPlayers(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CGroupingDlg::OnBnClickedOk()
 {
-	int ratings[8];
-	int group1[4];
-	int group2[4];
-	int group1TotalScore;
-	int group2TotalScore;
-	int delta;
-
 	int i, selected = m_Selected.GetItemCount();
 
 	if(selected <= 0)
 		return;
 
-	//huangjie, 07-08-03, only even count is permitted
-	if(selected % 2 != 0)
-	{
-		AfxMessageBox(_T("even player count is permitted only"), MB_OK);
-		return;
-	}
-
-	memset(group1, 0, sizeof(group1));
-	memset(group2, 0, sizeof(group2));
-
-
-	for(i = 0; i < selected; i++)
-		ratings[i] = _ttoi(m_Selected.GetItemText(i, 1));
-	
-	Intermediator	inter(selected, ratings);
-	inter.Grouping(group1, group2, group1TotalScore, group2TotalScore, delta);
+	grouping.Initialize(selected, ((CButton *)GetDlgItem(IDC_CHECK_4v3))->GetCheck());
 
 	m_Group1.DeleteAllItems();
 	m_Group2.DeleteAllItems();
 
+	/* pubb, 07-12-16
+	 * take odd player count
+	 * try 2in1 and 4v3 in order
+	 * get the best choice according to group delta rating
+	 */
+	//huangjie, 07-08-03, only even count is permitted
+	for(i = 0; i < selected; i++)
+	{
+		grouping.SetRating(i, _ttoi(m_Selected.GetItemText(i, 1)));
+		grouping.SetName(i, m_Selected.GetItemText(i, 0));
+	}
+	grouping.DoGroup();
+
 	int j1 = 0, j2 = 0;
 
-	for(i = 0; i < 4 /* XXX, maybe less than */; i++)
+	for(i = 0; i < 4; i++)
 	{
-		if(group1[i] > 0)
+		if(grouping.GetGroup(1, i) > 0)
 		{
-			m_Group1.InsertItem(j1, m_Selected.GetItemText(group1[i] - 1, 0));
-			m_Group1.SetItemData(j1++, group1[i] - 1);
+			m_Group1.InsertItem(j1++, grouping.GetGroupName(1, i));
 		}
-		if(group2[i] > 0)
+		if(grouping.GetGroup(2, i) > 0)
 		{
-			m_Group2.InsertItem(j2, m_Selected.GetItemText(group2[i] - 1, 0));
-			m_Group2.SetItemData(j2++, group2[i] - 1);
+			m_Group2.InsertItem(j2++, grouping.GetGroupName(2, i));
 		}
 	}
 
 	CString	str;
-	str.Format(_T("Group1: %d, Group2: %d, Delta Rating: %d"), group1TotalScore, group2TotalScore, delta);
+	str.Format(_T("Group1: %d, Group2: %d, Delta Rating: %d"), grouping.group1TotalScore, grouping.group2TotalScore, grouping.delta);
 	GetDlgItem(IDC_MSG)->SetWindowText(str);
 }
 
@@ -266,12 +255,8 @@ void CGroupingDlg::Refresh(void)
 		}
 	}
 
-	int group1 = 0, group2 = 0;
-	for(int i = 0; i < m_Group1.GetItemCount(); i++)
-	{
-		group1 += _ttoi(m_Selected.GetItemText((int)m_Group1.GetItemData(i), 1));
-		group2 += _ttoi(m_Selected.GetItemText((int)m_Group2.GetItemData(i), 1));
-	}
+	int group1 = grouping.CalculateTotal(1), group2 = grouping.CalculateTotal(2);
+
 	CString	str;
 	if(m_Group1.GetItemCount() == 0)
 		str = _T("Double click, Double click, Double click, ...");
@@ -302,19 +287,14 @@ void CGroupingDlg::OnDropFiles(HDROP hDropInfo)
 
 void CGroupingDlg::OnExchange(int index1, int index2)
 {
-	int j1 = (int)m_Group1.GetItemData(index1), j2 = (int)m_Group2.GetItemData(index2);
+	int j1 = grouping.GetGroup(1, index1), j2 = grouping.GetGroup(2, index2);
 
-	m_Group1.SetItemText(index1, 0, m_Selected.GetItemText(j2, 0));
-	m_Group1.SetItemData(index1, j2);
-	m_Group2.SetItemText(index2, 0, m_Selected.GetItemText(j1, 0));
-	m_Group2.SetItemData(index2, j1);
+	m_Group1.SetItemText(index1, 0, grouping.GetGroupName(2, index2));
+	m_Group2.SetItemText(index2, 0, grouping.GetGroupName(1, index1));
+	grouping.GetGroup(1, index1) = j2;
+	grouping.GetGroup(2, index2) = j1;
 
-	int group1 = 0, group2 = 0;
-	for(int i = 0; i < m_Group1.GetItemCount() /* pubb, 07-09-04, if odd players? */; i++)
-	{
-		group1 += _ttoi(m_Selected.GetItemText((int)m_Group1.GetItemData(i), 1));
-		group2 += _ttoi(m_Selected.GetItemText((int)m_Group2.GetItemData(i), 1));
-	}
+	int group1 = grouping.CalculateTotal(1), group2 = grouping.CalculateTotal(2);
 
 	CString	str;
 	str.Format(_T("Group1: %d, Group2: %d, Delta Rating: %d"), group1, group2, group1 - group2);

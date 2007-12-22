@@ -317,10 +317,7 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 		else
 		{
 			int tmp_rating = player_same_color[rg->Players[i].Color];
-			if(tmp_rating < rating)
-				rating = rating * 2 - tmp_rating;
-			else if(tmp_rating > rating)
-				rating = tmp_rating * 2 - rating;
+			rating = GetCooperateRating(tmp_rating, rating);
 			player_same_color[rg->Players[i].Color] = rating;
 			
 			if(rg->Players[i].Team ==  winteam)
@@ -351,12 +348,13 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 
 	if(winner_count > loser_count)
 	{
-		R_winner = R_winner * (winner_count * 2 - loser_count) / winner_count;
+		R_winner = GetOddMoreRating(R_winner, winner_count, loser_count);
 	}
 	else if(winner_count < loser_count)
 	{
-		R_loser = R_loser * (loser_count * 2 - winner_count) / loser_count;
+		R_loser = GetOddMoreRating(R_loser, loser_count, winner_count);
 	}
+
 	R_winner /= winner_count;
 	R_loser /= loser_count;
 	
@@ -482,4 +480,17 @@ void	CPlayerDatabase::CopyNickNames(void)
 void	CPlayerDatabase::SetDirty(bool d)
 {
 	dirty = d;
+}
+
+int	CPlayerDatabase::GetOddMoreRating(const int orig_rating, const int more, const int less)
+{
+	return orig_rating * (more * 2 - less) / more;
+}
+
+int CPlayerDatabase::GetCooperateRating(const int rating1, const int rating2)
+{
+	if(rating1 < rating2)
+		return rating2 * 2 - rating1;
+	else
+		return rating1 * 2 - rating2;
 }

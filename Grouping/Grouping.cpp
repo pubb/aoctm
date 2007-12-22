@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Grouping.h"
+#include "../playerdatabase.h"
 
 /*
 #include <stdlib.h>
@@ -267,3 +268,248 @@ Intermediator::DiagnosePrintChromosomes()
 	}
 }
 
+//07-12-21, pubb
+CGrouping::CGrouping(int num)
+{
+	if(num)
+		Initialize(num);
+}
+
+CGrouping::~CGrouping()
+{
+}
+
+void	CGrouping::Initialize(int num, BOOL prefer4v3)
+{
+	player_num = num;
+	b4v3 = prefer4v3;
+	memset(group1, 0, sizeof(int) * 4);
+	memset(group2, 0, sizeof(int) * 4);
+
+	memset(ratings, 0, sizeof(int) * 8);
+	names.SetSize(8);
+}
+
+void	CGrouping::DoGroup(void)
+{
+	if(player_num % 2 == 0)
+	{
+		Intermediator	inter(player_num, ratings);
+		inter.Grouping(group1, group2, group1TotalScore, group2TotalScore, delta);
+	}
+	else
+	{
+		if(player_num < 5 && b4v3)
+			return;
+
+		int bestgroup1[4], bestgroup2[4], bestdelta;
+		memset(bestgroup1, 0 ,sizeof(bestgroup1));
+		memset(bestgroup2, 0, sizeof(bestgroup2));
+		bestdelta = 65536;
+
+		if(player_num >= 5)		//do not support 2v1
+		{
+			TryGroup4v3();	//generating 'delta, group1, group2'
+			if(abs(bestdelta) > abs(delta))
+			{
+				bestdelta = delta;
+				memcpy(bestgroup1, group1, sizeof(group1));
+				memcpy(bestgroup2, group2, sizeof(group2));
+			}
+		}
+
+		if(!b4v3)
+		{
+			TryGroup2in1();	//generating 'delta, group1, group2', cooperators in group look like (player1 << 4 | player2)
+			if(abs(bestdelta) > abs(delta))
+			{
+				bestdelta = delta;
+				memcpy(bestgroup1, group1, sizeof(group1));
+				memcpy(bestgroup2, group2, sizeof(group2));
+			}
+		}
+		
+		memcpy(group1, bestgroup1, sizeof(group1));
+		memcpy(group2, bestgroup2, sizeof(group2));
+		group1TotalScore = CalculateTotal(1);
+		group2TotalScore = CalculateTotal(2);
+		delta = group1TotalScore - group2TotalScore;
+	}
+}
+
+void CGrouping::SetRating(int num, int rating)
+{
+	if(num < player_num)
+		ratings[num] = rating;
+}
+
+void CGrouping::SetName(int num, CString name)
+{
+	if(num < player_num)
+		names[num] = name;
+}
+
+//return 1 to 8, not 0 to 7
+int & CGrouping::GetGroup(int group_num, int num)
+{
+	int * group;
+	if(group_num == 1)
+		group = group1;
+	else
+		group = group2;
+
+	return group[num];
+}
+
+CString CGrouping::GetGroupName(int group_num, int num)
+{
+	int * group;
+	if(group_num == 1)
+		group = group1;
+	else
+		group = group2;
+
+	if((group[num] & 0x0f0) == 0)
+		return names[group[num] - 1];
+	CString str;
+	str.Format(_T("%s | %s"), names[((group[num] & 0x0f0) >> 4) - 1], names[(group[num] & 0x0f) - 1]);
+	return str;
+}
+
+int CGrouping::GetGroupRating(int group_num, int num)
+{
+	int * group;
+	if(group_num == 1)
+		group = group1;
+	else
+		group = group2;
+
+	if((group[num] & 0x0f0) == 0)
+		return ratings[group[num] - 1];
+	return CPlayerDatabase::GetCooperateRating(ratings[((group[num] & 0x0f0) >> 4) - 1], ratings[(group[num] & 0x0f) -1]);
+}
+
+int CGrouping::CalculateTotal(int group_num)
+{
+	int rating = 0;
+
+	for(int i = 0; i < 4; i++)
+	{
+		rating += GetGroupRating(group_num, i);
+	}
+	
+	int more = GetGroupCount(group_num), less = GetGroupCount(group_num == 1 ? 2 : 1);
+	if(more > less)
+		return CPlayerDatabase::GetOddMoreRating(rating, more, less) * less / more;
+	return rating;
+}
+
+int CGrouping::GetGroupCount(int group_num)
+{
+	int * group;
+	if(group_num == 1)
+		group = group1;
+	else
+		group = group2;
+
+	int count = 0;
+	for(int i = 0; i < 4 ; i++)
+		if(group[i] != 0)
+			count++;
+	return count;
+}
+
+void CGrouping::TryGroup4v3(void)
+{
+	int tmp_group[8];
+	int bestgroup1[4], bestgroup2[4], bestdelta = 65536;
+
+	for(int i = 1; i <= player_num; i++)
+	{
+		for(int j = i + 1; j <= player_num; j++)
+		{
+			for(int k = j + 1; k <= player_num; k++)
+			{
+				memset(tmp_group, 0, sizeof(tmp_group));
+				memset(group1, 0, sizeof(group1));
+				memset(group2, 0, sizeof(group2));
+
+				for(int t = 1; t <= player_num; t++)
+				{
+					if(t != i && t != j && t != k)
+						tmp_group[t - 1] = 2;
+					else
+						tmp_group[t - 1] = 1;
+				}
+				int j1 = 0, j2 = 0;
+				for(int t = 1; t <= player_num; t++)
+				{
+					if(tmp_group[t - 1] == 1)
+						group1[j1++] = t;
+					else
+						group2[j2++] = t;
+				}
+				delta = CalculateTotal(1) - CalculateTotal(2);
+				if(abs(bestdelta) > abs(delta))
+				{
+					bestdelta = delta;
+					memcpy(bestgroup1, group1, sizeof(group1));
+					memcpy(bestgroup2, group2, sizeof(group2));
+				}
+			}
+		}
+	}
+	delta = bestdelta;
+	memcpy(group1, bestgroup1, sizeof(group1));
+	memcpy(group2, bestgroup2, sizeof(group2));
+}
+
+void CGrouping::TryGroup2in1(void)
+{
+	int tmp_ratings[8];
+	int bestgroup1[4], bestgroup2[4], bestdelta = 65536;
+
+	for(int i = 1; i <= player_num; i++)
+	{
+		for(int j = i + 1; j <= player_num; j++)
+		{
+			memset(group1, 0, sizeof(group1));
+			memset(group2, 0, sizeof(group2));
+
+			int j1 = 0;
+			for(int k = 1; k <= player_num; k++)
+			{
+				if(k == i)		//slot 'cooperator1' stores the cooperators' rating
+					tmp_ratings[j1++] = CPlayerDatabase::GetCooperateRating(ratings[i - 1], ratings[j - 1]);
+				else if(k != j)		//slot 'cooperator2' stores the next normal rating
+					tmp_ratings[j1++] = ratings[k - 1];
+			}
+			Intermediator	inter(player_num - 1, tmp_ratings);
+			inter.Grouping(group1, group2, group1TotalScore, group2TotalScore, delta);
+			if(abs(bestdelta) > abs(delta))
+			{
+				bestdelta = delta;
+				AdjustCooperateGroup(group1, i, j);
+				AdjustCooperateGroup(group2, i, j);
+				memcpy(bestgroup1, group1, sizeof(group1));
+				memcpy(bestgroup2, group2, sizeof(group2));
+			}
+		}
+	}
+	delta = bestdelta;
+	memcpy(group1, bestgroup1, sizeof(group1));
+	memcpy(group2, bestgroup2, sizeof(group2));
+}
+
+void CGrouping::AdjustCooperateGroup(int * group, int cooperator1, int cooperator2)
+{
+	for(int i = 0; i < 4; i++)
+	{
+		if(group[i] == cooperator1)	//cooperators
+		{
+			group[i] = (cooperator1 << 4) | cooperator2;
+		}
+		else if(group[i] >= cooperator2)
+			group[i]++;
+	}
+}

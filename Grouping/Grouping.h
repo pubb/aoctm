@@ -46,4 +46,35 @@ public:
 	void Grouping(/*out*/int* group1, /*out*/int* group2, /*out*/int& group1TotalScore, /*out*/int& group2TotalScore, /*out*/int& delta);
 };
 
+class	CGrouping
+{
+public:
+	int group1TotalScore, group2TotalScore, delta;
+
+	CGrouping(int num = 0);
+	~CGrouping();
+
+	void Initialize(int num, BOOL prefer4v3 = FALSE);
+	void DoGroup(void);
+	void SetRating(int num, int rating);
+	void SetName(int num, CString name);
+	int & GetGroup(int group_num, int num);
+	CString GetGroupName(int group_num, int num);
+	int GetGroupRating(int group_num, int num);
+	int CalculateTotal(int group);
+
+private:
+	int player_num;
+	BOOL b4v3;
+	int ratings[8];
+	CStringArray names;
+	int group1[4];
+	int group2[4];
+
+	void TryGroup4v3(void);
+	void TryGroup2in1(void);
+	int GetGroupCount(int group_num);
+	void AdjustCooperateGroup(int * group, int cooperator1, int cooperator2);
+};
+
 #endif

@@ -36,6 +36,8 @@ public:
 	void	GetRatings(CTime when = CTime::GetCurrentTime());
 
 	void	CopyNickNames(void);
+	static int	GetOddMoreRating(const int orig_rating, const int more, const int less);
+	static int GetCooperateRating(const int rating1, const int rating2);
 
 private:
 	bool	dirty;

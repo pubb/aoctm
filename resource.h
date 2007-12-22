@@ -77,6 +77,8 @@
 #define IDC_SUMMARY                     1042
 #define IDC_MONEY_IN_TOTAL              1043
 #define IDC_MONEY_OUT_TOTAL             1044
+#define IDC_CHECK1                      1044
+#define IDC_CHECK_4v3                   1044
 #define IDC_PLAYCOUNT_TOTAL             1045
 #define IDC_MONEY_LEFT_TOTAL2           1046
 #define IDC_MONEY_LEFT_TOTAL            1046
@@ -102,7 +104,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        147
 #define _APS_NEXT_COMMAND_VALUE         32797
-#define _APS_NEXT_CONTROL_VALUE         1044
+#define _APS_NEXT_CONTROL_VALUE         1045
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -3,6 +3,7 @@
 #include "afxwin.h"
 #include "playerdatabase.h"
 #include "aoctmdlg.h"
+#include "grouping/grouping.h"
 
 // CGroupingDlg dialog
 
@@ -28,6 +29,8 @@ private:
 	CListCtrl m_Group2;
 	HACCEL     m_hAccelTable;
 
+	CGrouping grouping;
+
 	void	InsertPlayers(CString name, int data);
 	void	InsertSelected(CString name, int rating, int data);
 	bool	UpdateSelected(int rating, int data);
@@ -51,4 +54,5 @@ private:
 
 public:
 	CAocTMDlg	* maindlg;
+	BOOL prefer4v3;
 };
