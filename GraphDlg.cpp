@@ -124,32 +124,15 @@ void CGraphDlg::ShowTechStatBar(void)
 	CRect clRect;
 	GetClientRect(clRect);
 	m_Graph.ShowBar(clRect, RGB(255, 255, 255), _T("Tech Statics"), _T(""), this);
-	
-	m_Graph.ClearData();
 }
 
-#define	RATINGCURVE_SEG_NUM	15
 void CGraphDlg::ShowRatingCurve(void)
 {
 	if(m_LastGame < m_FirstGame)
 		return;
 	
-	int	seg_num = RATINGCURVE_SEG_NUM;
-	int	step = (int)(((m_LastGame - m_FirstGame).GetTotalHours() + /* 15 more hour */15)/ (RATINGCURVE_SEG_NUM - 1));
-	if(step == 0)
-	{
-		seg_num = (int)(m_LastGame - m_FirstGame).GetTotalHours();
-		step = 1;
-	}
-
-	m_Graph.PrepareData((int)m_pPlayers->GetCount(), seg_num);
-	
-	int serie, segment;
-	for(serie = 0; serie < m_pPlayers->GetCount(); serie++)
-	{
-		m_Graph.Series[serie] = m_pPlayers->GetAt(serie)->NickNames[0];
-	}
-
+//fred, replace CGraph with XGraph for curve
+#if 0
 	CTime t;
 
 	for(segment = 0, t = m_FirstGame; segment < m_Graph.Segments.GetCount(); t += CTimeSpan(0, step, 0, 0), segment++)
@@ -166,12 +149,32 @@ void CGraphDlg::ShowRatingCurve(void)
 			m_Graph.Data[serie][segment] = rating -  /* XXX, for more clear display */1000;
 		}
 	}
+#endif
+
+	int serie = m_pPlayers->GetCount(), segment = m_pPlayers->m_pRecgameDB->GetCount();
+	m_Graph.PrepareData(serie, segment, true);
+
+	int i, j;
+
+	for(i = 0 ; i < serie; i++)
+		m_Graph.Series[i] = m_pPlayers->GetAt(i)->NickNames[0];
+
+	theApp.Players.GetRatings(m_FirstGame - CTimeSpan(0, 0, 5, 0));	//XXX, use global database. not a good way. but no way except for it now as i know
+	for ( j = 0; j < segment; j++)
+	{
+		theApp.Players.Add(m_pPlayers->m_pRecgameDB->GetAt(j));
+		for(i = 0; i < serie; i++)
+		{
+			int index = theApp.Players.GetFirstSamePlayer(m_pPlayers->GetAt(i)->NickNames[0]);
+			m_Graph.m_XGraphValues[i][j].fXVal = COleDateTime(m_pPlayers->m_pRecgameDB->GetAt(j)->RecordTime.GetTime());
+			m_Graph.m_XGraphValues[i][j].fYVal = theApp.Players[index]->Rating;
+		}
+	}
+	theApp.Players.Update();	//restore global database
 
 	CRect clRect;
 	GetClientRect(clRect);
 	m_Graph.ShowCurve(clRect, RGB(255, 255, 255), _T("Rating Curves"), _T(""), this);
-	
-	m_Graph.ClearData();
 }
 
 void CGraphDlg::ShowUsedCivs(void)
@@ -191,6 +194,4 @@ void CGraphDlg::ShowUsedCivs(void)
 	CRect clRect;
 	GetClientRect(clRect);
 	m_Graph.ShowPie(clRect, RGB(255, 255, 255), _T("Used Civs"), player->NickNames[0], this);
-	
-	m_Graph.ClearData();
 }

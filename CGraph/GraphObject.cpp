@@ -15,6 +15,14 @@ static char THIS_FILE[] = __FILE__;
 
 CGraphObject::CGraphObject()
 {
+	/////////fred add bug fixing
+	m_GraphTitleFont = NULL;
+	m_GraphSubtitleFont = NULL;
+	m_GraphDC = NULL;
+	m_GraphBitmap = NULL;
+	m_GradientDC = NULL;
+	m_GradientBitmap = NULL;
+	/////////////////////////////////end of fred 2007
 	// Set default graph title and subtitle
 	m_GraphTitle = "Add graph title here";
 	m_GraphSubtitle = "Add graph subtitle here";
@@ -86,27 +94,46 @@ CGraphObject::~CGraphObject()
 	}
 
 	// Delete graph title and subtitle font
-	m_GraphTitleFont->DeleteObject();
-	delete m_GraphTitleFont;
-	m_GraphTitleFont = NULL;
-	m_GraphSubtitleFont->DeleteObject();
-	delete m_GraphSubtitleFont;
-	m_GraphSubtitleFont = NULL;
+	//fred add judge empty or NULL for the bug fixing 20071225
+	if(m_GraphTitleFont!=NULL)
+	{
+		m_GraphTitleFont->DeleteObject();
+		delete m_GraphTitleFont;
+		m_GraphTitleFont = NULL;
+	}
+	if(m_GraphSubtitleFont != NULL)
+	{
+		m_GraphSubtitleFont->DeleteObject();
+		delete m_GraphSubtitleFont;
+		m_GraphSubtitleFont = NULL;
+	}
 
 	// Delete graph DC and bitmap
-	m_GraphDC->DeleteDC();
-	delete m_GraphDC;
-	m_GraphDC = NULL;
-	m_GraphBitmap->DeleteObject();
-	delete m_GraphBitmap;
-	m_GraphBitmap = NULL;
+	if(m_GraphDC != NULL)
+	{
+		m_GraphDC->DeleteDC();
+		delete m_GraphDC;
+		m_GraphDC = NULL;
+	}
+	if( m_GraphBitmap !=NULL)
+	{
+		m_GraphBitmap->DeleteObject();
+		delete m_GraphBitmap;
+		m_GraphBitmap = NULL;
+	}
 	// Delete gradient DC and bitmap
-	m_GradientDC->DeleteDC();
-	delete m_GradientDC;
-	m_GradientDC = NULL;
-	m_GradientBitmap->DeleteObject();
-	delete m_GradientBitmap;
-	m_GradientBitmap = NULL;
+	if(m_GradientDC != NULL)
+	{
+		m_GradientDC->DeleteDC();
+		delete m_GradientDC;
+		m_GradientDC = NULL;
+	}
+	if(m_GradientBitmap!=NULL)
+	{
+		m_GradientBitmap->DeleteObject();
+		delete m_GradientBitmap;
+		m_GradientBitmap = NULL;
+	}
 }
 
 

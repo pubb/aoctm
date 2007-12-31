@@ -120,6 +120,10 @@ INT_PTR	CPlayerDatabase::Add(CPlayer * player)
 
 void CPlayerDatabase::Add(CRecgame * rg)
 {
+	//pubb, 07-12-27, check
+	if(!rg)
+		return;
+
 	CPlayer * player;
 
 	//pubb, 07-10-31, PlayerNum is not equal to players' number for '2v1' condition
@@ -136,8 +140,6 @@ void CPlayerDatabase::Add(CRecgame * rg)
 		{
 			player = new CPlayer;
 			player->NickNames.Add(rg->Players[i].Name);
-			if(!dirty)
-				dirty = true;
 			CArray<CPlayer *, CPlayer *>::Add(player);
 		}
 		player->PlayCount++;
@@ -182,6 +184,10 @@ void CPlayerDatabase::Add(CRecgame * rg)
 	}
 			
 	UpdateRatings(rg);
+
+	//pubb, 07-12-27, to save when ratings changed
+	if(!dirty)
+		dirty = true;
 }
 
 #if 0
@@ -493,4 +499,29 @@ int CPlayerDatabase::GetCooperateRating(const int rating1, const int rating2)
 		return rating2 * 2 - rating1;
 	else
 		return rating1 * 2 - rating2;
+}
+
+void CPlayerDatabase::CopyPlayers(bool current, CPlayerDatabase * source)
+{
+	if(!source)
+		source = &theApp.Players;
+
+	if(this == source)
+		return;
+
+	//copy ratings from players' database
+	INT_PTR index;
+	
+	for(int i = 0; i < GetCount(); i++)
+	{
+		index = source->GetFirstSamePlayer(GetAt(i)->NickNames[0]);
+		if(index >= 0)
+		{
+			if(current)
+				GetAt(i)->InitRating = source->GetAt(index)->Rating;
+			else
+				GetAt(i)->InitRating = source->GetAt(index)->InitRating;
+			GetAt(i)->IsComputer = source->GetAt(index)->IsComputer;
+		}
+	}
 }

@@ -27,6 +27,7 @@ public:
 
 	void	RemoveAll(void);
 
+	void	Revert(void);
 	void	Update(CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
 
 	INT_PTR GetFirstSamePlayer(CString name);
@@ -35,6 +36,7 @@ public:
 	int GetAllPlayCount(void);
 	void	GetRatings(CTime when = CTime::GetCurrentTime());
 
+	void	CopyPlayers(bool current = true, CPlayerDatabase * source = NULL);
 	void	CopyNickNames(void);
 	static int	GetOddMoreRating(const int orig_rating, const int more, const int less);
 	static int GetCooperateRating(const int rating1, const int rating2);
@@ -44,6 +46,5 @@ private:
 	CString	m_ConfigFile;
 	int		Charge;		//charge to Net Pub
 
-	void	Revert(void);
 	void	UpdateRatings(CRecgame * rg);
 };
