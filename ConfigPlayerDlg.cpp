@@ -120,18 +120,18 @@ void CConfigPlayerDlg::OnBnClickedOk()
 			return;
 		CPlayer * player = theApp.Players[index];
 		//pubb, 07-10-26, COM checkbox
-		//switch(m_List.GetItemCheckedState(i, 0))
-		//{
-		//case 0:
-		//	player->IsComputer = false;
-		//	break;
-		//case 1:
-		//	player->IsComputer = true;
-		//	break;
-		//default:
-		//	AfxMessageBox(_T("BAD checkbox state!"));
-		//	return;
-		//}
+		switch(m_List.GetItemCheckedState(i, 0))
+		{
+		case 0:
+			player->IsComputer = false;
+			break;
+		case 1:
+			player->IsComputer = true;
+			break;
+		default:
+			AfxMessageBox(_T("BAD checkbox state!"));
+			return;
+		}
 		player->NickNames.RemoveAll();
 		player->NickNames.Add(str);
 		rating = _ttoi(m_List.GetItemText(i, 2));
