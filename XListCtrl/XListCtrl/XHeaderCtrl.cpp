@@ -117,14 +117,21 @@ void CXHeaderCtrl::DrawCtrl(CDC* pDC)
 	if (pDC->GetClipBox(&rectClip) == ERROR)
 		return;
 
+	//CString t("");
+	//t.Format(_T("rectClip(%d,%d,%d,%d)\n"), rectClip.left, rectClip.top, rectClip.Width(), rectClip.Height());
+	//OutputDebugString(t);
+
 	CRect rectClient, rectItem;
 	GetClientRect(&rectClient);
+	//t.Format(_T("rectClient(%d,%d,%d,%d)\n"), rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height());
+	//OutputDebugString(t);
 
     pDC->FillSolidRect(rectClip, m_cr3DFace);
 
 	int iItems = GetItemCount();
 	ASSERT(iItems >= 0);
-
+	
+	//OutputDebugString(_T("iItem\n"));
 	CPen penHighLight(PS_SOLID, 1, m_cr3DHighLight);
 	CPen penShadow(PS_SOLID, 1, m_cr3DShadow);
 	CPen* pPen = pDC->GetCurrentPen();
@@ -146,9 +153,12 @@ void CXHeaderCtrl::DrawCtrl(CDC* pDC)
 		hditem.mask = HDI_WIDTH|HDI_FORMAT|HDI_TEXT|HDI_IMAGE|HDI_BITMAP;
 		hditem.pszText = szText;
 		hditem.cchTextMax = sizeof(szText);
-		VERIFY(GetItem(iItem, &hditem));
+		GetItem(iItem, &hditem);
 
-		VERIFY(GetItemRect(iItem, rectItem));
+		GetItemRect(iItem, rectItem);
+		//t.Format(_T("rectItem(%d,%d,%d,%d)\n"), rectItem.left, rectItem.top, rectItem.Width(), rectItem.Height());
+		//OutputDebugString(t);
+
 
 		if (rectItem.right >= rectClip.left || rectItem.left <= rectClip.right)
 		{
@@ -214,6 +224,7 @@ void CXHeaderCtrl::DrawCtrl(CDC* pDC)
 void CXHeaderCtrl::DrawItem(LPDRAWITEMSTRUCT)
 {
 	ASSERT(FALSE);  // must override for self draw header controls
+	return;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -221,7 +232,7 @@ void CXHeaderCtrl::DrawItem(LPDRAWITEMSTRUCT)
 void CXHeaderCtrl::DrawItem(CDC* pDC, CRect rect, LPHDITEM lphdi)
 {
 	ASSERT(lphdi->mask & HDI_FORMAT);
-
+	//OutputDebugString(_T("DrawItem\n"));
 	int iWidth = 0;
 
 	CBitmap* pBitmap = NULL;
@@ -234,7 +245,9 @@ void CXHeaderCtrl::DrawItem(CDC* pDC, CRect rect, LPHDITEM lphdi)
 
 		pBitmap = CBitmap::FromHandle(lphdi->hbm);
 		if (pBitmap)
-			VERIFY(pBitmap->GetObject(sizeof(BITMAP), &BitmapInfo));
+		{
+			pBitmap->GetObject(sizeof(BITMAP), &BitmapInfo);
+		}
 	}
 
 	rect.left += ((iWidth = DrawImage(pDC, rect, lphdi, FALSE)) != 0) ? 
@@ -243,7 +256,12 @@ void CXHeaderCtrl::DrawItem(CDC* pDC, CRect rect, LPHDITEM lphdi)
 	rect.right -= ((iWidth = DrawBitmap(pDC, rect, lphdi, pBitmap, &BitmapInfo, TRUE)) != 0) ? 
 		iWidth + m_iSpacing : 0;
 
+	//CString t("");
+	//t.Format(_T("DrawText rect(%d,%d,%d,%d)\n"), rect.left, rect.top, rect.Width(), rect.Height());
+	//OutputDebugString(t);
+
 	DrawText(pDC, rect, lphdi);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -515,11 +533,27 @@ void CXHeaderCtrl::OnPaint()
 
     if (m_bDoubleBuffer)
     {
-        CMemDC MemDC(&dc);
+
+		CRect rect;   
+		GetClientRect(&rect);   
+		CMemDC MemDC(&dc,rect);   
+
+
+        //CMemDC MemDC(&dc);
         DrawCtrl(&MemDC);
+
+		CString t("");
+		t.Format(_T("DrawCtrl(&MemDC)\n"));
+		OutputDebugString(t);
+
     }
     else
+	{
+		CString t("");
+		t.Format(_T("DrawCtrl(&dc)\n"));
+		OutputDebugString(t);
         DrawCtrl(&dc);
+	}
 }
 
 void CXHeaderCtrl::OnLButtonDblClk(UINT nFlags, CPoint point) 

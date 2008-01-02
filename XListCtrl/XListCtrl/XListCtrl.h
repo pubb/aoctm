@@ -216,7 +216,7 @@ public:
 // Operations
 public:
 	int		CountCheckedItems(int nSubItem);
-	BOOL	DeleteAllItems();
+	BOOL	DeleteAllItems(); 
 	BOOL	DeleteItem(int nItem);
 	void	DeleteProgress(int nItem, int nSubItem);
 	int		FindDataItem(DWORD dwData);	//+++

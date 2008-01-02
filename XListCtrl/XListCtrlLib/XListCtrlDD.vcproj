@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="gb2312"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="XListCtrlDD"
 	ProjectGUID="{F61BE55B-F48F-49A6-891A-DB8250B5CBB8}"
 	RootNamespace="XListCtrlDD"
 	Keyword="MFCProj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -50,6 +51,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/D WINVER=0x0400 /D _CRT_SECURE_NO_WARNINGS /D _CRT_NON_CONFORMING_SWPRINTFS /D _CRT_SECURE_NO_DEPRECATE"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_AFXEXT;UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -83,6 +85,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug_Unicode/XListCtrlDDDU.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug_Unicode/XListCtrlDDDU.lib"
 				TargetMachine="1"
 			/>
@@ -105,9 +109,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -150,6 +151,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/D WINVER=0x0400 /D _CRT_SECURE_NO_WARNINGS /D _CRT_NON_CONFORMING_SWPRINTFS /D _CRT_SECURE_NO_DEPRECATE"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_AFXEXT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -183,6 +185,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/XListCtrlDDDA.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug/XListCtrlDDDA.lib"
 				TargetMachine="1"
 			/>
@@ -205,9 +209,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -251,6 +252,7 @@
 				AdditionalOptions="/D WINVER=0x0400 /D _CRT_SECURE_NO_WARNINGS /D _CRT_NON_CONFORMING_SWPRINTFS /D _CRT_SECURE_NO_DEPRECATE"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -282,6 +284,8 @@
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\Release/XListCtrlDDRA.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Release/XListCtrlDDRA.lib"
 				TargetMachine="1"
 			/>
@@ -304,9 +308,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -350,6 +351,7 @@
 				AdditionalOptions="/D WINVER=0x0400 /D _CRT_SECURE_NO_WARNINGS /D _CRT_NON_CONFORMING_SWPRINTFS /D _CRT_SECURE_NO_DEPRECATE"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXEXT;UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -381,6 +383,8 @@
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\Release_Unicode/XListCtrlDDRU.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Release_Unicode/XListCtrlDDRU.lib"
 				TargetMachine="1"
 			/>
@@ -403,9 +407,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

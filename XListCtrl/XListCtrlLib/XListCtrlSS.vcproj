@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="gb2312"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="XListCtrlSS"
 	ProjectGUID="{10920ABC-E2CA-4EC9-8968-25DDF6E69FBD}"
 	RootNamespace="XListCtrlSS"
 	Keyword="MFCProj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -43,6 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="_DEBUG;UNICODE;WIN32;_WINDOWS;XLISTCTRLLIB_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -122,6 +124,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="NDEBUG;UNIOCODE;WIN32;_WINDOWS;XLISTCTRLLIB_STATIC"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -200,6 +203,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;XLISTCTRLLIB_STATIC"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -278,6 +282,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/D WINVER=0x0400"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;XLISTCTRLLIB_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

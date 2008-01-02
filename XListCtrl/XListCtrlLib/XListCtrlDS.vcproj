@@ -46,6 +46,7 @@
 				AdditionalOptions="/D WINVER=0x0400 /D _CRT_SECURE_NO_WARNINGS /D _CRT_NON_CONFORMING_SWPRINTFS /D _CRT_SECURE_NO_DEPRECATE"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;XLISTCTRLLIB_STATIC"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -125,6 +126,7 @@
 				AdditionalOptions="/D WINVER=0x0500 /D _CRT_SECURE_NO_WARNINGS /D _CRT_NON_CONFORMING_SWPRINTFS /D _CRT_SECURE_NO_DEPRECATE"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="NDEBUG;UNIOCODE;WIN32;_WINDOWS;XLISTCTRLLIB_STATIC"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -202,6 +204,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/D WINVER=0x0500 /D _CRT_SECURE_NO_WARNINGS /D _CRT_NON_CONFORMING_SWPRINTFS /D _CRT_SECURE_NO_DEPRECATE"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="_DEBUG;UNICODE;WIN32;_WINDOWS;XLISTCTRLLIB_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -280,6 +283,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/D WINVER=0x0400 /D _CRT_SECURE_NO_WARNINGS /D _CRT_NON_CONFORMING_SWPRINTFS /D _CRT_SECURE_NO_DEPRECATE"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\XGraph\"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;XLISTCTRLLIB_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -804,10 +808,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\XListCtrl\MemDC.h"
-				>
-			</File>
-			<File
 				RelativePath="..\XListCtrl\ReportCtrl.h"
 				>
 			</File>
@@ -841,6 +841,10 @@
 			</File>
 			<File
 				RelativePath="..\XListCtrl\XListCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\XListCtrl\XListCtrlLibDefs.h"
 				>
 			</File>
 			<File
