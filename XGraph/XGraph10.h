@@ -5,7 +5,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "fredheader.h"
+
 
 #ifndef __AFXTEMPL_H__
 #include <afxtempl.h>

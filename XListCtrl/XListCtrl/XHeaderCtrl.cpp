@@ -20,6 +20,7 @@
 
 #include "stdafx.h"
 #include "XHeaderCtrl.h"
+//08-01-03, andy, use XGraph's CMemDC
 #include "memdc.h"
 
 #ifdef _DEBUG
@@ -533,26 +534,24 @@ void CXHeaderCtrl::OnPaint()
 
     if (m_bDoubleBuffer)
     {
-
+		//08-01-03, andy, use XGraph's new CMemDC class
+        //CMemDC MemDC(&dc);
 		CRect rect;   
 		GetClientRect(&rect);   
 		CMemDC MemDC(&dc,rect);   
-
-
-        //CMemDC MemDC(&dc);
         DrawCtrl(&MemDC);
 
-		CString t("");
-		t.Format(_T("DrawCtrl(&MemDC)\n"));
-		OutputDebugString(t);
+		//CString t("");
+		//t.Format(_T("DrawCtrl(&MemDC)\n"));
+		//OutputDebugString(t);
 
     }
     else
 	{
-		CString t("");
-		t.Format(_T("DrawCtrl(&dc)\n"));
-		OutputDebugString(t);
-        DrawCtrl(&dc);
+//		CString t("");
+//		t.Format(_T("DrawCtrl(&dc)\n"));
+//		OutputDebugString(t);
+		DrawCtrl(&dc);
 	}
 }
 

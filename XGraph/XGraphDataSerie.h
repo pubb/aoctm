@@ -90,7 +90,7 @@ public:
 	double GetValue(double fX);
 };
 
-#include "fredheader.h"
+
 
 #ifdef NoDllForXGraph//fred
 class CXGraphDataSerie : public CXGraphObject

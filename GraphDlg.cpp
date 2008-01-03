@@ -130,7 +130,6 @@ void CGraphDlg::ShowRatingCurve(void)
 {
 	if(m_LastGame < m_FirstGame)
 		return;
-	
 //fred, replace CGraph with XGraph for curve
 #if 0
 	CTime t;

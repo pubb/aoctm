@@ -12,7 +12,7 @@
 #include "XGraphObjectBase.h"
 //#include "XGraph.h"
 #include "BitmapEx.h"
-#include "fredheader.h"
+
 
 typedef struct tagCFBITMAP 
 {

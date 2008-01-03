@@ -1,7 +1,7 @@
 // BitmapEx.h: Schnittstelle für die Klasse CBitmapEx.
 //
 //////////////////////////////////////////////////////////////////////
-#include "fredheader.h"
+
 
 #if !defined(AFX_BITMAPEX_H__10F9E5D7_F111_430A_BD87_4EC33416F455__INCLUDED_)
 #define AFX_BITMAPEX_H__10F9E5D7_F111_430A_BD87_4EC33416F455__INCLUDED_

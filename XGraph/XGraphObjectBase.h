@@ -17,7 +17,7 @@ class CXGraph;
 #pragma warning (disable : 4244)
 #pragma warning (disable : 4800)
 
-#include "fredheader.h"
+
 #ifdef NoDllForXGraph//fred
 class CXGraphObject : public CObject
 #else

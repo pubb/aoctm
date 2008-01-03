@@ -10,7 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "XGraphDataSerie.h"
-#include "fredheader.h"
+
 
 typedef struct tagZOOM
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include "xgraphaxis.h"
-#include "fredheader.h"
+
 
 #ifdef NoDllForXGraph//fred
 class CXGraphLogAxis : public CXGraphAxis

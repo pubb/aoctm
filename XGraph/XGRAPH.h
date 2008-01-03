@@ -74,7 +74,7 @@
 #endif
 
 //#include "resource.h"
-#include "fredheader.h"
+
 
 #include <vector>
 #include <list>

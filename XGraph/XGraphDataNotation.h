@@ -10,7 +10,7 @@
 #endif // _MSC_VER > 1000
 
 #include "XGraphObjectBase.h"
-#include "fredheader.h"
+
 
 #ifdef NoDllForXGraph//fred
 class CXGraphDataNotation : public CXGraphObject

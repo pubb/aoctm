@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AocTM", "AocTM.vcproj", "{A454C681-0887-43F3-A5F1-65A4A375DE32}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6FB226A5-AF4D-4760-8436-4F6C757C1A54} = {6FB226A5-AF4D-4760-8436-4F6C757C1A54}
+		{E65855E9-5B34-48D0-B656-67FE2672223F} = {E65855E9-5B34-48D0-B656-67FE2672223F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XGraph", "XGraph\XGraph.vcproj", "{E65855E9-5B34-48D0-B656-67FE2672223F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XListCtrlDS", "XListCtrl\XListCtrlLib\XListCtrlDS.vcproj", "{6FB226A5-AF4D-4760-8436-4F6C757C1A54}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug Unicode|Win32 = Debug Unicode|Win32
+		Debug|Win32 = Debug|Win32
+		Release Unicode|Win32 = Release Unicode|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A454C681-0887-43F3-A5F1-65A4A375DE32}.Debug Unicode|Win32.ActiveCfg = Debug|Win32
+		{A454C681-0887-43F3-A5F1-65A4A375DE32}.Debug Unicode|Win32.Build.0 = Debug|Win32
+		{A454C681-0887-43F3-A5F1-65A4A375DE32}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A454C681-0887-43F3-A5F1-65A4A375DE32}.Debug|Win32.Build.0 = Debug|Win32
+		{A454C681-0887-43F3-A5F1-65A4A375DE32}.Release Unicode|Win32.ActiveCfg = Release|Win32
+		{A454C681-0887-43F3-A5F1-65A4A375DE32}.Release Unicode|Win32.Build.0 = Release|Win32
+		{A454C681-0887-43F3-A5F1-65A4A375DE32}.Release|Win32.ActiveCfg = Release|Win32
+		{A454C681-0887-43F3-A5F1-65A4A375DE32}.Release|Win32.Build.0 = Release|Win32
+		{E65855E9-5B34-48D0-B656-67FE2672223F}.Debug Unicode|Win32.ActiveCfg = Debug|Win32
+		{E65855E9-5B34-48D0-B656-67FE2672223F}.Debug Unicode|Win32.Build.0 = Debug|Win32
+		{E65855E9-5B34-48D0-B656-67FE2672223F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E65855E9-5B34-48D0-B656-67FE2672223F}.Debug|Win32.Build.0 = Debug|Win32
+		{E65855E9-5B34-48D0-B656-67FE2672223F}.Release Unicode|Win32.ActiveCfg = Release|Win32
+		{E65855E9-5B34-48D0-B656-67FE2672223F}.Release Unicode|Win32.Build.0 = Release|Win32
+		{E65855E9-5B34-48D0-B656-67FE2672223F}.Release|Win32.ActiveCfg = Release|Win32
+		{E65855E9-5B34-48D0-B656-67FE2672223F}.Release|Win32.Build.0 = Release|Win32
+		{6FB226A5-AF4D-4760-8436-4F6C757C1A54}.Debug Unicode|Win32.ActiveCfg = Debug Unicode|Win32
+		{6FB226A5-AF4D-4760-8436-4F6C757C1A54}.Debug Unicode|Win32.Build.0 = Debug Unicode|Win32
+		{6FB226A5-AF4D-4760-8436-4F6C757C1A54}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6FB226A5-AF4D-4760-8436-4F6C757C1A54}.Debug|Win32.Build.0 = Debug|Win32
+		{6FB226A5-AF4D-4760-8436-4F6C757C1A54}.Release Unicode|Win32.ActiveCfg = Release Unicode|Win32
+		{6FB226A5-AF4D-4760-8436-4F6C757C1A54}.Release Unicode|Win32.Build.0 = Release Unicode|Win32
+		{6FB226A5-AF4D-4760-8436-4F6C757C1A54}.Release|Win32.ActiveCfg = Release|Win32
+		{6FB226A5-AF4D-4760-8436-4F6C757C1A54}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
