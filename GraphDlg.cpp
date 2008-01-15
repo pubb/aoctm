@@ -16,6 +16,7 @@ CGraphDlg::CGraphDlg(CWnd* pParent /*=NULL*/)
 {
 	if(::IsWindow(m_Graph.m_hWnd))
 		m_Graph.DestroyWindow();
+	m_pXGraphWndHandle = NULL;//fred
 }
 
 CGraphDlg::~CGraphDlg()
@@ -32,6 +33,15 @@ void CGraphDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CGraphDlg, CDialog)
 	ON_WM_CREATE()
+	ON_WM_PAINT()
+	ON_WM_SIZING()
+	ON_BN_CLICKED(IDC_BUTTON_ZOOM, &CGraphDlg::OnBnClickedButtonZoom)
+	ON_BN_CLICKED(IDC_BUTTON_MARK, &CGraphDlg::OnBnClickedButtonMark)
+	ON_BN_CLICKED(IDC_BUTTON_Measure, &CGraphDlg::OnBnClickedButtonMeasure)
+	ON_BN_CLICKED(IDC_BUTTON_Select, &CGraphDlg::OnBnClickedButtonSelect)
+	ON_BN_CLICKED(IDC_BUTTON_Reset, &CGraphDlg::OnBnClickedButtonReset)
+	ON_BN_CLICKED(IDC_BUTTON_Clear, &CGraphDlg::OnBnClickedButtonClear)
+	ON_BN_CLICKED(IDC_BUTTON_ClearMeasure, &CGraphDlg::OnBnClickedButtonClearmeasure)
 END_MESSAGE_MAP()
 
 
@@ -44,20 +54,6 @@ int CGraphDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if(!m_pPlayers)
 		return 0;
-
-	switch(m_nCommand)
-	{
-	case SHOW_RATINGCURVE:
-		ShowRatingCurve();
-		break;
-	case SHOW_PLAYCOUNT:
-		ShowTechStatBar();
-		break;
-	case SHOW_USEDCIVS:
-		ShowUsedCivs();
-		break;
-	}
-
 	return 0;
 }
 
@@ -123,6 +119,9 @@ void CGraphDlg::ShowTechStatBar(void)
 
 	CRect clRect;
 	GetClientRect(clRect);
+	//fred
+	HideUserControl();
+
 	m_Graph.ShowBar(clRect, RGB(255, 255, 255), _T("Tech Statics"), _T(""), this);
 }
 
@@ -130,6 +129,7 @@ void CGraphDlg::ShowRatingCurve(void)
 {
 	if(m_LastGame < m_FirstGame)
 		return;
+	
 //fred, replace CGraph with XGraph for curve
 #if 0
 	CTime t;
@@ -172,7 +172,15 @@ void CGraphDlg::ShowRatingCurve(void)
 	theApp.Players.Update();	//restore global database
 
 	CRect clRect;
-	GetClientRect(clRect);
+	//GetClientRect(clRect);
+	//fred add test codes for xgraph
+	
+	CWnd * pTmp = (CWnd *)GetDlgItem(IDC_Curve_XGraph);
+	m_pXGraphWndHandle = pTmp;//fred 20080110
+	pTmp->GetWindowRect(clRect);
+	ScreenToClient(clRect);
+	//pTmp = (CWnd *)GetDlgItem(IDC_STATIC_Info);
+	//pTmp->SetWindowTextW(m_Graph.m_cInfo);
 	m_Graph.ShowCurve(clRect, RGB(255, 255, 255), _T("Rating Curves"), _T(""), this);
 }
 
@@ -192,5 +200,154 @@ void CGraphDlg::ShowUsedCivs(void)
 
 	CRect clRect;
 	GetClientRect(clRect);
+	//fred
+	HideUserControl();
+
 	m_Graph.ShowPie(clRect, RGB(255, 255, 255), _T("Used Civs"), player->NickNames[0], this);
+}
+void CGraphDlg::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+	// TODO: 在此处添加消息处理程序代码
+	// 不为绘图消息调用 CDialog::OnPaint()
+	//fred changed 20080103
+	switch(m_nCommand)
+	{
+	case SHOW_RATINGCURVE:
+		ShowRatingCurve();//fred
+		break;
+	case SHOW_TECHSTAT:
+		ShowTechStatBar();
+		break;
+	case SHOW_USEDCIVS:
+		ShowUsedCivs();
+		break;
+	}
+
+}
+
+void CGraphDlg::OnSizing(UINT fwSide, LPRECT pRect)
+{
+	CDialog::OnSizing(fwSide, pRect);
+
+	// TODO: 在此处添加消息处理程序代码
+}
+
+// Hide user control for curve view
+int CGraphDlg::HideUserControl(void)
+{
+	//fred add
+	CWnd * pTmp = (CWnd *)GetDlgItem(IDC_Curve_XGraph);
+	pTmp->ShowWindow(SW_HIDE);
+	(CWnd *)GetDlgItem(IDC_BUTTON_ZOOM)->ShowWindow(SW_HIDE);
+	(CWnd *)GetDlgItem(IDC_BUTTON_Measure)->ShowWindow(SW_HIDE);
+	(CWnd *)GetDlgItem(IDC_BUTTON_MARK)->ShowWindow(SW_HIDE);
+	(CWnd *)GetDlgItem(IDC_STATIC_Info)->ShowWindow(SW_HIDE);
+	(CWnd *)GetDlgItem(IDC_BUTTON_Select)->ShowWindow(SW_HIDE);
+	(CWnd *)GetDlgItem(IDC_BUTTON_Clear)->ShowWindow(SW_HIDE);
+	(CWnd *)GetDlgItem(IDC_BUTTON_ClearMeasure)->ShowWindow(SW_HIDE);
+	(CWnd *)GetDlgItem(IDC_BUTTON_Reset)->ShowWindow(SW_HIDE);
+	//end of fred added IDC_BUTTON_Select
+	return 0;
+}
+
+void CGraphDlg::OnBnClickedButtonZoom()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_Graph.m_XGraph.Zoom();
+	//m_Graph.m_cInfo = _T("Use the mouse to define an area to zoom in.");
+	
+	m_pXGraphWndHandle->UpdateData(FALSE);
+	//OnPaint();
+}
+
+void CGraphDlg::OnBnClickedButtonMark()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	/*
+	if( m_Graph.m_bShowMarker )
+		m_Graph.m_bShowMarker = FALSE;
+	else
+		m_Graph.m_bShowMarker = TRUE;
+	OnPaint();
+	*/
+	m_Graph.m_XGraph.Cursor();
+	//m_cInfo = _T("Use the mouse to move the cursor left and right. The second chart will be synchronised. Use the left mousebutton to insert a data annotation"); 
+	m_pXGraphWndHandle->UpdateData(FALSE);
+
+	//OnPaint();
+}
+
+void CGraphDlg::OnBnClickedButtonMeasure()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_Graph.m_XGraph.Measure();
+	CPoint point;
+	point.x = 0;
+	point.y = 0;
+	m_Graph.m_XGraph.SetCursor(point);
+	//m_Graph.m_cInfo = _T("Use the mouse to measure the distance between two points."); 
+	m_pXGraphWndHandle->UpdateData(FALSE);
+}
+
+void CGraphDlg::OnBnClickedButtonSelect()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_Graph.m_XGraph.NoOp();
+
+	//m_cInfo = _T("Use the mouse to select objects like axes, curves, ..."); 
+	m_pXGraphWndHandle->UpdateData(FALSE);
+	//OnPaint();
+}
+
+void CGraphDlg::OnBnClickedButtonReset()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_Graph.m_XGraph.ResetZoom();
+	m_pXGraphWndHandle->UpdateData(FALSE);
+}
+
+void CGraphDlg::OnBnClickedButtonClear()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_Graph.m_XGraph.NoOp();
+	m_Graph.m_XGraph.DeleteMeasures();
+	m_Graph.m_XGraph.ResetAll();//
+	//m_Graph.m_XGraph.
+	OnPaint();
+	m_pXGraphWndHandle->UpdateData(FALSE);
+}
+
+void CGraphDlg::OnBnClickedButtonClearmeasure()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_Graph.m_XGraph.NoOp();
+	m_Graph.m_XGraph.DeleteMeasures();
+	m_pXGraphWndHandle->UpdateData(FALSE);
+}
+
+BOOL CGraphDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	CString str;
+	switch(m_nCommand)
+	{
+	case SHOW_RATINGCURVE:
+		str = _T("Show Rating Curves");
+		break;
+	case SHOW_TECHSTAT:
+		str = _T("Show Technique Statistic");
+		break;
+	case SHOW_USEDCIVS:
+		str = _T("Show Used Civilization Distribution");
+		break;
+	default:
+		str = _T("???");
+	}
+
+	SetWindowText(str);
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }

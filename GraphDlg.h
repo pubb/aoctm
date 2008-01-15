@@ -5,7 +5,7 @@
 
 #include <map>
 
-typedef	enum {SHOW_RATINGCURVE = 0, SHOW_PLAYCOUNT, SHOW_USEDCIVS}	CHART_COMMAND;
+typedef	enum {SHOW_RATINGCURVE = 0, SHOW_TECHSTAT, SHOW_USEDCIVS}	CHART_COMMAND;
 
 // CGraphDlg dialog
 class CGraphDlg : public CDialog
@@ -35,4 +35,21 @@ private:
 	void ShowRatingCurve(void);
 	void ShowTechStatBar(void);
 	void ShowUsedCivs(void);
+	afx_msg void OnPaint();
+	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
+	// Hide user control for curve view
+	int HideUserControl(void);
+	afx_msg void OnBnClickedButtonZoom();
+	afx_msg void OnBnClickedButtonMark();
+	afx_msg void OnBnClickedButtonMeasure();
+	afx_msg void OnBnClickedButtonSelect();
+	afx_msg void OnBnClickedButtonReset();
+public:
+	//fred add for xgraph's Wnd
+	CWnd * m_pXGraphWndHandle;
+public:
+	afx_msg void OnBnClickedButtonClear();
+public:
+	afx_msg void OnBnClickedButtonClearmeasure();
+	virtual BOOL OnInitDialog();
 };

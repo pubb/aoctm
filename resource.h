@@ -47,14 +47,22 @@
 #define IDC_DELETE                      1014
 #define IDC_PLAYER_ADD                  1014
 #define IDC_REC_DELETE                  1014
+#define IDC_BUTTON_ZOOM                 1014
 #define IDC_SPINRATING                  1015
+#define IDC_BUTTON_Measure              1015
 #define IDC_LIST1                       1016
+#define IDC_BUTTON_MARK                 1016
 #define IDC_DATABASEDUE                 1017
 #define IDC_DATABASE                    1017
 #define IDC_TITLE                       1017
+#define IDC_BUTTON_Select               1017
 #define IDC_LIST                        1018
+#define IDC_BUTTON_Reset                1018
 #define IDC_EXCHANGE                    1019
+#define IDC_BUTTON_Clear                1019
 #define IDC_LIST2                       1020
+#define IDC_BUTTON_Measure2             1020
+#define IDC_BUTTON_ClearMeasure         1020
 #define IDC_FEE_MONEY                   1022
 #define IDC_FEE_DATE                    1023
 #define IDC_FEE_SPIN                    1024
@@ -82,6 +90,8 @@
 #define IDC_PLAYCOUNT_TOTAL             1045
 #define IDC_MONEY_LEFT_TOTAL2           1046
 #define IDC_MONEY_LEFT_TOTAL            1046
+#define IDC_Curve_XGraph                1047
+#define IDC_STATIC_Info                 1048
 #define ID_32779                        32779
 #define ID_32780                        32780
 #define ID_32781                        32781
@@ -102,9 +112,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        147
+#define _APS_NEXT_RESOURCE_VALUE        148
 #define _APS_NEXT_COMMAND_VALUE         32797
-#define _APS_NEXT_CONTROL_VALUE         1045
+#define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

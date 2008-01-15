@@ -18,7 +18,7 @@
 #include "MemDC.h"
 
 #include "WinGDI.h"
-
+#include <ATLComTime.h>//fred
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -42,6 +42,16 @@ CXGraph::NM_POINTMOVING CXGraph::m_nmCurrentPointMoving;
 CXGraph::CXGraph()
 {
 	WNDCLASS wndcls;
+
+	//fred add codes 20080110
+	m_MeasureDef.nCurve1 = 0;
+	m_MeasureDef.nCurve2 = 0;
+	m_MeasureDef.nIndex1 = 0;
+	m_MeasureDef.nIndex2 = 0;
+	m_nSnappedCurve = 0;
+
+	//m_bFirstMeasure = FALSE;
+	//end of fred's codes
 
 	// setup drawing function pointers
 	m_pDrawFn[0] = DrawRect;
@@ -140,7 +150,7 @@ BEGIN_MESSAGE_MAP(CXGraph, CWnd)
 #ifndef _WIN32_WCE
 	ON_WM_RBUTTONUP()
 	ON_WM_RBUTTONDOWN()
-	ON_WM_MOUSEWHEEL() // unsovled by fred ???
+	ON_WM_MOUSEWHEEL()
 #endif
 	ON_WM_KEYUP()
 	ON_COMMAND(IDM_ZOOM, Zoom )
@@ -365,7 +375,16 @@ void CXGraph::SetCursorAbsolute(int nCurve, TDataPoint vPoint, bool bForceVisibl
 }
 
 void CXGraph::GetMinMaxForData (CXGraphDataSerie& serie, double& fXMin, double& fXMax, double& fYMin, double& fYMax)
-{	
+{
+	//pubb, 08-01-15, disable. can't initialize here. do it in XAxis, YAxis initialization
+#if 0
+	//fred copy from net
+	fXMax = serie.m_pData[0].fXVal;
+	fXMin = serie.m_pData[0].fXVal;
+	fYMax = serie.m_pData[0].fYVal;
+	fYMin = serie.m_pData[0].fYVal;
+#endif
+
 	// check mins and maxs
 	for (long i = 0; i < serie.m_nCount; i++)
 	{
@@ -420,13 +439,17 @@ void CXGraph::DrawMeasures (CDCEx* pDC)
 	for (UINT i = 0; i < m_Measures.size(); i++)
 	{
 		CRect measureRect;
-						
+		
 		measureRect.left = m_XAxis[m_Data[m_Measures[i].nCurve1].m_nXAxis].GetPointForValue(&m_Data[m_Measures[i].nCurve1].m_pData[m_Measures[i].nIndex1]).x;
 		measureRect.right= m_XAxis[m_Data[m_Measures[i].nCurve2].m_nXAxis].GetPointForValue(&m_Data[m_Measures[i].nCurve2].m_pData[m_Measures[i].nIndex2]).x;
 		
 		measureRect.top = m_YAxis[m_Data[m_Measures[i].nCurve1].m_nYAxis].GetPointForValue(&m_Data[m_Measures[i].nCurve1].m_pData[m_Measures[i].nIndex1]).y;
 		measureRect.bottom = m_YAxis[m_Data[m_Measures[i].nCurve2].m_nYAxis].GetPointForValue(&m_Data[m_Measures[i].nCurve2].m_pData[m_Measures[i].nIndex2]).y;
-		
+
+		//XXX, pubb, 08-01-15, assign snappedcurve here. xgraph use global variables 'm_nSnappedCurve' and 'm_nSnappedCurve1' wrongly
+		m_nSnappedCurve = m_Measures[i].nCurve1;
+		m_nSnappedCurve1 = m_Measures[i].nCurve2;
+
 		DrawMeasure(pDC, measureRect);
 	}
 }
@@ -444,7 +467,9 @@ void CXGraph::DrawMeasure (CDCEx* pDC, CRect measureRect)
 	CQuickFont font(_T("Arial"), -11, FW_BOLD);
 	CFontSelector fs(&font, pDC, false);
 
-	if (measureRect.IsRectEmpty () && m_opOperation == opMeasure)
+	//fred, 08-01-15, change the check statement for 'from right to left' measure
+	if (measureRect.IsRectEmpty() && m_opOperation == opMeasure)
+	if ((measureRect.Height() == 0 || measureRect.Width() == 0) && m_opOperation == opMeasure)
 	{
 		measureRect.SetRect(m_MouseDownPoint.x, m_MouseDownPoint.y, m_CurrentPoint.x, m_CurrentPoint.y);
 	
@@ -455,7 +480,6 @@ void CXGraph::DrawMeasure (CDCEx* pDC, CRect measureRect)
 
 		m_clCurrentMeasure = measureRect;
 	}
-
 
 	{
 		CPenSelector ps(crColorGray, 1, pDC, PS_DOT);
@@ -491,11 +515,31 @@ void CXGraph::DrawMeasure (CDCEx* pDC, CRect measureRect)
 	double fSnappedX1 = m_XAxis[m_Data[m_nSnappedCurve].m_nXAxis].GetValueForPos (measureRect.left);
 	double fSnappedX2 = m_XAxis[m_Data[m_nSnappedCurve1].m_nXAxis].GetValueForPos (measureRect.right);
 	
-	double fX = fSnappedX2 - fSnappedX1;
 
+	double fX = fSnappedX2 - fSnappedX1;
+	//pubb, change a little
+#if 0
+	//fred added 20080106
+	COleDateTime t1(fSnappedX2);
+	COleDateTime t2(fSnappedX1);
+	COleDateTimeSpan tsSpan;
+	tsSpan = t1-t2;
+	//end of fred
+#else
+	COleDateTimeSpan tsSpan(fX);
+#endif
 	if (m_XAxis[m_Data[m_nSnappedCurve].m_nXAxis].GetDateTime())
 #ifndef _WIN32_WCE
-		cMarker = COleDateTime(fX).Format(m_XAxis[m_Data[m_nSnappedCurve].m_nXAxis].GetDisplayFmt());
+		//cMarker = COleDateTime(fX).Format(m_XAxis[m_Data[m_nSnappedCurve].m_nXAxis].GetDisplayFmt());
+		//pubb, 08-01-15, consider the negative values
+		//if( tsSpan.GetDays()>=0)
+		if(tsSpan.GetDays() <= -1 || tsSpan.GetDays() >= 1)
+			//pubb, 08-01-15, restore 'displaying days only'
+			//cMarker.Format(_T("%dWeeks%dDays"),tsSpan.GetDays()/7,tsSpan.GetDays()%7);//fred 2008 as pubb's requst
+			cMarker.Format(_T("%dDays"),tsSpan.GetDays());
+		else
+			cMarker.Format(_T("%dH%dM"),tsSpan.GetHours(),tsSpan.GetMinutes());//fred 2008
+
 #else
 		cMarker = COleDateTime(fX).Format();
 #endif
@@ -515,8 +559,12 @@ void CXGraph::DrawMeasure (CDCEx* pDC, CRect measureRect)
 	double fSnappedY2 = m_Data[m_nSnappedCurve1].m_pData[nIndex2].fYVal;
 
 	double fY = fabs(fSnappedY2 - fSnappedY1);
+	
+	//fred change to handle score 0.000000000 bug
+	CString strTmp = m_YAxis[m_Data[m_nSnappedCurve].m_nYAxis].GetDisplayFmt();
+	cMarker.Format(strTmp, fY);
 
-	cMarker.Format(m_YAxis[m_Data[m_nSnappedCurve].m_nYAxis].GetDisplayFmt(), fY);
+	//cMarker.Format(m_YAxis[m_Data[m_nSnappedCurve].m_nYAxis].GetDisplayFmt(), fY);//orginal codes
 	cMarker += (_T(" ") + m_YAxis[m_Data[m_nSnappedCurve].m_nYAxis].GetLabel());
 
 	if (abs(measureRect.Height()) > pDC->GetTextExtent(cMarker).cy)
@@ -598,13 +646,28 @@ void CXGraph::Cursor()
 	
 	if (m_nCursorFlags & XGC_LEGEND)
 		m_CursorLabel.m_clRect.SetRect(m_clInnerRect.left + 1, m_clInnerRect.top , m_clInnerRect.left + 150, m_clInnerRect.top + 50);
-	
+	//fred add 20080112
+	//if(m_Data.size()>0)
+	//	m_Data[0].m_bSelected = true;
 
 }
 
 void CXGraph::Measure()
 {
 	m_opOperation = opMeasure;
+	//m_bFirstMeasure = TRUE;//fred added
+	m_MeasureDef.nCurve1 = 0;
+	m_MeasureDef.nCurve2 = 0;
+	m_MeasureDef.nIndex1 = 0;
+	m_MeasureDef.nIndex2 = 0;
+
+	m_bLButtonDown = false;
+	//fred add 20080112
+	//by default, the first curve is selected
+	//if(m_Data.size()>0)
+	//	m_Data[0].m_bSelected = true;
+
+	//End of fred added codes
 	m_clCurrentMeasure.SetRectEmpty();
 	Invalidate();
 }
@@ -1077,7 +1140,12 @@ void CXGraph::OnPaint()
 	for (nCurve = 0; nCurve < m_Data.size (); nCurve++)
 		if (m_Data[nCurve].m_bVisible && m_Data[nCurve].m_bShowMarker)
 			m_Data[nCurve].DrawMarker(pDC);
-
+	
+	//fred change here, do not show old measures after user choose measure modes
+	//with m_bFirstMeasure enable, the switch between noop and measure do not draw the measures before
+	//if( m_bFirstMeasure == TRUE)
+	//	m_bFirstMeasure = FALSE;
+	//else
 	DrawMeasures (pDC);
 
 	// Draw zoom if active
@@ -1092,7 +1160,9 @@ void CXGraph::OnPaint()
 	}
 
 	// Draw cursor if active
-	if (m_opOperation == opCursor)
+	//pubb, 08-01-15, avoid drawing cursor in incorrect place
+	//if (m_opOperation == opCursor)
+	if (m_opOperation == opCursor && m_clInnerRect.PtInRect(m_CurrentPoint))
 		DrawCursor(pDC);
 
 	// DrawObjects
@@ -1133,10 +1203,9 @@ void CXGraph::OnSize(UINT nType, int cx, int cy)
 }
 
 #if _MFC_VER >= 0x0700
-BOOL CXGraph::OnMouseWheel( UINT nFlags, short zDelta, CPoint pt )// comment by fred 
+BOOL CXGraph::OnMouseWheel( UINT nFlags, short zDelta, CPoint pt )
 #else
-//void CXGraph::OnMouseWheel( UINT nFlags, short zDelta, CPoint pt )//org
-BOOL CXGraph::OnMouseWheel( UINT nFlags, short zDelta, CPoint pt )//fred
+void CXGraph::OnMouseWheel( UINT nFlags, short zDelta, CPoint pt )
 #endif
 {
 
@@ -1178,11 +1247,15 @@ void CXGraph::OnMouseMove(UINT nFlags, CPoint point)
 	m_bLButtonDown = (nFlags & MK_LBUTTON);
 
 	if (m_opOperation == opMeasure && m_bLButtonDown)
+	{
 		AdjustPointToData(point);
+	}
 
 	m_CurrentPoint = point;
-		
-	if (m_opOperation == opCursor)
+	
+	//pubb, 08-01-15, avoid drawing cursor in incorrect place
+	//if (m_opOperation == opCursor)
+	if (m_opOperation == opCursor && m_clInnerRect.PtInRect(point))
 	{
 		m_bTmpDC = true;
 		CDCEx dc;
@@ -1245,11 +1318,104 @@ void CXGraph::OnMouseMove(UINT nFlags, CPoint point)
 	CWnd::OnMouseMove(nFlags, point);
 }
 
+//pubb, 08-01-15, restore original code
+#if 0
+//input iType: 0 = LButton Down; 1 = LButtonUp; 2 = Mouse move
+// Returns: true = no adjust of point; false = point changed
+//fred huang 20080112
+bool CXGraph::AdjustPointToData(CPoint& point, int iType)
+{
+	//begin of fred's codes 20080112
+	bool bChanged = false;
+	long nIndex;
 
+	double fSnappedXVal;
+	int y;
+	//init y
+	if(m_Data.size()>0)
+	{
+		// Get xval for current position
+		fSnappedXVal = m_XAxis[m_Data[0].m_nXAxis].GetValueForPos (point.x);
+		// Find index for this value
+		m_XAxis[m_Data[0].m_nXAxis].GetIndexByXVal(nIndex, fSnappedXVal, 0);
+		y = m_YAxis[m_Data[0].m_nYAxis].GetPointForValue(&m_Data[0].m_pData[nIndex]).y;
+	}else
+		return bChanged;
+	if(m_Data.size() == 1)
+	{
+		
+		//only one curve on pic
+		point.y = y;
+		//pubb, 08-01-15, adjust 'x' too.
+		point.x = m_XAxis[m_Data[0].m_nXAxis].GetPointForValue(&m_Data[0].m_pData[nIndex]).x;
+		switch (iType)
+		{
+		case 0://LB down
+			m_nSnappedCurve = 0;
+			m_MeasureDef.nIndex1 = nIndex;
+			m_MeasureDef.nCurve1 = 0;
+			break;
+		case 1://LB up
+		case 2: //mouse move
+			m_nSnappedCurve1 = 0;
+			m_MeasureDef.nIndex2 = nIndex;
+			m_MeasureDef.nCurve2 = 0;
+			break;
+		default:
+			return bChanged;//do nothing
+		}
+		return bChanged;
+	}
+
+	int iYDist1 = abs(point.y - y);
+	int iYDistMin = iYDist1;
+	int iMinYIndex = 0;
+	int iMinYCurve = 0;
+	for (int i = 1; i < m_Data.size(); i++)
+	{
+		// Get xval for current position
+		fSnappedXVal = m_XAxis[m_Data[i].m_nXAxis].GetValueForPos (point.x);
+		// Find index for this value
+		m_XAxis[m_Data[i].m_nXAxis].GetIndexByXVal(nIndex, fSnappedXVal, i);
+		
+		y = m_YAxis[m_Data[i].m_nYAxis].GetPointForValue(&m_Data[i].m_pData[nIndex]).y;
+		iYDist1 = abs(point.y - y);
+		if( iYDist1 < iYDistMin )
+		{
+			iMinYIndex = nIndex;
+			iMinYCurve = i;
+		}
+	}
+	point.y = m_YAxis[m_Data[iMinYCurve].m_nYAxis].GetPointForValue(&m_Data[iMinYCurve].m_pData[iMinYIndex]).y;
+	//pubb, 08-01-15, adjust 'x' too.
+	point.x = m_XAxis[m_Data[iMinYCurve].m_nXAxis].GetPointForValue(&m_Data[iMinYCurve].m_pData[iMinYIndex]).x;
+
+	switch (iType)
+	{
+		case 0://LB down
+			m_nSnappedCurve = iMinYCurve;
+			m_MeasureDef.nIndex1 = iMinYIndex;
+			m_MeasureDef.nCurve1 = iMinYCurve;
+			break;
+		case 1://LB up
+		case 2: //mouse move
+			m_nSnappedCurve1 = iMinYCurve;
+			m_MeasureDef.nIndex2 = iMinYIndex;
+			m_MeasureDef.nCurve2 = iMinYCurve;
+			break;
+		default:
+			return bChanged;//do nothing
+	}
+	return bChanged;
+	//end of fred's change
+#else
+/////////////////////////////////////////orginal codes
 void CXGraph::AdjustPointToData(CPoint& point)
 {
 	int  nYDistance = 10000000;
-	int  nY = point.y;
+	//pubb, 08-01-15, save X
+	//int  nY = point.y;
+	int  nY = point.y, nX = point.x;
 	long nIndex;
 
 	for (int i = 0; i < m_Data.size(); i++)
@@ -1265,6 +1431,9 @@ void CXGraph::AdjustPointToData(CPoint& point)
 		{
 			nYDistance = abs(point.y - y);
 			nY = y;
+			//pubb, 08-01-15, save X
+			nX = m_XAxis[m_Data[i].m_nXAxis].GetPointForValue(&m_Data[i].m_pData[nIndex]).x;
+
 			if (point == m_MouseDownPoint)
 			{
 				m_nSnappedCurve = i;
@@ -1277,15 +1446,15 @@ void CXGraph::AdjustPointToData(CPoint& point)
 				m_MeasureDef.nIndex2 = nIndex;
 				m_MeasureDef.nCurve2 = i;
 			}
-
 		}
 	}
 
 	point.y = nY;
-	
+	//pubb, 08-01-15, adjust X
+	point.x = nX;
+
 }
-
-
+#endif
 
 bool CXGraph::CheckObjectSelection(bool bEditAction, bool bCheckFocusOnly)
 {
@@ -1691,6 +1860,7 @@ void CXGraph::OnLButtonUp(UINT nFlags, CPoint point)
 	ReleaseCapture();
 
 	m_OldPoint     = CPoint(0,0);
+	
 	m_MouseUpPoint = point;
 	m_bLButtonDown = false;
 
@@ -1718,6 +1888,7 @@ void CXGraph::OnLButtonUp(UINT nFlags, CPoint point)
 		CheckObjectSelection();
 
 	Invalidate(TRUE);
+	
 
 	CWnd::OnLButtonUp(nFlags, point);
 }
@@ -2058,24 +2229,45 @@ void CXGraph::DrawCursor(CDCEx* pDC)
 		m_CurrentPoint.y = m_YAxis[m_Data[m_nSnappedCurve].m_nYAxis].GetPointForValue(&point).y;
 	}
 	else
-	if (m_bSnapCursor)
-	// Snap cursor to nearest curve
-	for (int i = 0; i < m_Data.size(); i++)
 	{
-		// Get xval for current position
-		m_fSnappedXVal = m_XAxis[m_Data[i].m_nXAxis].GetValueForPos (m_CurrentPoint.x);
-		// Find index for this value
-		m_XAxis[m_Data[i].m_nXAxis].GetIndexByXVal(nIndex, m_fSnappedXVal, i);
-		// get yval for index
-		m_fSnappedYVal = m_Data[i].m_pData[nIndex].fYVal;
-		point.fYVal = m_fSnappedYVal;
-		// Check if cursor is in snap-range
-		int y = m_YAxis[m_Data[i].m_nYAxis].GetPointForValue(&point).y;
-		if (abs(m_CurrentPoint.y - y) < m_nSnapRange)
+		//pubb, 08-01-15, find the nearest data point and move to it just like 'forcedsnapcurve'
+		int minY = 100000, minIndex = -1;
+		if (m_bSnapCursor)
 		{
-			m_nSnappedCurve = i;
-			m_CurrentPoint.y = y;
-			break;
+			// Snap cursor to nearest curve
+			for (int i = 0; i < m_Data.size(); i++)
+			{
+				// Get xval for current position
+				m_fSnappedXVal = m_XAxis[m_Data[i].m_nXAxis].GetValueForPos (m_CurrentPoint.x);
+				// Find index for this value
+				m_XAxis[m_Data[i].m_nXAxis].GetIndexByXVal(nIndex, m_fSnappedXVal, i);
+				// get yval for index
+				m_fSnappedYVal = m_Data[i].m_pData[nIndex].fYVal;
+				point.fYVal = m_fSnappedYVal;
+				// Check if cursor is in snap-range
+				int y = m_YAxis[m_Data[i].m_nYAxis].GetPointForValue(&point).y;
+				//pubb, 08-01-15, change the behavior for match point
+				/*
+				if (abs(m_CurrentPoint.y - y) < m_nSnapRange)
+				{
+					m_nSnappedCurve = i;
+					m_CurrentPoint.y = y;
+					break;
+				}
+				*/
+				if(abs(m_CurrentPoint.y - y) < minY)
+				{
+					minY = abs(m_CurrentPoint.y - y);
+					minIndex = nIndex;
+					m_nSnappedCurve = i;
+				}
+			}
+			if(minIndex != -1)	//found
+			{
+				m_fSnappedYVal = m_Data[m_nSnappedCurve].m_pData[minIndex].fYVal;
+				point.fYVal = m_fSnappedYVal;
+				m_CurrentPoint.y = m_YAxis[m_Data[m_nSnappedCurve].m_nYAxis].GetPointForValue(&point).y;
+			}
 		}
 	}
 		
@@ -2768,17 +2960,125 @@ BOOL CXGraph::SaveBitmap( const CString cFile )
 	if( hDIB == NULL )
 		return FALSE;
 
-	// Write it to file
+		// Write it to file //fred change
 	LPTSTR pTmp = new TCHAR[cFile.GetLength()+1];
 	_tcscpy_s(pTmp,cFile.GetLength()+1,cFile);
 	WriteDIB(pTmp, hDIB );//const_cast <char*>( (LPCTSTR) cFile )
 
+	// Write it to file
+	//WriteDIB( const_cast <char*>( (LPCTSTR) cFile ), hDIB );
+
 	// Free the memory allocated by DDBToDIB for the DIB
 	GlobalFree( hDIB );
-	delete pTmp;
 	return TRUE;
 }
 #endif
+// Fred Huang add codes for Xgraph to fix outrange points measure bug
+//adjust Mouse Down point, moust LButtonUp Point,and mouse move point for Measure
+//Fininally, we dont use thie function. 20080114
+int CXGraph::AdjustMousePoint(CPoint& point)
+{
+	// Some related Data Members
+	//m_clInnerRect
+	//m_Data[nCurve],
+	// Draw curves
+	//UINT nCurve = 0;
+	//for (nCurve = 0; nCurve < m_Data.size (); nCurve++)
+	//	if (m_Data[nCurve].m_bVisible)
+	//		m_Data[nCurve].Draw(pDC);
+	////////////////////////////////
+	//double& fXMin, double& fXMax, double& fYMin, double& fYMax
+	//GetMinMaxForData (CXGraphDataSerie& serie, double& fXMin, double& fXMax, double& fYMin, double& fYMax)
+	////////////////
+	// Method 1: use m_clInnerRect to judge if the point is inside our area
+	
+	BOOL bChanged = FALSE;
+	
+	if(m_opOperation == opCursor || m_opOperation == opMeasure)
+	{
+		if(point.x < m_clInnerRect.left )
+		{
+			point.x = m_clInnerRect.left;
+			bChanged = TRUE;
+		}
+		if(point.x > m_clInnerRect.right)
+		{
+			point.x = m_clInnerRect.right;
+			bChanged = TRUE;
+		}
+		
+		if(point.y > m_clInnerRect.bottom)
+		{
+			point.y = m_clInnerRect.bottom;
+			bChanged = TRUE;
+		}
+		if(point.y < m_clInnerRect.top)
+		{
+			point.y = m_clInnerRect.top;
+			bChanged = TRUE;
+		}
+		
+		if( bChanged == TRUE)
+			return -1;
+		return 0;
+	}
+	
+	//Method 2: use Min Max of nCurves to adjust the point
+	//doesnot work well, ignore those code for now 20080112
+	/*
+	double fXMin=0;
+	double fXMax = 0;
+	double fYMin = 0;
+	double fYMax = 0;
+	long nXMinIndex = 0;
+	long nXMaxIndex = 0;
+	CPoint pMinX,pMaxX;
+	if( m_Data.size ()>0)
+	{
+		fXMin = fXMax = m_Data[0].m_pData[0].fXVal;
+		fYMin = fYMax = m_Data[0].m_pData[0].fYVal;
+	}else
+		return -2;//error , no curve data
+	for (int nCurve = 0; nCurve < m_Data.size (); nCurve++)
+	{
+		if(TRUE)//m_Data[nCurve].m_bSelected)
+		{
+			GetMinMaxForData (m_Data[nCurve], fXMin, fXMax,  fYMin,  fYMax);
+			// Find index for this XMinvalue
+			m_XAxis[m_Data[nCurve].m_nXAxis].GetIndexByXVal(nXMinIndex, fXMin, nCurve);
+			pMinX = m_YAxis[m_Data[nCurve].m_nYAxis].GetPointForValue(&m_Data[nCurve].m_pData[nXMinIndex]);
+			//Find Index for XMax Value
+			m_XAxis[m_Data[nCurve].m_nXAxis].GetIndexByXVal(nXMaxIndex, fXMax, nCurve);
+			pMaxX = m_YAxis[m_Data[nCurve].m_nYAxis].GetPointForValue(&m_Data[nCurve].m_pData[nXMaxIndex]);
+			
+			//judge point
+			if(point.x < pMinX.x )
+			{
+				point.x =  pMinX.x;
+				point.y = pMinX.y;
+				bChanged = TRUE;
+				break;
+			}
+			if(point.x > pMaxX.x)
+			{
+				point.x = pMaxX.x;
+				point.y = pMaxX.y;
+				bChanged = TRUE;
+				break;
+			}
+			
+			//Find Index for YMin Value and Y Max Value
+			
+		}
+		else
+			continue;
+	}
+	*/
+	//Method 3: use Min Max of XAxis and YAxis to adjust the point
+	if( bChanged == TRUE)
+		return -1;
+	return 0;
+}
 
 #pragma warning (default : 4244)
 #pragma warning (default : 4800)

@@ -6,6 +6,8 @@ CMyGraph::CMyGraph(void)
 	//pubb, 07-12-30, for what use?
 	//fred
 	//m_bDrawCurveWithXGraph = FALSE;
+	m_bShowMarker = false;
+	//m_cInfo = _T("Select Buttons to control the chart !");
 }
 
 CMyGraph::~CMyGraph(void)
@@ -23,12 +25,13 @@ void	CMyGraph::ShowCurve(CRect & clRect, COLORREF bgcolor, CString title, CStrin
 //		m_XGraph.Create(_T("XGraph"),_T("Player Rating Curve"), WS_CHILD  | WS_VISIBLE, clRect, pParentWnd, 1001 );
 		m_XGraph.SetData(NULL,0,0,0,false);
 		m_XGraph.SetCursorFlags(XGC_LEGEND | XGC_VERT | XGC_ADJUSTSMOOTH);
-					
-		// Force cursor to snap to the first curve
-		m_XGraph.ForceSnap(0);
 		
-		m_XGraph.SetInteraction(false);
-		m_XGraph.EnableWindow(false);
+		//pubb, 08-01-15, dont do force
+		// Force cursor to snap to the first curve
+		//m_XGraph.ForceSnap(0);
+		
+		//m_XGraph.SetInteraction(false);
+		//m_XGraph.EnableWindow(false);
 	}
 	AddDataSerie();
 }
@@ -187,7 +190,7 @@ void CMyGraph::AddDataSerie(bool bAddAxes)
 		m_XGraph.GetCurve (i).SetLabel(Series[i]);//set player name here
 		
 		//part 2, style
-		//m_XGraph.GetCurve (i).SetShowMarker(true);// mark points in curve fred
+		m_XGraph.GetCurve (i).SetShowMarker(m_bShowMarker);// mark points in curve fred
 
 		//m_XGraph.GetCurve (0).SetColor(RGB(0,0,0));
 		//m_XGraph.GetCurve (3).SetColor(RGB(255,0,0));
@@ -227,8 +230,8 @@ void CMyGraph::AddDataSerie(bool bAddAxes)
 	//m_XGraph.GetCurve (0).SetFillTransparent(true);
 
 		
-//	m_XGraph.GetXAxis (0).SetShowMarker(false);
-//	m_XGraph.GetYAxis (0).SetShowMarker(false);
+	m_XGraph.GetXAxis (0).SetShowMarker(false);
+	m_XGraph.GetYAxis (0).SetShowMarker(false);
 	//m_XGraph.GetXAxis (0).SetColorRange(0, 90 , 200, RGB(200,200, 255), RGB(100,255,200),_T("Range 1"), HS_DIAGCROSS);
 	//m_XGraph.GetXAxis (0).SetColorRange(1, 490 , 600, RGB(200,255, 100), RGB(100,255,200),_T("Range 2"), HS_DIAGCROSS);
 

@@ -249,7 +249,7 @@ void CReportDlg::OnShowChart(UINT command)
 		command = SHOW_RATINGCURVE;
 		break;
 	case ID__TECHSTAT:
-		command = SHOW_PLAYCOUNT;
+		command = SHOW_TECHSTAT;
 		break;
 	case ID__USEDCIVS:
 		command = SHOW_USEDCIVS;

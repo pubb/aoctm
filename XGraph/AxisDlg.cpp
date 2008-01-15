@@ -46,6 +46,19 @@ CAxisDlg::CAxisDlg(CWnd* pParent /*=NULL*/)
 	m_nGridType = -1;
 	m_nTimeStepType = -1;
 	m_nTimeStep = 0;
+	///code from internet 2008 by fred
+	COleDateTime time1;
+	if ( time1.GetStatus() == COleDateTime::valid )
+	{
+		m_StartDate = m_StartTime = m_EndDate = m_EndTime = time1;
+	}else
+	{
+		m_StartDate = COleDateTime::GetCurrentTime();
+		m_StartTime = COleDateTime::GetCurrentTime();
+		m_EndDate = COleDateTime::GetCurrentTime();
+		m_EndTime = COleDateTime::GetCurrentTime();
+	}
+
 	//}}AFX_DATA_INIT
 }
 

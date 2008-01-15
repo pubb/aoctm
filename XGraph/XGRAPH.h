@@ -73,8 +73,8 @@
 #include <afxtempl.h>
 #endif
 
+//pubb, 08-01-15, dont include resource for avoiding conflict with AocTM's resource macro definition
 //#include "resource.h"
-
 
 #include <vector>
 #include <list>
@@ -143,14 +143,11 @@ const COLORREF BASECOLORTABLE[12] =
 };
 
 #define MAX_MARKERS 8
-#ifdef NoDllForXGraph//fred
-class CXGraph : public CWnd
-#else
+
 #ifdef _AFXDLL
 class __declspec(dllexport)  CXGraph : public CWnd
 #else
 class __declspec(dllimport)  CXGraph : public CWnd
-#endif
 #endif
 {
 
@@ -320,7 +317,7 @@ public:
 protected:
 
 #ifndef _WIN32_WCE
-	BOOL   WriteDIB( LPTSTR szFile, HANDLE hDIB);//org
+	BOOL   WriteDIB( LPTSTR szFile, HANDLE hDIB);
 	HANDLE DDBToDIB( CBitmap& bitmap, DWORD dwCompression, CPalette* pPal );
 #endif
 
@@ -330,8 +327,11 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	//afx_msg void OnMouseWheel( UINT nFlags, short zDelta, CPoint pt );//org
-	afx_msg BOOL OnMouseWheel( UINT nFlags, short zDelta, CPoint pt );//fred
+#if _MFC_VER >= 0x0700
+	afx_msg BOOL OnMouseWheel( UINT nFlags, short zDelta, CPoint pt );
+#else
+	afx_msg void OnMouseWheel( UINT nFlags, short zDelta, CPoint pt );
+#endif
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
@@ -427,7 +427,12 @@ private:
 		
 
 	
-	void AdjustPointToData(CPoint& point);
+	//pubb, 08-01-15, restore original code
+#if 1
+	void AdjustPointToData(CPoint& point);//org
+#else
+	bool AdjustPointToData(CPoint& point, int iType);//fred 20080112
+#endif
 	void InsertEmptyLabel();
 	bool CheckObjectSelection(bool bEditAction = false, bool bCheckFocusOnly = false);
 	void GetMinMaxForData (CXGraphDataSerie& serie, double& fXMin, double& fXMax, double& fYMin, double& fYMax);
@@ -448,6 +453,10 @@ private:
 #ifndef _WIN32_WCE
 	void OnPrint();
 #endif
+	// Fred Huang add codes for Xgraph to fix outrange points measure bug
+	int AdjustMousePoint(CPoint& point);
+public:
+		//bool  m_bFirstMeasure;
 };
 
 #if _MSC_VER < 1300

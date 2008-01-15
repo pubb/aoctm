@@ -1622,6 +1622,12 @@ void CXGraphAxis::GetIndexByXVal(long& nIndex, double x, int nCurve)
 {
 	double dStep;
 
+	/* XXX
+	 * pubb, 08-01-14
+	 * XGraph assume the points in the array are distributed evenly, so it can calculate the index by value.
+	 * but for most of conditions, the points are added by random
+	 */
+#if 0
 	dStep = fabs(m_pGraph->m_Data[nCurve].m_pData[1].fXVal - m_pGraph->m_Data[nCurve].m_pData[0].fXVal);
 
 	nIndex = (long)((x - m_pGraph->m_Data[nCurve].m_pData[0].fXVal) / dStep);
@@ -1630,7 +1636,11 @@ void CXGraphAxis::GetIndexByXVal(long& nIndex, double x, int nCurve)
 		nIndex = 0;
 
 	if (nIndex >= m_pGraph->m_Data[nCurve].m_nCount)
+	{
 		nIndex = m_pGraph->m_Data[nCurve].m_nCount - 1;
+		//pubb, 08-01-12, when index is outside of the whole data, just return the tail point
+		return;
+	}
 
 	if (m_pGraph->m_Data[nCurve].m_pData[nIndex].fXVal > x)
 	{
@@ -1641,8 +1651,19 @@ void CXGraphAxis::GetIndexByXVal(long& nIndex, double x, int nCurve)
 	{
 		while (nIndex < m_pGraph->m_Data[nCurve].m_nCount && m_pGraph->m_Data[nCurve].m_pData[nIndex].fXVal <= x)
 			nIndex ++;
-
 	}
+#else
+	{
+		//pubb, 08-01-14, dichotomy(¶þ·Ö·¨) is better, especially on occasion of many points.
+		int i;
+		for(i = 0; i < m_pGraph->m_Data[nCurve].m_nCount; i++)
+		{
+			if(m_pGraph->m_Data[nCurve].m_pData[i].fXVal >= x)
+				break;
+		}
+		nIndex = (i == 0 ? 0 : i - 1);
+	}
+#endif
 }
 
 double CXGraphAxis::RoundDouble(double doValue, int nPrecision)

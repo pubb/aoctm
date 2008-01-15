@@ -3,7 +3,7 @@
 #include <map>
 
 //fred add
-#include "xgraph/xgraph10.h"
+#include "xgraph\xgraph10.h"
 #define VALCOUNT   1000
 #define MAX_SERIES 50
 //end of fred 
@@ -30,6 +30,8 @@ public:
 	void AddDataSerie(bool bAddAxes = false);
 
 	CXGraph		m_XGraph;
+	bool m_bShowMarker;
+	//CString m_cInfo;
 	//pubb, 07-12-30, change to CArray instead of static array
 	CArray<TDataPoint *, TDataPoint *> m_XGraphValues;
 	

@@ -57,6 +57,11 @@ CXGraphDataSerie::CXGraphDataSerie(const CXGraphDataSerie& copy)
 
 CXGraphDataSerie& CXGraphDataSerie::operator =(const CXGraphDataSerie& copy)
 {
+	/// should add following statement
+	if (m_pData != NULL && m_bAutoDelete)
+		delete []m_pData; 
+	// from internet the upper codes
+
 	m_bVisible			= copy.m_bVisible;
 	m_bShowMarker		= copy.m_bShowMarker;
 	m_bFillBeneath		= copy.m_bFillBeneath;
@@ -230,8 +235,12 @@ void CXGraphDataSerie::Draw(CDCEx *pDC)
 	{
 		point.x = xaxis.GetPointForValue(&m_pData[i]).x;
 		point.y = yaxis.GetPointForValue(&m_pData[i]).y;
+		if(m_pData[i].fYVal == 1573.0)
+			TRACE("");
 					
-		if (point.x != oldPoint.x )
+		//pubb, 08-01-15, more accurate
+		//if (point.x != oldPoint.x )
+		if (point != oldPoint)
 		{
 			if ((m_pGraph->m_clInnerRect.PtInRect (point) || m_pGraph->m_clInnerRect.PtInRect (oldPoint)))
 				CreateCurveGripRgn(oldPoint, point);
