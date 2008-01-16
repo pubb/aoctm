@@ -45,7 +45,8 @@ CXGraphAxis::CXGraphAxis()
 	m_bShowGrid			= true;
 	m_bDateTime			= false;
 	m_cLabel			= _T(" ");
-	m_cDisplayFmt		= _T("%5.1f");
+	//pubb, 08-01-16, change display format for SCORE
+	m_cDisplayFmt		= _T("%5.0f");
 	m_fMax				= -DBL_MAX;
 	m_fMin				= DBL_MAX;
 	m_fCurMin			= DBL_MAX;
@@ -1620,14 +1621,14 @@ void CXGraphAxis::Scale(double fFactor)
 
 void CXGraphAxis::GetIndexByXVal(long& nIndex, double x, int nCurve)
 {
-	double dStep;
-
 	/* XXX
 	 * pubb, 08-01-14
 	 * XGraph assume the points in the array are distributed evenly, so it can calculate the index by value.
 	 * but for most of conditions, the points are added by random
 	 */
 #if 0
+	double dStep;
+
 	dStep = fabs(m_pGraph->m_Data[nCurve].m_pData[1].fXVal - m_pGraph->m_Data[nCurve].m_pData[0].fXVal);
 
 	nIndex = (long)((x - m_pGraph->m_Data[nCurve].m_pData[0].fXVal) / dStep);
@@ -1658,10 +1659,11 @@ void CXGraphAxis::GetIndexByXVal(long& nIndex, double x, int nCurve)
 		int i;
 		for(i = 0; i < m_pGraph->m_Data[nCurve].m_nCount; i++)
 		{
-			if(m_pGraph->m_Data[nCurve].m_pData[i].fXVal >= x)
+			if(m_pGraph->m_Data[nCurve].m_pData[i].fXVal > x)
 				break;
 		}
-		nIndex = (i == 0 ? 0 : i - 1);
+		//pubb, 08-01-16, return the nearest X of higher or equal value. if no point or input X is the highest of all, return 0
+		nIndex = (i == m_pGraph->m_Data[nCurve].m_nCount ? 0 : i);	
 	}
 #endif
 }

@@ -467,9 +467,9 @@ void CXGraph::DrawMeasure (CDCEx* pDC, CRect measureRect)
 	CQuickFont font(_T("Arial"), -11, FW_BOLD);
 	CFontSelector fs(&font, pDC, false);
 
-	//fred, 08-01-15, change the check statement for 'from right to left' measure
-	if (measureRect.IsRectEmpty() && m_opOperation == opMeasure)
-	if ((measureRect.Height() == 0 || measureRect.Width() == 0) && m_opOperation == opMeasure)
+	//fred, 08-01-16, change the check statement
+	//if (measureRect.IsRectEmpty() && m_opOperation == opMeasure)
+	if (measureRect.IsRectNull() && m_opOperation == opMeasure)
 	{
 		measureRect.SetRect(m_MouseDownPoint.x, m_MouseDownPoint.y, m_CurrentPoint.x, m_CurrentPoint.y);
 	
@@ -559,10 +559,11 @@ void CXGraph::DrawMeasure (CDCEx* pDC, CRect measureRect)
 	double fSnappedY2 = m_Data[m_nSnappedCurve1].m_pData[nIndex2].fYVal;
 
 	double fY = fabs(fSnappedY2 - fSnappedY1);
-	
 	//fred change to handle score 0.000000000 bug
 	CString strTmp = m_YAxis[m_Data[m_nSnappedCurve].m_nYAxis].GetDisplayFmt();
 	cMarker.Format(strTmp, fY);
+	if(fY != 0)
+		TRACE(_T("\n%s = %5.0f(%d) - %5.0f(%d)\n"), cMarker, fSnappedY2, nIndex2, fSnappedY1, nIndex1);
 
 	//cMarker.Format(m_YAxis[m_Data[m_nSnappedCurve].m_nYAxis].GetDisplayFmt(), fY);//orginal codes
 	cMarker += (_T(" ") + m_YAxis[m_Data[m_nSnappedCurve].m_nYAxis].GetLabel());
