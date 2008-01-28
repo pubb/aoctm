@@ -306,7 +306,7 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 	wndProgress.Hide();
 
 	if(loadnew)
-		theApp.Players.Update();
+		theApp.Players.Update(true);
 
 	players.CopyNickNames();
 	ShowReport(&players);;
@@ -518,7 +518,7 @@ void CAocTMDlg::OnBnClickedRecDelete()
 	}
 
 	//07-10-11, do update() when one or more recgames are deleted.
-	theApp.Players.Update();
+	theApp.Players.Update(true);
 
 	//XXX, can't delete list before remove recgame DB, see Andytalk::LogDlg.cpp
 	//but still bugs, so comment it, let Refresh() do it.
@@ -599,7 +599,7 @@ bool CAocTMDlg::OnAcceleratorLoad()
 
 	if(loadnew)
 	{
-		theApp.Players.Update();
+		theApp.Players.Update(true);
 		Refresh();
 	}
 

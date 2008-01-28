@@ -149,8 +149,7 @@ void CConfigPlayerDlg::OnBnClickedOk()
 		}
 	}
 
-	theApp.Players.Update();
-	theApp.Players.SetDirty();
+	theApp.Players.Update(true);
 
 	OnOK();
 }

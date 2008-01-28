@@ -22,7 +22,7 @@ CGraphDlg::CGraphDlg(CWnd* pParent /*=NULL*/)
 CGraphDlg::~CGraphDlg()
 {
 	//pubb, 07-09-09, restore the global
-	theApp.Players.Update();
+	theApp.Players.Update(false);
 }
 
 void CGraphDlg::DoDataExchange(CDataExchange* pDX)
@@ -169,7 +169,7 @@ void CGraphDlg::ShowRatingCurve(void)
 			m_Graph.m_XGraphValues[i][j].fYVal = theApp.Players[index]->Rating;
 		}
 	}
-	theApp.Players.Update();	//restore global database
+	theApp.Players.Update(false);	//restore global database
 
 	CRect clRect;
 	//GetClientRect(clRect);
@@ -190,7 +190,7 @@ void CGraphDlg::ShowUsedCivs(void)
 	//prepare data
 	extern CString civ_name[19];
 	m_Graph.PrepareData(1, 18);	//one serie, 18 civs for segments
-	theApp.Players.Update();	//to generate Civs[]
+	theApp.Players.Update(false);	//to generate Civs[]
 	CPlayer * player = m_pPlayers->GetAt(0);
 	for(int i = 0; i < 18; i++)
 	{

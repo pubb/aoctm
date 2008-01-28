@@ -3,7 +3,7 @@
 #include "AocTM.h"
 
 CRecgameDatabase::CRecgameDatabase(void)
-: Dirty(false)
+: m_bDirty(false)
 {
 }
 
@@ -91,7 +91,7 @@ int	CRecgameDatabase::Load(IPersistentInterface * engine)
 
 	RemoveAll();
 
-	Dirty = false;
+	m_bDirty = false;
 
 	int i, count = engine->GetRecgameCount();
 	if(count <= 0)
@@ -120,7 +120,7 @@ int	CRecgameDatabase::Load(IPersistentInterface * engine)
 bool CRecgameDatabase::Save(IPersistentInterface *engine)
 {
 	//by mep for performance
-	if(!engine || !Dirty)
+	if(!engine || !m_bDirty)
 		return false;
 
 	//load chatinfo before clearrecgames() because we don't load it at startup.
@@ -158,7 +158,8 @@ bool CRecgameDatabase::Save(IPersistentInterface *engine)
 		return false;
 	}
 
-	Dirty = false;
+	SetDirty(false);
+
 	return true;
 }
 
@@ -212,8 +213,8 @@ bool	CRecgameDatabase::Add(CRecgame * rg)
 			break;
 	InsertAt(i, rg);
 
-	if(!Dirty)
-		Dirty = true;
+	SetDirty(true);
+
 	return true;
 }
 
@@ -280,7 +281,8 @@ void	CRecgameDatabase::Free(void)
 
 void	CRecgameDatabase::SetDirty(bool dirty)
 {
-	Dirty = dirty;
+	if(m_bDirty != dirty)
+		m_bDirty = dirty;
 }
 
 CString	CRecgameDatabase::GetRecPath(void)

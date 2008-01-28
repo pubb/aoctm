@@ -75,8 +75,8 @@ void CFeeInDlg::OnBnClickedOk()
 		fee->Money = money;
 		fee->PayTime = timeTime;
 		m_pPlayer->Record_PaidFee.Add(fee);
+		theApp.Players.SetDirty(true);
 	}
-	theApp.Players.SetDirty(true);
 
 	Refresh();
 }

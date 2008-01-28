@@ -24,11 +24,12 @@ public:
 	bool	Save(IPersistentInterface * engine);
 
 	void	SetDirty(bool d = true);
+	bool	GetDirty(void);
 
 	void	RemoveAll(void);
 
 	void	Revert(void);
-	void	Update(CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
+	void	Update(bool changed = false, CTime from = CTime(0), CTime to = CTime::GetCurrentTime());
 
 	INT_PTR GetFirstSamePlayer(CString name);
 
@@ -42,7 +43,7 @@ public:
 	static int GetCooperateRating(const int rating1, const int rating2);
 
 private:
-	bool	dirty;
+	bool	m_bDirty;
 	CString	m_ConfigFile;
 	int		Charge;		//charge to Net Pub
 

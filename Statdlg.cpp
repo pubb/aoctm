@@ -91,7 +91,7 @@ BOOL Statdlg::OnInitDialog()
 	if(!m_pPlayerDB)
 		return FALSE;
 
-	m_pPlayerDB->Update();
+	m_pPlayerDB->Update(false);
 
 	int nItem;
 	CString str;

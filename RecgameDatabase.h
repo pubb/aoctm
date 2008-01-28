@@ -47,7 +47,7 @@ public:
 	bool Add(CRecgame * rg);
 
 private:
-	bool	Dirty;
+	bool	m_bDirty;
 	CLanguage	m_lang;
 	CString m_str_table[100];
 	CString	m_game_path, m_rec_path;

@@ -119,7 +119,7 @@ void CFeeDlg::Refresh(void)
 	m_List.DeleteAllItems();
 
 	//pubb, 07-09-04, to setup only to count plays with fee
-	theApp.Players.Update(FIRSTGAME_FEE_TIME);
+	theApp.Players.Update(false, FIRSTGAME_FEE_TIME);
 
 	int nItem, cost = theApp.Config.GetAllCostFee(), count = theApp.Players.GetAllPlayCount();
 	float eachcost = count == 0 ? 0 : (float)1.0 * cost / count;
@@ -142,7 +142,7 @@ void CFeeDlg::Refresh(void)
 	}
 
 	//pubb, 07-09-04, restore
-	theApp.Players.Update();
+	theApp.Players.Update(false);
 
 	str.Format(_T("Money In: %d"), income);
 	SetDlgItemText(IDC_MONEY_IN_TOTAL, str);

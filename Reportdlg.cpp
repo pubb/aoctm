@@ -73,13 +73,14 @@ BOOL CReportDlg::OnInitDialog()
 		CString str;
 		int totalplays = 0, playcount, wincount, i;
 
+		//pubb, 08-01-28, save 'dirty' state before temparory update
 		//pubb, 07-09-18, to generate ratings before the report ( 5 minutes )
-		theApp.Players.Update(CTime(0), m_pPlayerDB->m_pRecgameDB->GetFirstGameTime() - CTimeSpan(0, 0, 5, 0));
+		theApp.Players.Update(false, CTime(0), m_pPlayerDB->m_pRecgameDB->GetFirstGameTime() - CTimeSpan(0, 0, 5, 0));
 		m_pPlayerDB->CopyPlayers();	//store ratings before this show up in InitRating
 		//pubb, 07-09-22, restore the normal ratings
-		theApp.Players.Update();
-		m_pPlayerDB->Update();
-
+		theApp.Players.Update(false);
+		m_pPlayerDB->Update(false);
+		
 		for(i = 0; i < m_pPlayerDB->GetCount(); i++)
 		{
 			playcount = m_pPlayerDB->GetAt(i)->PlayCount;

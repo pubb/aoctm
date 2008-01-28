@@ -4,7 +4,7 @@
 #include "AocTM.h"
 
 CPlayerDatabase::CPlayerDatabase(void)
-: m_pRecgameDB(NULL), dirty(false)
+: m_pRecgameDB(NULL), m_bDirty(false)
 {
 }
 
@@ -52,14 +52,14 @@ bool	CPlayerDatabase::Load(IPersistentInterface * engine)
 	
 	delete [] ids;
 
-	dirty = false;
+	m_bDirty = false;
 
 	return true;
 }
 
 bool	CPlayerDatabase::Save(IPersistentInterface * engine)
 {
-	if(!engine || !dirty)
+	if(!engine || !m_bDirty)
 		return false;
 
 	//pubb, 07-10-26, do transaction before calling ClearPlayers()
@@ -92,7 +92,7 @@ bool	CPlayerDatabase::Save(IPersistentInterface * engine)
 		return false;
 	}
 
-	dirty = false;
+	m_bDirty = false;
 	return true;
 }
 
@@ -113,8 +113,7 @@ INT_PTR	CPlayerDatabase::Add(CPlayer * player)
 {
 	if(GetFirstSamePlayer(player->NickNames[0]) >= 0)
 		return -1;
-	if(!dirty)
-		dirty = true;
+	SetDirty(true);
 	return CArray<CPlayer *, CPlayer *>::Add(player);
 }
 
@@ -141,6 +140,10 @@ void CPlayerDatabase::Add(CRecgame * rg)
 			player = new CPlayer;
 			player->NickNames.Add(rg->Players[i].Name);
 			CArray<CPlayer *, CPlayer *>::Add(player);
+
+			//pubb, 08-01-28, moved from bottom. to save when actually changed
+			//pubb, 07-12-27, to save when ratings changed
+			SetDirty(true);
 		}
 		player->PlayCount++;
 		if(rg->IsWinner(i))
@@ -184,10 +187,6 @@ void CPlayerDatabase::Add(CRecgame * rg)
 	}
 			
 	UpdateRatings(rg);
-
-	//pubb, 07-12-27, to save when ratings changed
-	if(!dirty)
-		dirty = true;
 }
 
 #if 0
@@ -437,7 +436,7 @@ int CPlayerDatabase::GetAllPlayCount(void)
 }
 
 //regegenerate RecgameDatabase by tranverse all the recgames in DB in order of RecordTime and recalculate player's playcount, wincount, rating, updatetime and the rest fee
-void CPlayerDatabase::Update(CTime from, CTime to)
+void CPlayerDatabase::Update(bool changed, CTime from, CTime to)
 {
 	if(!m_pRecgameDB)
 		return;
@@ -453,11 +452,14 @@ void CPlayerDatabase::Update(CTime from, CTime to)
 			break;
 		Add(rg);
 	}
+	//pubb, 08-01-26, set dirty flag
+	if(changed)
+		SetDirty(true);
 }
 
 void	CPlayerDatabase::GetRatings(CTime when)
 {
-	Update(CTime(0), when);
+	Update(false, CTime(0), when);
 }
 
 void	CPlayerDatabase::Free(void)
@@ -485,7 +487,13 @@ void	CPlayerDatabase::CopyNickNames(void)
 
 void	CPlayerDatabase::SetDirty(bool d)
 {
-	dirty = d;
+	if(m_bDirty != d)
+		m_bDirty = d;
+}
+
+bool	CPlayerDatabase::GetDirty(void)
+{
+	return m_bDirty;
 }
 
 int	CPlayerDatabase::GetOddMoreRating(const int orig_rating, const int more, const int less)
