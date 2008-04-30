@@ -29,7 +29,7 @@ public:
 	//fred added codes below 20071224
 	void AddDataSerie(bool bAddAxes = false);
 
-	CXGraph		m_XGraph;
+	CXGraph	m_XGraph;
 	bool m_bShowMarker;
 	//CString m_cInfo;
 	//pubb, 07-12-30, change to CArray instead of static array

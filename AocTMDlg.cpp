@@ -561,14 +561,16 @@ bool CAocTMDlg::OnAcceleratorLoad()
 
 	bool loadnew = false;
 	CFileFind finder;
+	CTime DBLatestGameTime = theApp.Recgames.GetLatestGameTime();
 	BOOL bWorking = finder.FindFile(_T("*.mgx"));
 	while(bWorking)
 	{
 		bWorking = finder.FindNextFile();
 
+		//08-02-10, pubb, compare with the game time before importing new games.
 		//07-10-11, pubb, to speedup, analyze the filename before process
 		{
-			if(Renamer::Parse(finder.GetFileName()) <= theApp.Recgames.GetLatestGameTime())
+			if(Renamer::Parse(finder.GetFileName()) <= DBLatestGameTime)
 				continue;
 		}
 		

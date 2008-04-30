@@ -17,6 +17,7 @@ CMyGraph::~CMyGraph(void)
 
 void	CMyGraph::ShowCurve(CRect & clRect, COLORREF bgcolor, CString title, CString subtitle, CWnd *pParentWnd)
 {
+	//pubb, 08-03-01, only do Create in 'if' closure
 	//pubb, 07-12-26, fred replaced CGraph with XGraph
 	if (!::IsWindow(m_XGraph.m_hWnd))
 	{
@@ -25,68 +26,77 @@ void	CMyGraph::ShowCurve(CRect & clRect, COLORREF bgcolor, CString title, CStrin
 //		m_XGraph.Create(_T("XGraph"),_T("Player Rating Curve"), WS_CHILD  | WS_VISIBLE, clRect, pParentWnd, 1001 );
 		m_XGraph.SetData(NULL,0,0,0,false);
 		m_XGraph.SetCursorFlags(XGC_LEGEND | XGC_VERT | XGC_ADJUSTSMOOTH);
-		
+			
 		//pubb, 08-01-15, dont do force
 		// Force cursor to snap to the first curve
 		//m_XGraph.ForceSnap(0);
 		
 		//m_XGraph.SetInteraction(false);
 		//m_XGraph.EnableWindow(false);
+	
+		AddDataSerie();
 	}
-	AddDataSerie();
 }
 
 void	CMyGraph::ShowBar(CRect & clRect, COLORREF bgcolor, CString title, CString subtitle, CWnd *pParentWnd)
 {
-	Create( NULL, NULL, NULL, clRect, pParentWnd, ID_BAR, NULL );
-	// Create graph and set graph parameters
-	CreateGraph( GT_2DBAR );
-	SetGraphBackgroundColor( bgcolor );
-	SetGraphTitle(title);
-	SetGraphSubtitle(subtitle);
-	int serie, segment;
-	// Add graph segments
-	for(segment = 0; segment < Segments.GetCount(); segment++)
+	//pubb, 08-03-01, check m_hWnd learned from ShowCurve(), don't know why should do
+	if (!::IsWindow(m_hWnd))
 	{
-		Add2DBarGraphSegment(Segments[segment]);
-	}
-
-	for(serie = 0; serie < Series.GetCount(); serie++)
-	{
-		Add2DBarGraphSeries(Series[serie], RGB(rand() % 255, rand() % 255, rand() % 255));
+		Create( NULL, NULL, NULL, clRect, pParentWnd, ID_BAR, NULL );
+		// Create graph and set graph parameters
+		CreateGraph( GT_2DBAR );
+		SetGraphBackgroundColor( bgcolor );
+		SetGraphTitle(title);
+		SetGraphSubtitle(subtitle);
+		int serie, segment;
+		// Add graph segments
 		for(segment = 0; segment < Segments.GetCount(); segment++)
 		{
-			Set2DBarGraphValue(segment + 1, serie + 1, Data[serie][segment]);
+			Add2DBarGraphSegment(Segments[segment]);
 		}
+
+		for(serie = 0; serie < Series.GetCount(); serie++)
+		{
+			Add2DBarGraphSeries(Series[serie], RGB(rand() % 255, rand() % 255, rand() % 255));
+			for(segment = 0; segment < Segments.GetCount(); segment++)
+			{
+				Set2DBarGraphValue(segment + 1, serie + 1, Data[serie][segment]);
+			}
+		}
+		// Set graph animation
+		SetGraphAnimation( FALSE, AT_BAR_DRAW_ALL );
 	}
-	// Set graph animation
-	SetGraphAnimation( FALSE, AT_BAR_DRAW_ALL );
 }
 
 void	CMyGraph::ShowPie(CRect & clRect, COLORREF bgcolor, CString title, CString subtitle, CWnd *pParentWnd)
 {
-	Create( NULL, NULL, NULL, clRect, pParentWnd, ID_PIE, NULL );
-	// Create graph and set graph parameters
-	CreateGraph( GT_2DPIE );
-	SetGraphBackgroundColor(bgcolor);
-	SetGraphTitle(title);
-	SetGraphSubtitle(subtitle);
-	
-	//to change to the percent
-	int count = 0;
-	for(int i = 0; i < Segments.GetCount(); i++)
+	//pubb, 08-03-01, check m_hWnd learned from ShowCurve(), don't know why should do
+	if (!::IsWindow(m_hWnd))
 	{
-		count += Data[0][i];
-	}
+		Create( NULL, NULL, NULL, clRect, pParentWnd, ID_PIE, NULL );
+		// Create graph and set graph parameters
+		CreateGraph( GT_2DPIE );
+		SetGraphBackgroundColor(bgcolor);
+		SetGraphTitle(title);
+		SetGraphSubtitle(subtitle);
+		
+		//to change to the percent
+		int count = 0;
+		for(int i = 0; i < Segments.GetCount(); i++)
+		{
+			count += Data[0][i];
+		}
 
-	// Add graph segments
-	int segment;
-	for(segment = 0; segment < Segments.GetCount(); segment++)
-	{
-		Add2DPieGraphSegment(Data[0][segment] * 100.0 / count, RGB(rand() % 255, rand() % 255, rand() % 255), Segments[segment]);
+		// Add graph segments
+		int segment;
+		for(segment = 0; segment < Segments.GetCount(); segment++)
+		{
+			Add2DPieGraphSegment(Data[0][segment] * 100.0 / count, RGB(rand() % 255, rand() % 255, rand() % 255), Segments[segment]);
+		}
+		// Set graph animation
+		SetGraphAnimation( FALSE, AT_PIE_DRAW );
 	}
-	// Set graph animation
-	SetGraphAnimation( FALSE, AT_PIE_DRAW );
 }
 
 void	CMyGraph::PrepareData(int serie, int segment, bool curve)
