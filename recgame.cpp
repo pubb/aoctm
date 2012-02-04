@@ -815,27 +815,70 @@ void CRecgame::getGameData(void)
 	}
 	pos += (trigger_num * 4); 
 
-
+	/* pubb, 09-03-29, rewrite the team setting algorithm
+	 * player team can be 'not set'(0), random(1,2), or set (1,2,...,n)
+	 * the following loop will decide the status for all players' team set.
+	 */
+	int team1 = 0, team2 = 0;
+	for(j = 0; j < PlayerNum; j++)
+	{
+		switch(m_pt_header[pos+j] - 1)
+		{
+		case 1:
+		case 2:	
+			team1 = m_pt_header[pos+j] - 1;
+			break;
+		case 0:
+			continue;
+		default:
+			team2 = m_pt_header[pos+j] - 1;
+			break;
+		}
+		if(team1 != 0)
+			break;
+	}
 	/* pubb, 07-07-26, player_team as integer */
 	for(j = 0; j < 8; j++)
 	{
 		//pubb, 07-08-04, set Players.Team
+		//pubb, 09-01-04, skip null players
+		if(data_ref[j+1] == 0)
+			continue;
+
+		//pubb, 09-01-04, '2 as 1' condition will also be invalid team, set it manually
+		if(data_ref[j+1] != j+1)
+			for(int k = 1; k < j+1; k++)
+				if(data_ref[j+1] == data_ref[k])	//bug fix by pubb, 09-03-07, use 'data_ref[k]' instead of 'k'
+				{
+					Players[j+1].Team = Players[k].Team;
+					goto next;
+				}
+
 		//pubb, 07-10-31, if not set team (that's '-' in the game), then set it manually
-		if(m_pt_header[pos+j] - 1 == 0)
+		//pubb, 09-01-04, buggy data (08-07-30-22:40), two in team 1, two in team '4'. Set it definitely to be team 1 and team 2
+		//pubb, 09-03-29, rewritten according to preset team1 and team2 variables
+		switch(m_pt_header[pos+j] - 1)
 		{
-			int team = 1;
-			for(int i = 0; i <= j; i++)
+		case 0:
+			if(team1 == 0)	//no one set team
 			{
-				if(Players[i+1].Team == 1)
-					team = 2;
+				Players[j+1].Team = 1;
+				team1 = 1;
+				team2 = 2;
 			}
-			Players[j+1].Team = team;
+			else
+			{
+				Players[j+1].Team = 2;	//usually there're only 2 players in this condition
+			}
+			break;
+		default:
+			if(m_pt_header[pos+j] - 1 == team1)
+				Players[j+1].Team = 1;
+			else
+				Players[j+1].Team = 2;
 		}
-		else
-		{
-			//		player_team[j+1] = m_pt_header[pos+j] -1;
-			Players[j+1].Team = m_pt_header[pos+j] -1;
-		}
+next:
+		;
 
 	/*
 		if(m_pt_header[pos+j] - 1 == 0){

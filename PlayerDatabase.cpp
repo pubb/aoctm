@@ -2,6 +2,7 @@
 #include "PlayerDatabase.h"
 #include "csvfile.h"
 #include "AocTM.h"
+#include "grouping/grouping.h"
 
 CPlayerDatabase::CPlayerDatabase(void)
 : m_pRecgameDB(NULL), m_bDirty(false)
@@ -292,7 +293,8 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 	const int deltaR_MIN = 1;
 
 	/* for simplicity, consider the condition of 2 teams */
-	int	winteam, R_winner = 0, R_loser = 0;
+	int	winteam;
+	float R_winner = 0, R_loser = 0;
 	int	deltaR;
 	int i,  winner_count = 0, loser_count = 0;
 	INT_PTR	index;
@@ -301,6 +303,7 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 	if(winteam == 0)	//'an incomplete game'.
 		return;
 
+	/* pubb, 09-01-04, new formula for 2in1 settings in CPlayerDatabase::GetCooperateRating()
 	/* pubb, 07-12-15
 	 * for 2in1 settings, we calculate ratings as (lower+(higher-lower)*2).
 	 * for 'more vs less' settings, we add 'more' team ratings (as R_more) with an addon, that is R_more * (more - less) / more.
@@ -328,24 +331,24 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 			if(rg->Players[i].Team ==  winteam)
 			{
 				winner_count--;
-				R_winner -= tmp_rating;
+				R_winner = CGrouping::do_accumulate(R_winner, -tmp_rating);	//minus means deleting it from accumulation
 			}
 			else
 			{
 				loser_count--;
-				R_loser -= tmp_rating;
+				R_loser = CGrouping::do_accumulate(R_loser, -tmp_rating);
 			}
 		}
 
 		if(rg->Players[i].Team ==  winteam)
 		{
 			winner_count++;
-			R_winner += rating;
+			R_winner = CGrouping::do_accumulate(R_winner, rating);
 		}
 		else
 		{
 			loser_count++;
-			R_loser += rating;
+			R_loser = CGrouping::do_accumulate(R_loser, rating);
 		}
 	}
 	if(winner_count == 0 || loser_count == 0)
@@ -353,18 +356,21 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 
 	if(winner_count > loser_count)
 	{
-		R_winner = GetOddMoreRating(R_winner, winner_count, loser_count);
+		R_winner = GetOddMoreRating(CGrouping::do_average(R_winner, winner_count) , winner_count, loser_count);
+		R_loser = CGrouping::do_average(R_loser, loser_count);
 	}
 	else if(winner_count < loser_count)
 	{
-		R_loser = GetOddMoreRating(R_loser, loser_count, winner_count);
+		R_winner = CGrouping::do_average(R_winner, winner_count);
+		R_loser = GetOddMoreRating(CGrouping::do_average(R_loser, loser_count), loser_count, winner_count);
+	}
+	else
+	{
+		R_winner = CGrouping::do_average(R_winner, winner_count);
+		R_loser = CGrouping::do_average(R_loser, loser_count);
 	}
 
-	R_winner /= winner_count;
-	R_loser /= loser_count;
-	
-
-	//pubb, 07-08-26, change to use 'float' to calculate for more accuracy
+	//pubb, 07-08-26, change to use 'float' to calculate with more accuracy
 	float wlR = (float)(R_winner - R_loser);
 	/* XXX, pubb, 07-08-31
 	 * if wlR is much greater than wlR_MAX (a very rare case),
@@ -395,6 +401,8 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 		// y = (1/3000) * x^2 -(4/30) * x + 10
 		deltaR = (int)(a * wlR * wlR - 2 * wlR_MAX * a * wlR + deltaR_ZERO);
 #endif
+		if(winner_count <=2 && loser_count <= 2)	//2v2 or 1v1, less rewards and penalty
+			deltaR = deltaR * max(winner_count, loser_count) / 3;
 		deltaR = min(deltaR_MAX, max(deltaR_MIN, deltaR));
 	}
 
@@ -501,12 +509,14 @@ int	CPlayerDatabase::GetOddMoreRating(const int orig_rating, const int more, con
 	return orig_rating * (more * 2 - less) / more;
 }
 
+//pubb, 09-01-04, reset the formula with a macro
+#define	GET_COOPERATERATING(higher, lower)	(lower + (higher-1000)/2)
 int CPlayerDatabase::GetCooperateRating(const int rating1, const int rating2)
 {
 	if(rating1 < rating2)
-		return rating2 * 2 - rating1;
+		return GET_COOPERATERATING(rating2, rating1);
 	else
-		return rating1 * 2 - rating2;
+		return GET_COOPERATERATING(rating1, rating2);
 }
 
 void CPlayerDatabase::CopyPlayers(bool current, CPlayerDatabase * source)

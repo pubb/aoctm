@@ -88,7 +88,8 @@ CTime	Renamer::Parse(CString file)
 	int result[6];
 	int j = 0;
 
-	while( token != "" )
+	//pubb, 09-02-07, bug fix for j exceeding limit
+	while( token != "" && j < 6 )
 	{
 		result[j] = _ttoi((LPCTSTR)token);
 

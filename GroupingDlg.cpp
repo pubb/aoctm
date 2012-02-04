@@ -132,7 +132,7 @@ void CGroupingDlg::OnBnClickedOk()
 	}
 
 	CString	str;
-	str.Format(_T("Group1: %d, Group2: %d, Delta Rating: %d"), grouping.group1TotalScore, grouping.group2TotalScore, grouping.delta);
+	str.Format(_T("Group1: %d, Group2: %d, Delta Rating: %d"), grouping.group1AverageScore, grouping.group2AverageScore, grouping.delta);
 	GetDlgItem(IDC_MSG)->SetWindowText(str);
 }
 
@@ -255,7 +255,11 @@ void CGroupingDlg::Refresh(void)
 		}
 	}
 
-	int group1 = grouping.CalculateTotal(1), group2 = grouping.CalculateTotal(2);
+	//09-03-12, pubb, add for bug fix
+	if(m_Group1.GetItemCount() == 0)
+		return;
+
+	int group1 = grouping.CalculateAverage(grouping.group1, grouping.group2), group2 = grouping.CalculateAverage(grouping.group2, grouping.group1);
 
 	CString	str;
 	if(m_Group1.GetItemCount() == 0)
@@ -294,7 +298,7 @@ void CGroupingDlg::OnExchange(int index1, int index2)
 	grouping.GetGroup(1, index1) = j2;
 	grouping.GetGroup(2, index2) = j1;
 
-	int group1 = grouping.CalculateTotal(1), group2 = grouping.CalculateTotal(2);
+	int group1 = grouping.CalculateAverage(grouping.group1, grouping.group2), group2 = grouping.CalculateAverage(grouping.group2, grouping.group1);
 
 	CString	str;
 	str.Format(_T("Group1: %d, Group2: %d, Delta Rating: %d"), group1, group2, group1 - group2);

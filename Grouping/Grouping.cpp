@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <math.h>
 #include "Grouping.h"
 #include "../playerdatabase.h"
 
@@ -9,264 +10,6 @@
 #include <string.h>
 #include <assert.h>
 */
-
-Intermediator::Intermediator(int playerCount, int* ratings, int computeSteps, int expectedDeltaRatingValve)
-	: playerCount_(playerCount), ratings_(ratings), computeSteps_(computeSteps), expectedDeltaRatingValve_(expectedDeltaRatingValve)
-{
-	ASSERT(playerCount % 2 == 0  && playerCount <= 8);
-	for(int i = 0; i < INIT_INDIVIDUAL_COUNT; i ++)
-		chromosomeScores_[i] = 0x7fffffff;
-}
-
-void
-Intermediator::Grouping(int* group1, int* group2, int& group1AverageScore, int& group2AverageScore, int& delta)
-{
-	InitColony();
-	for(int i = 0; i < computeSteps_; i ++)
-	{
-#ifdef _DEBUG
-		printf("Genetic %d\n", i);
-#endif
-		int delta = Genetic();
-		if( delta <= expectedDeltaRatingValve_)
-			break;
-	}
-	RetrieveInfoFromBestChromosome(group1, group2, group1AverageScore, group2AverageScore, delta);
-}
-
-void 
-Intermediator::InitColony()
-{
-	srand((unsigned)time(NULL));
-	for(int j = 0; j < INIT_INDIVIDUAL_COUNT; j++)
-	{
-		char chromosome;
-		chromosome ^= chromosome;
-		int groupOnePlayerCount = 0;;
-		while(groupOnePlayerCount != playerCount_/2)
-		{
-			int position = rand() % (playerCount_);
-			groupOnePlayerCount = 0;
-			chromosome |= 1 << position;
-			for(int i = 0; i < playerCount_; i ++)
-			{
-				groupOnePlayerCount += (chromosome >> i) & 0x01;
-			}
-		}
-		chromosomes_[j] = chromosome;
-	}
-}
-
-
-int 
-Intermediator::Genetic()
-{
-	memcpy(tempChromosomes_, chromosomes_, INIT_INDIVIDUAL_COUNT * sizeof(char));
-
-	for(int i = 0; i < INIT_INDIVIDUAL_COUNT; i++)
-	{
-		tempChromosomes_[INIT_INDIVIDUAL_COUNT + i] = Crossover(chromosomes_[i]);
-	}
-
-	NextGeneration();
-
-	Mutation();
-
-	//DiagnosePrintChromosomes();
-
-	return chromosomeScores_[0];
-}
-
-char 
-Intermediator::Crossover(char chromosome)
-{
-	int playerA;
-	while(true)
-	{
-		playerA = rand() % playerCount_;
-		if(((chromosome >> playerA) & 0x01) != 0)
-			break;
-	}
-	int playerB;
-	while(true)
-	{
-		playerB = rand() % playerCount_;
-		if(((chromosome >> playerB) & 0x01) == 0)
-			break;
-	}
-	
-	chromosome &= ~(1 << playerA);
-	chromosome |= (1 << playerB);
-	return chromosome;
-}
-
-void 
-Intermediator::Mutation()
-{
-	for(int j = 0; j < INIT_INDIVIDUAL_COUNT / 4; j++)
-	{
-		char chromosome;
-		chromosome ^= chromosome;
-		int groupOnePlayerCount = 0;;
-		while(groupOnePlayerCount != playerCount_/2)
-		{
-			int position = rand() % (playerCount_);
-			groupOnePlayerCount = 0;
-			chromosome |= 1 << position;
-			for(int i = 0; i < playerCount_; i ++)
-			{
-				groupOnePlayerCount += (chromosome >> i) & 0x01;
-			}
-		}
-		chromosomes_[INIT_INDIVIDUAL_COUNT / 4 * 3 + j] = chromosome;
-		chromosomeScores_[INIT_INDIVIDUAL_COUNT / 4 * 3 + j] = 0x7fffffff;
-	}
-}
-
-void 
-Intermediator::Eval()
-{
-	int i, j;
-
-	for(i = 0; i < INIT_INDIVIDUAL_COUNT * 2; i ++)
-	{
-		int group1Rating = 0;
-		for(j = 0; j < playerCount_; j ++)
-		{
-			if(((tempChromosomes_[i] >> j) & 0x01) != 0) 
-			{
-				group1Rating += ratings_[j];
-			}
-		}
-		int group2Rating = 0;
-		for(j = 0; j < playerCount_; j ++)
-		{
-			if(((tempChromosomes_[i] >> j) & 0x01) == 0) 
-			{
-				group2Rating += ratings_[j];
-			}
-		}
-		tempChromosomeScores_[i] = abs(group1Rating - group2Rating);
-	}
-}
-
-void 
-Intermediator::Sort()
-{
-	for(int i = 0; i < INIT_INDIVIDUAL_COUNT * 2 - 1; i++)
-	{
-		bool flag = false;
-		for(int j = 0; j < INIT_INDIVIDUAL_COUNT * 2 - i - 1; j ++)
-		{
-			if(tempChromosomeScores_[j] > tempChromosomeScores_[j + 1])
-			{
-				flag = true;
-				int score = tempChromosomeScores_[j];
-				char chromosome = tempChromosomes_[j];
-				tempChromosomeScores_[j] = tempChromosomeScores_[j + 1];
-				tempChromosomes_[j] = tempChromosomes_[j + 1];
-				tempChromosomeScores_[j + 1] = score;
-				tempChromosomes_[j + 1] = chromosome;
-			}	
-		}
-		if(flag == false)
-			break;
-	}
-}
-
-void
-Intermediator::NextGeneration()
-{
-	Eval();
-	Sort();
-
-	int identicalCount = 0;
-	int j = 0;
-	for(int i = 0; i < INIT_INDIVIDUAL_COUNT * 2; i ++)
-	{
-		bool identical = false;
-		for(int k = 0; k < j; k ++)
-		{
-			if(chromosomes_[k] == tempChromosomes_[i])
-			{
-				identical = true;
-				identicalCount ++;
-			}
-		}
-		if(!identical)
-		{
-			chromosomes_[j] = tempChromosomes_[i];
-			chromosomeScores_[j ++] = tempChromosomeScores_[i];
-		}
-		
-		if(j == INIT_INDIVIDUAL_COUNT)
-			break;
-	}
-}
-
-void
-Intermediator::RetrieveInfoFromBestChromosome(int* group1, int* group2, int& group1TotalScore, int& group2TotalScore, int& delta)
-{
-	int group1Index = 0;
-	int group2Index = 0;
-	group1TotalScore = 0;
-	group2TotalScore = 0;
-
-	int i;
-
-	for(i = 0; i < playerCount_; i ++)
-	{
-		if(((chromosomes_[0] >> i) & 0x01) != 0) 
-		{
-			group1[group1Index ++] = i + 1;
-			group1TotalScore += ratings_[i];
-		}
-	}
-	for(i = 0; i < playerCount_; i ++)
-	{
-		if(((chromosomes_[0] >> i) & 0x01) == 0) 
-		{
-			group2[group2Index ++] = i + 1;
-			group2TotalScore += ratings_[i];
-		}
-	}
-
-	delta = group1TotalScore - group2TotalScore;
-}
-
-void 
-Intermediator::DiagnosePrintChromosomes()
-{
-	int i, j;
-
-	for(i = 0; i < INIT_INDIVIDUAL_COUNT; i ++)
-	{
-		int group1AverageScore = 0;
-		int group2AverageScore = 0;
-
-		printf("No.%d ", i);
-		printf("Gourp 1: ");
-		for(j = 0; j < playerCount_; j ++)
-		{
-			if(((chromosomes_[i] >> j) & 0x01) != 0) 
-			{
-				printf("%d ", j+1);
-				group1AverageScore += ratings_[j];
-			}
-		}
-		printf("Gourp 2: ");
-		for(j = 0; j < playerCount_; j ++)
-		{
-			if(((chromosomes_[i] >> j) & 0x01) == 0) 
-			{
-				printf("%d ", j+1);
-				group2AverageScore += ratings_[j];
-			}
-		}
-		printf("%d ---- ", abs(group1AverageScore - group2AverageScore));
-		printf("%d\n", chromosomeScores_[i]);
-	}
-}
 
 //07-12-21, pubb
 CGrouping::CGrouping(int num)
@@ -283,58 +26,28 @@ void	CGrouping::Initialize(int num, BOOL prefer4v3)
 {
 	player_num = num;
 	b4v3 = prefer4v3;
-	memset(group1, 0, sizeof(int) * 4);
-	memset(group2, 0, sizeof(int) * 4);
+	memset(group1, 0, sizeof(group1));
+	memset(group2, 0, sizeof(group2));
 
-	memset(ratings, 0, sizeof(int) * 8);
+	memset(ratings, 0, sizeof(ratings));
 	names.SetSize(8);
 }
 
 void	CGrouping::DoGroup(void)
 {
-	if(player_num % 2 == 0)
-	{
-		Intermediator	inter(player_num, ratings);
-		inter.Grouping(group1, group2, group1TotalScore, group2TotalScore, delta);
-	}
-	else
-	{
-		if(player_num < 5 && b4v3)
-			return;
+	delta = 65536;
 
-		int bestgroup1[4], bestgroup2[4], bestdelta;
-		memset(bestgroup1, 0 ,sizeof(bestgroup1));
-		memset(bestgroup2, 0, sizeof(bestgroup2));
-		bestdelta = 65536;
-
-		if(player_num >= 5)		//do not support 2v1
-		{
-			TryGroup4v3();	//generating 'delta, group1, group2'
-			if(abs(bestdelta) > abs(delta))
-			{
-				bestdelta = delta;
-				memcpy(bestgroup1, group1, sizeof(group1));
-				memcpy(bestgroup2, group2, sizeof(group2));
-			}
-		}
-
+	if(player_num % 2)
 		if(!b4v3)
-		{
 			TryGroup2in1();	//generating 'delta, group1, group2', cooperators in group look like (player1 << 4 | player2)
-			if(abs(bestdelta) > abs(delta))
-			{
-				bestdelta = delta;
-				memcpy(bestgroup1, group1, sizeof(group1));
-				memcpy(bestgroup2, group2, sizeof(group2));
-			}
-		}
-		
-		memcpy(group1, bestgroup1, sizeof(group1));
-		memcpy(group2, bestgroup2, sizeof(group2));
-		group1TotalScore = CalculateTotal(1);
-		group2TotalScore = CalculateTotal(2);
-		delta = group1TotalScore - group2TotalScore;
-	}
+		else
+			TryGroup4v3(0, 1);
+	else
+		TryGrouping(0, 1, 0, true);	//generating 'delta, group1, group2'
+
+	group1AverageScore = CalculateAverage(group1, group2);
+	group2AverageScore = CalculateAverage(group2, group1);
+	delta = group1AverageScore - group2AverageScore;
 }
 
 void CGrouping::SetRating(int num, int rating)
@@ -376,42 +89,33 @@ CString CGrouping::GetGroupName(int group_num, int num)
 	return str;
 }
 
-int CGrouping::GetGroupRating(int group_num, int num)
+int CGrouping::GetGroupRating(int * group, int num)
 {
-	int * group;
-	if(group_num == 1)
-		group = group1;
-	else
-		group = group2;
-
+	//09-03-12, pubb, add for bug fix
+	if(group[num] == 0)
+		return 0;
 	if((group[num] & 0x0f0) == 0)
 		return ratings[group[num] - 1];
 	return CPlayerDatabase::GetCooperateRating(ratings[((group[num] & 0x0f0) >> 4) - 1], ratings[(group[num] & 0x0f) -1]);
 }
 
-int CGrouping::CalculateTotal(int group_num)
+int CGrouping::CalculateAverage(int * thisgroup, int * thatgroup)
 {
-	int rating = 0;
+	float ratingf = 0.0;
 
 	for(int i = 0; i < 4; i++)
 	{
-		rating += GetGroupRating(group_num, i);
+		ratingf = do_accumulate(ratingf, GetGroupRating(thisgroup, i));
 	}
 	
-	int more = GetGroupCount(group_num), less = GetGroupCount(group_num == 1 ? 2 : 1);
+	int more = GetGroupCount(thisgroup), less = GetGroupCount(thatgroup);
 	if(more > less)
-		return CPlayerDatabase::GetOddMoreRating(rating, more, less) * less / more;
-	return rating;
+		return CPlayerDatabase::GetOddMoreRating(do_average(ratingf, more), more, less);
+	return do_average(ratingf, more);
 }
 
-int CGrouping::GetGroupCount(int group_num)
+int CGrouping::GetGroupCount(int * group)
 {
-	int * group;
-	if(group_num == 1)
-		group = group1;
-	else
-		group = group2;
-
 	int count = 0;
 	for(int i = 0; i < 4 ; i++)
 		if(group[i] != 0)
@@ -419,49 +123,84 @@ int CGrouping::GetGroupCount(int group_num)
 	return count;
 }
 
-void CGrouping::TryGroup4v3(void)
+void CGrouping::FillGroup(int *group1, int *group2)
 {
-	int tmp_group[8];
-	int bestgroup1[4], bestgroup2[4], bestdelta = 65536;
+	bool filled;
+	int	index = 0;
+
+	if(group1[0] == 0)
+		return;
 
 	for(int i = 1; i <= player_num; i++)
 	{
-		for(int j = i + 1; j <= player_num; j++)
+		filled = false;
+		for(int j = 3; j >= 0; j--)
 		{
-			for(int k = j + 1; k <= player_num; k++)
+			if(group1[j] == 0)
+				continue;
+			if(group1[j] == i)
 			{
-				memset(tmp_group, 0, sizeof(tmp_group));
-				memset(group1, 0, sizeof(group1));
-				memset(group2, 0, sizeof(group2));
-
-				for(int t = 1; t <= player_num; t++)
-				{
-					if(t != i && t != j && t != k)
-						tmp_group[t - 1] = 2;
-					else
-						tmp_group[t - 1] = 1;
-				}
-				int j1 = 0, j2 = 0;
-				for(int t = 1; t <= player_num; t++)
-				{
-					if(tmp_group[t - 1] == 1)
-						group1[j1++] = t;
-					else
-						group2[j2++] = t;
-				}
-				delta = CalculateTotal(1) - CalculateTotal(2);
-				if(abs(bestdelta) > abs(delta))
-				{
-					bestdelta = delta;
-					memcpy(bestgroup1, group1, sizeof(group1));
-					memcpy(bestgroup2, group2, sizeof(group2));
-				}
+				filled = true;
+				break;
 			}
+			if(group1[j] < i)
+				break;
 		}
+		if(!filled)
+			group2[index++] = i;
 	}
-	delta = bestdelta;
-	memcpy(group1, bestgroup1, sizeof(group1));
-	memcpy(group2, bestgroup2, sizeof(group2));
+}
+
+void CGrouping::TryGrouping(int index, int min, int odd, bool clear)
+{
+	static int tmp_group1[4], tmp_group2[4], tmp_delta;
+	int i, max = player_num - (player_num / 2 + odd - (index + 1));
+
+	if(clear)
+	{
+		memset(tmp_group1, 0, sizeof(tmp_group1));
+		memset(tmp_group2, 0, sizeof(tmp_group2));
+	}
+
+	while(index < player_num / 2 + odd)
+	{
+		tmp_group1[index] = min;
+		
+		if(index + 1 >= player_num / 2 + odd)
+			break;
+
+		for(i = min + 1; i <= max + 1; i++)
+			TryGrouping(index + 1, i, odd);
+		return;
+	}
+	FillGroup(tmp_group1, tmp_group2);
+	tmp_delta = CalculateAverage(tmp_group1, tmp_group2) - CalculateAverage(tmp_group2, tmp_group1);
+	if(abs(delta) > abs(tmp_delta))
+	{
+		delta = tmp_delta;
+		memcpy(group1, tmp_group1, sizeof(tmp_group1));
+		memcpy(group2, tmp_group2, sizeof(tmp_group2));
+	}
+}
+
+void CGrouping::TryGroup4v3(int index, int min)
+{
+	int tmp_group1[4], tmp_group2[4], tmp_delta;
+
+	TryGrouping(index, min, 0, true);
+	
+	tmp_delta = delta;
+	memcpy(tmp_group1, group1, sizeof(tmp_group1));
+	memcpy(tmp_group2, group2, sizeof(tmp_group2));
+
+	TryGrouping(index, min, 1, true);
+
+	if(abs(delta) > abs(tmp_delta))
+	{
+		delta = tmp_delta;
+		memcpy(group1, tmp_group1, sizeof(tmp_group1));
+		memcpy(group2, tmp_group2, sizeof(tmp_group2));
+	}
 }
 
 void CGrouping::TryGroup2in1(void)
@@ -484,15 +223,20 @@ void CGrouping::TryGroup2in1(void)
 				else if(k != j)		//slot 'cooperator2' stores the next normal rating
 					tmp_ratings[j1++] = ratings[k - 1];
 			}
-			Intermediator	inter(player_num - 1, tmp_ratings);
-			inter.Grouping(group1, group2, group1TotalScore, group2TotalScore, delta);
-			if(abs(bestdelta) > abs(delta))
+			CGrouping group_2in1;
+			group_2in1.Initialize(player_num - 1);
+			for(int t = 0; t < player_num - 1; t++)
 			{
-				bestdelta = delta;
-				AdjustCooperateGroup(group1, i, j);
-				AdjustCooperateGroup(group2, i, j);
-				memcpy(bestgroup1, group1, sizeof(group1));
-				memcpy(bestgroup2, group2, sizeof(group2));
+				group_2in1.SetRating(t, tmp_ratings[t]);
+			}
+			group_2in1.TryGrouping(0, 1, 0, true);
+			if(abs(bestdelta) > abs(group_2in1.delta))
+			{
+				bestdelta = group_2in1.delta;
+				group_2in1.AdjustCooperateGroup(group_2in1.group1, i, j);
+				group_2in1.AdjustCooperateGroup(group_2in1.group2, i, j);
+				memcpy(bestgroup1, group_2in1.group1, sizeof(group_2in1.group1));
+				memcpy(bestgroup2, group_2in1.group2, sizeof(group_2in1.group2));
 			}
 		}
 	}
@@ -512,4 +256,35 @@ void CGrouping::AdjustCooperateGroup(int * group, int cooperator1, int cooperato
 		else if(group[i] >= cooperator2)
 			group[i]++;
 	}
+}
+
+//by wordless, different methods for averaging
+const float average_grade = 1;
+#define	ACCUMULATE_SIGMA
+float CGrouping::do_accumulate(float base, float value)
+{
+#ifdef	ACCUMULATE_SIGMA
+	if(value < 0)
+		return base - powf(-value, average_grade);
+	else
+		return base + powf(value, average_grade);
+#else
+	if(base == 0)
+		base = 1;
+	if(value == 0)
+		value = 1;
+	if(value < 0)
+		return base / -value;
+	else
+		return base * value;
+#endif
+}
+
+float CGrouping::do_average(float sum, int count)
+{
+#ifdef	ACCUMULATE_SIGMA
+	return powf(sum / count, 1 / average_grade);
+#else
+	return powf(sum, 1.0 / count);
+#endif
 }

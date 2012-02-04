@@ -203,22 +203,32 @@ bool	CRecgameDatabase::Add(CRecgame * rg)
 {
 	//pubb, 07-09-22, no DB operations now
 	//if(!rg->Loaded || !theApp.Engine || GetFirstSameRecgame(rg) >= 0)
-	if(!rg->Loaded || GetFirstSameRecgame(rg) >= 0)
+	if(!rg->Loaded)
 		return false;
-
-	//store it in order of RecordTime in memory. each LOAD-from-DB is also in RecordTime order.
-	int i;
-	for(i = 0; i < GetCount(); i++)
-		if(GetAt(i)->RecordTime >= rg->RecordTime)
-			break;
-	InsertAt(i, rg);
+	int index = GetFirstSameRecgame(rg);
+	if(index >= 0)
+	{
+		if(GetAt(index)->GetWinnerTeam() > 0 || rg->GetWinnerTeam() == 0)
+			return false;
+		delete GetAt(index);
+		this->SetAt(index, rg);
+	}
+	else
+	{
+		//store it in order of RecordTime in memory. each LOAD-from-DB is also in RecordTime order.
+		int i;
+		for(i = 0; i < GetCount(); i++)
+			if(GetAt(i)->RecordTime >= rg->RecordTime)
+				break;
+		InsertAt(i, rg);
+	}
 
 	SetDirty(true);
 
 	return true;
 }
 
-/* pubb, 07-08-03, search the database, compare the player_name, playtime, recordtime and so on, if matched, return true */
+/* pubb, 07-08-03, search the database, compare the player_name, playtime, recordtime and so on, if matched, return the index */
 INT_PTR	CRecgameDatabase::GetFirstSameRecgame(CRecgame * rg)
 {
 	CRecgame * rg_db;
@@ -234,15 +244,15 @@ INT_PTR	CRecgameDatabase::GetFirstSameRecgame(CRecgame * rg)
 		/* pubb, 07-08-03,
 		 * if 2 games with
 		 * 1.the same players, 
-		 * 2. started in 5 minutes, (for the same recgame with different Viewer, maybe the computers' system time is not syncronized)
+		 * 2. started in (TIME_4_INCOMPLETE - 5min) (12 min in this time), (for the same recgame with different Viewer, maybe the computers' system time is not syncronized)
 		 * then, consider it a duplicate
 		 * we ASSUME the RecordTime is absolutely CORRECT.
 		 */
-		if(rg_db->PlayerNum != rg->PlayerNum || _abs64((rg_db->RecordTime - rg->RecordTime).GetTotalSeconds()) >= 5 * 60)
+		if(rg_db->PlayerNum != rg->PlayerNum || _abs64((rg_db->RecordTime - rg->RecordTime).GetTotalSeconds()) >= TIME_4_INCOMPLETE - 5 * 60)
 			continue;
 
 		//speedup! because the game DB is sorted in RecordTime, so if it's a newer recgame, just return -1
-		if(rg_db->RecordTime < rg->RecordTime && (rg->RecordTime - rg_db->RecordTime).GetTotalSeconds() >= 5 * 60)
+		if(rg_db->RecordTime < rg->RecordTime && (rg->RecordTime - rg_db->RecordTime).GetTotalSeconds() >= TIME_4_INCOMPLETE - 5 * 60)
 			return -1;
 
 		for(j = 0; j <= rg_db->PlayerNum; j++)
