@@ -184,7 +184,14 @@ void CConfigPlayerDlg::OnBnClickedPlayerAdd()
 	player->NickNames.Add(_T(""));	//to pass 'CPlayerDatabase::Add()'
 
 	int index = m_List.GetItemCount();
-	m_List.InsertItem(index, _T("new player"));
+	//pubb, bugfix, dont know when comes the bug.
+	m_List.InsertItem(index, _T(""));
+	CString str;
+	m_List.SetCheckbox(index, 0, player->IsComputer);
+	m_List.SetItemText(index, 1, player->NickNames[0]);
+	str.Format(_T("%d"), player->InitRating);
+	m_List.SetItemText(index, 2, str);
+	//end of insert
 	m_List.SetItemData(index, (DWORD)theApp.Players.Add(player));
 	m_List.EnsureVisible(index, true);
 
