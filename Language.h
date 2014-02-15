@@ -20,7 +20,7 @@ public:
 	virtual ~CLanguage();
 
 private:
-	HMODULE m_libs[3];
+	HMODULE m_libs[4];//14-02-15, pubb, two language_x1_p1.dll
 	int m_dll_count;
 };
 

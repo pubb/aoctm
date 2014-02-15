@@ -259,8 +259,8 @@ void CGrouping::AdjustCooperateGroup(int * group, int cooperator1, int cooperato
 }
 
 //by wordless, different methods for averaging
-const float average_grade = 1;
-#define	ACCUMULATE_SIGMA
+const float average_grade = 1;	//pubb, 14-02-15, 2 for SQ
+#define	ACCUMULATE_SIGMA		//pubb, 14-02-15, undefined for PI
 float CGrouping::do_accumulate(float base, float value)
 {
 #ifdef	ACCUMULATE_SIGMA

@@ -27,7 +27,8 @@ bool	CRecgameDatabase::Initialize()
 	if(m_lang.Open(m_game_path + _T("\\language.dll")) 
 		&& m_lang.Open(m_game_path + _T("\\language_x1.dll"))
 		&& m_lang.Open(m_game_path + _T("\\language_x1_p1.dll"))
-		&& m_lang.Open(m_game_path + _T("\\Games\\Forgotten Empires\\Data\\language_x1_p1.dll")))
+		&& m_lang.Open(m_game_path + _T("\\Games\\Forgotten Empires\\Data\\language_x1_p1.dll"))
+)
 	{
 
 	//pubb, 07-08-02, no use now
