@@ -273,6 +273,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renamer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Reportdlg.cpp"
 				>
 			</File>

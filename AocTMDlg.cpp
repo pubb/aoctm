@@ -548,9 +548,9 @@ void CAocTMDlg::OnBnClickedRecDismiss()
 	OnCancel();
 }
 
-bool CAocTMDlg::OnAcceleratorLoad()
+bool CAocTMDlg::LoadRecFile(bool aofe)
 {
-	CString strPath = theApp.Recgames.GetRecPath();
+	CString strPath = (aofe?theApp.Recgames.GetRecPathAOFE():theApp.Recgames.GetRecPath());
 
 	if(strPath.IsEmpty())
 		return false;
@@ -562,7 +562,7 @@ bool CAocTMDlg::OnAcceleratorLoad()
 	bool loadnew = false;
 	CFileFind finder;
 	CTime DBLatestGameTime = theApp.Recgames.GetLatestGameTime();
-	BOOL bWorking = finder.FindFile(_T("*.mgx"));
+	BOOL bWorking = finder.FindFile(aofe?_T("*.mgz"):_T("*.mgx"));
 	while(bWorking)
 	{
 		bWorking = finder.FindNextFile();
@@ -570,7 +570,8 @@ bool CAocTMDlg::OnAcceleratorLoad()
 		//08-02-10, pubb, compare with the game time before importing new games.
 		//07-10-11, pubb, to speedup, analyze the filename before process
 		{
-			if(Renamer::Parse(finder.GetFileName()) <= DBLatestGameTime)
+			CString file = finder.GetFileName();
+			if((aofe?Renamer::ParseAOFE(file):Renamer::Parse(file)) <= DBLatestGameTime)
 				continue;
 		}
 		
@@ -598,6 +599,14 @@ bool CAocTMDlg::OnAcceleratorLoad()
 			delete rg;
 		}
 	}
+	
+	::SetCurrentDirectory(oldpath);
+	return loadnew;
+}
+
+bool CAocTMDlg::OnAcceleratorLoad()
+{
+	bool loadnew = LoadRecFile(false) || LoadRecFile(true);
 
 	if(loadnew)
 	{
@@ -605,7 +614,6 @@ bool CAocTMDlg::OnAcceleratorLoad()
 		Refresh();
 	}
 
-	::SetCurrentDirectory(oldpath);
 	return loadnew;
 }
 

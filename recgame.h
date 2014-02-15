@@ -8,7 +8,7 @@
 
 #define	TIME_4_INCOMPLETE  (17 * 60)		// as seconds. if game time is less than 20 min, then consider is as an incomplete one.
 
-extern CString civ_name[19];
+extern CString civ_name[24];
 extern COLORREF player_color[8];
 
 #if 1

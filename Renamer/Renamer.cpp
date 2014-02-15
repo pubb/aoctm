@@ -125,6 +125,35 @@ CTime	Renamer::Parse(CString file)
 	return CTime(year /* YEAR */, result[1] /* MONTH */, day /* DAY */, result[3] /* HOUR */, result[4] /* MINUTE */, result[5] /* SECOND */);
 }
 
+/* pubb, 14-02-14, for aofe */
+CTime	Renamer::ParseAOFE(CString file)
+{
+	int index;
+	//trim path
+	index = file.ReverseFind('\\');
+	file = file.Mid(index + 1);
+
+	//检查文件扩展名
+	int len = file.GetLength();
+	if( file.Mid(len - 3, 3).Compare(_T("mgz")) != 0 )
+	{
+		return CTime(0);
+	}
+
+	int year, month, day, hour, minute, second;
+	year = _ttoi((LPCTSTR)(file.Left(4)));
+	month = _ttoi((LPCTSTR)(file.Mid(4,2)));
+	day = _ttoi((LPCTSTR)(file.Mid(6,2)));
+	hour = _ttoi((LPCTSTR)(file.Mid(9,2)));
+	minute = _ttoi((LPCTSTR)(file.Mid(11,2)));
+	second = _ttoi((LPCTSTR)(file.Mid(13,2)));
+
+	if(month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 24 || minute < 0 || minute > 60 || second < 0 || second > 60)
+		return CTime(0);
+
+	return CTime(year, month, day, hour, minute, second);
+}
+
 int
 Renamer::ToMonth(CString& s)
 {

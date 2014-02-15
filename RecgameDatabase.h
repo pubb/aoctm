@@ -43,6 +43,7 @@ public:
 	INT_PTR	GetFirstSameRecgame(CRecgame * rg);
 
 	CString	GetRecPath(void);
+	CString GetRecPathAOFE(void);
 
 	bool Add(CRecgame * rg);
 
@@ -50,7 +51,7 @@ private:
 	bool	m_bDirty;
 	CLanguage	m_lang;
 	CString m_str_table[100];
-	CString	m_game_path, m_rec_path;
+	CString	m_game_path, m_rec_path, m_rec_path_AOFE;
 
 	CString GetAOCRegistry(void);
 	bool LoadChatInfo(IPersistentInterface *engine);

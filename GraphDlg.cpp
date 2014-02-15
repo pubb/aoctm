@@ -188,7 +188,7 @@ void CGraphDlg::ShowUsedCivs(void)
 {
 	//XXX, pubb, 07-09-09, only deal with the first selected player for now
 	//prepare data
-	extern CString civ_name[19];
+	extern CString civ_name[];
 	m_Graph.PrepareData(1, 18);	//one serie, 18 civs for segments
 	theApp.Players.Update(false);	//to generate Civs[]
 	CPlayer * player = m_pPlayers->GetAt(0);

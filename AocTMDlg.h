@@ -59,6 +59,7 @@ public:
 private:
 	void ShowReport(CPlayerDatabase * players);
 	void Refresh(void);
+	bool LoadRecFile(bool aofe);
 
 	CXListCtrl m_List;
 	CDateTimeCtrl m_From;

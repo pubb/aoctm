@@ -7,7 +7,7 @@
 
 
 //by mep for statistic
-CString civ_name[19] = {_T(""),
+CString civ_name[24] = {_T(""),
 						_T("Bri"),
 						_T("Fra"),
 						_T("Got"),
@@ -25,7 +25,12 @@ CString civ_name[19] = {_T(""),
 						_T("Azt"),
 						_T("May"),
 						_T("Hun"),
-						_T("Kor")};
+						_T("Kor"),
+						_T("Ita"),
+						_T("Ind"),
+						_T("Inc"),
+						_T("Mag"),
+						_T("Sla")};
 /*
 CString civ_name[19] = {_T(""),
 						_T("´ó²»ÁÐµß"),

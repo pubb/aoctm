@@ -21,6 +21,8 @@ public:
 	//void Parse();
 	//07-10-11, pubb, to be a static function for better usage
 	static CTime Parse(CString file);
+	//14-02-15, pubb, for aofe
+	static CTime ParseAOFE(CString file);
 
 	//07-10-11, pubb, to be a static function for better usage
 	static int ToMonth(CString& s);

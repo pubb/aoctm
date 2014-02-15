@@ -4,6 +4,7 @@
 
 CRecgameDatabase::CRecgameDatabase(void)
 : m_bDirty(false)
+, m_rec_path_AOFE(_T(""))
 {
 }
 
@@ -19,12 +20,14 @@ bool	CRecgameDatabase::Initialize()
 		return false;
 
 	m_rec_path = m_game_path + _T("\\SaveGame\\");
-	
+	m_rec_path_AOFE = m_game_path + _T("\\Games\\Forgotten Empires\\SaveGame\\");
+
 	//pubb, 07-08-02, no use for upgrade msg, and change the check method too
 	//Open Language database
 	if(m_lang.Open(m_game_path + _T("\\language.dll")) 
 		&& m_lang.Open(m_game_path + _T("\\language_x1.dll"))
-		&& m_lang.Open(m_game_path + _T("\\language_x1_p1.dll")))
+		&& m_lang.Open(m_game_path + _T("\\language_x1_p1.dll"))
+		&& m_lang.Open(m_game_path + _T("\\Games\\Forgotten Empires\\Data\\language_x1_p1.dll")))
 	{
 
 	//pubb, 07-08-02, no use now
@@ -316,4 +319,9 @@ bool	CRecgameDatabase::LoadChatInfo(IPersistentInterface *engine)
 	}
 	engine->Commit();
 	return true;
+}
+
+CString CRecgameDatabase::GetRecPathAOFE(void)
+{
+	return m_rec_path_AOFE;
 }
