@@ -200,6 +200,10 @@ bool CRecgame::Read(CString file)
 	FileName = file.Mid(index + 1);	//only FILENAME
 	
 	RecordTime = Renamer::Parse(FileName);
+	if(RecordTime == CTime())	//try AOFE format
+	{
+		RecordTime = Renamer::ParseAOFE(FileName);
+	}
 
 	if(RecordTime == CTime(0))		//if the filename was renamed manually, then use 'file create time' for RecordTime
 	{

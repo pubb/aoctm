@@ -105,13 +105,13 @@ int CGrouping::CalculateAverage(int * thisgroup, int * thatgroup)
 
 	for(int i = 0; i < 4; i++)
 	{
-		ratingf = do_accumulate(ratingf, GetGroupRating(thisgroup, i));
+		ratingf = do_accumulate(ratingf, (float)GetGroupRating(thisgroup, i));
 	}
 	
 	int more = GetGroupCount(thisgroup), less = GetGroupCount(thatgroup);
 	if(more > less)
-		return CPlayerDatabase::GetOddMoreRating(do_average(ratingf, more), more, less);
-	return do_average(ratingf, more);
+		return CPlayerDatabase::GetOddMoreRating((int)do_average(ratingf, more), more, less);
+	return (int)do_average(ratingf, more);
 }
 
 int CGrouping::GetGroupCount(int * group)
