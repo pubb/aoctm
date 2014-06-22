@@ -171,12 +171,12 @@ BOOL CGraphObject::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD d
 
 	// Set graph title font
 	m_GraphTitleFont = new CFont();
-	m_GraphTitleFont->CreateFont( int(m_Size.cy*0.2), int(m_Size.cx*0.04), 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+	m_GraphTitleFont->CreateFont( int(m_Size.cy*0.05/*0.2*/), int(m_Size.cx*0.01/*0.04*/), 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
 		DEFAULT_CHARSET, OUT_CHARACTER_PRECIS, CLIP_CHARACTER_PRECIS, PROOF_QUALITY, DEFAULT_PITCH | FF_DONTCARE, _T("Arial") );
 
 	// Set graph subtitle font
 	m_GraphSubtitleFont = new CFont();
-	m_GraphSubtitleFont->CreateFont( int(m_Size.cy*0.07), int(m_Size.cx*0.03), 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+	m_GraphSubtitleFont->CreateFont( int(m_Size.cy*0.03/*0.07*/), int(m_Size.cx*0.015/*0.03*/), 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
 		DEFAULT_CHARSET, OUT_CHARACTER_PRECIS, CLIP_CHARACTER_PRECIS, PROOF_QUALITY, DEFAULT_PITCH | FF_DONTCARE, _T("Arial") );
 	
 	return CWnd::Create(NULL, NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | WS_CLIPSIBLINGS, rectGraph, pParentWnd, nID, NULL);
@@ -193,8 +193,8 @@ void CGraphObject::CreateGraph(int g_type)
 		case GT_2DBAR:
 			{
 				// Set graph size and position
-				CPoint g_point = CPoint( int(m_Size.cx*0.05), int(m_Size.cy*0.35) );
-				CSize g_size = CSize( int(m_Size.cx*0.7), int(m_Size.cy*0.5) );
+				CPoint g_point = CPoint( int(m_Size.cx*0.15), int(m_Size.cy*0.35) );
+				CSize g_size = CSize( int(m_Size.cx*0.5), int(m_Size.cy*0.3) );
 				m_2DBarGraph = new C2DBarGraph( g_point, g_size );
 				m_2DBarGraph->SetFullSize( m_Size );
 			}
@@ -205,7 +205,7 @@ void CGraphObject::CreateGraph(int g_type)
 			{
 				// Set graph size and position
 				CPoint g_point = CPoint( int(m_Size.cx*0.05), int(m_Size.cy*0.35) );
-				CSize g_size = CSize( int(m_Size.cx*0.5), int(m_Size.cy*0.5) );
+				CSize g_size = CSize( int(m_Size.cx*0.45), int(m_Size.cy*0.45) );
 				m_2DPieGraph = new C2DPieGraph( g_point, g_size );
 				m_2DPieGraph->SetFullSize( m_Size );
 			}
@@ -215,8 +215,8 @@ void CGraphObject::CreateGraph(int g_type)
 		case GT_2DLINE:
 			{
 				// Set graph size and position
-				CPoint g_point = CPoint( int(m_Size.cx*0.05), int(m_Size.cy*0.35) );
-				CSize g_size = CSize( int(m_Size.cx*0.7), int(m_Size.cy*0.5) );
+				CPoint g_point = CPoint( int(m_Size.cx*0.02), int(m_Size.cy*0.1) );
+				CSize g_size = CSize( int(m_Size.cx*0.15), int(m_Size.cy*0.1) );
 				m_2DLineGraph = new C2DLineGraph( g_point, g_size );
 				m_2DLineGraph->SetFullSize( m_Size );
 			}

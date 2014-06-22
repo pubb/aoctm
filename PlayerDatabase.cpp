@@ -173,7 +173,7 @@ void CPlayerDatabase::Add(CRecgame * rg)
 			if(player->MinImplTime > rg->Players[i].ImplTime)
 				player->MinImplTime = rg->Players[i].ImplTime;
 		}
-		if( (rg->Players[i].Civ > 0) && (rg->Players[i].Civ < 19) )
+		if( (rg->Players[i].Civ > 0) && (rg->Players[i].Civ < 24) )
 			player->Civs[rg->Players[i].Civ]++;
 	
 #if 0

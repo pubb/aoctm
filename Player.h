@@ -28,6 +28,9 @@ public:
 	CTime	PayTime;			//本次缴费时间
 };
 
+//pubb, 14-06-22, for AoFE
+const int CIVS = 24;
+
 class CPlayer
 {
 	//pubb, 07-08-23, no use of copy constructor
@@ -67,7 +70,7 @@ public:
 	int ImplCount;
 	//保存使用的文明，每一项表示该文明被使用一次
 	//255表示那个文明？
-	int Civs[19];
+	int Civs[CIVS];
 
 	//pubb,07-08-02, change to pointer for better construction
 	//CArray<CPaidFee, CPaidFee&> PaidFee;	//玩家缴费记录

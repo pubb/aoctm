@@ -51,7 +51,7 @@ void CPlayer::Initialize(void)
 	Rating = InitRating;
 	MinFeudTime = MinCstlTime = MinImplTime = MAX_TIMESPAN;
 
-	for(int i = 0; i < 19;i++)
+	for(int i = 0; i < CIVS;i++)
 	{
 		Civs[i] = 0;
 	}

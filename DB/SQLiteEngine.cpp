@@ -457,7 +457,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 			int ct = sqlite3_column_int(stmt, 3);
 			int it = sqlite3_column_int(stmt, 4);
 
-			if( (civ > 0) && (civ < 19) )
+			if( (civ > 0) && (civ < CIVS) )
 				player.Civs[civ]++;
 
 			if( ft != 0 )
@@ -617,7 +617,7 @@ SQLitePersisten::LoadPlayer(/*in out*/ CPlayer& player)
 			int ct = sqlite3_column_int(stmt, 3);
 			int it = sqlite3_column_int(stmt, 4);
 
-			if( (civ > 0) && (civ < 19) )
+			if( (civ > 0) && (civ < CIVS) )
 				player.Civs[civ]++;
 
 			if( ft != 0 )

@@ -7,7 +7,7 @@
 
 
 //by mep for statistic
-CString civ_name[24] = {_T(""),
+CString civ_name[CIVS] = {_T(""),
 						_T("Bri"),
 						_T("Fra"),
 						_T("Got"),
@@ -112,7 +112,7 @@ BOOL Statdlg::OnInitDialog()
 
 		int mostciv = 0;
 		int index = 0;
-		for(int j = 0;j < 19;j++)
+		for(int j = 0;j < CIVS;j++)
 		{
 			if( mostciv < m_pPlayerDB->GetAt(i)->Civs[j])
 			{
@@ -121,7 +121,7 @@ BOOL Statdlg::OnInitDialog()
 			}
 		}
 
-		if( (index > 0) && (index < 19) )
+		if( (index > 0) && (index < CIVS) )
 		{
 			str.Format(_T("%9s/%.f%%"), civ_name[index], 100*(float)m_pPlayerDB->GetAt(i)->Civs[index]/(float)m_pPlayerDB->GetAt(i)->PlayCount);
 			m_List.SetItemText(nItem, 1, str);

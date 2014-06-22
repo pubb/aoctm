@@ -189,10 +189,10 @@ void CGraphDlg::ShowUsedCivs(void)
 	//XXX, pubb, 07-09-09, only deal with the first selected player for now
 	//prepare data
 	extern CString civ_name[];
-	m_Graph.PrepareData(1, 18);	//one serie, 18 civs for segments
+	m_Graph.PrepareData(1, CIVS-1);	//one serie, 18 civs for segments
 	theApp.Players.Update(false);	//to generate Civs[]
 	CPlayer * player = m_pPlayers->GetAt(0);
-	for(int i = 0; i < 18; i++)
+	for(int i = 0; i < CIVS-1; i++)
 	{
 		m_Graph.Segments[i] = civ_name[i + 1];
 		m_Graph.Data[0][i] = player->Civs[i + 1];
@@ -205,6 +205,7 @@ void CGraphDlg::ShowUsedCivs(void)
 
 	m_Graph.ShowPie(clRect, RGB(255, 255, 255), _T("Used Civs"), player->NickNames[0], this);
 }
+
 void CGraphDlg::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
