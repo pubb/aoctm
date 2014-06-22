@@ -206,7 +206,9 @@ void CMyGraph::AddDataSerie(bool bAddAxes)
 		//m_XGraph.GetCurve (3).SetColor(RGB(255,0,0));
 		m_XGraph.GetCurve (i).SetFillBeneath(false);
 		m_XGraph.GetCurve (i).SetFillColor(RGB(255,0,0));
-		m_XGraph.GetCurve (i).SetColor(BASECOLORTABLE[i]);//RGB(255-i*2,255-i*2,255-i*2));
+		//pubb, 14-06-22, change to more colors
+		m_XGraph.GetCurve (i).SetColor(RGB(rand() % 255, rand() % 255, rand() % 255));;
+//		m_XGraph.GetCurve (i).SetColor(BASECOLORTABLE[i]);//RGB(255-i*2,255-i*2,255-i*2));
 		m_XGraph.GetCurve (i).SetLineSize(3); // we can set it here , fred
 	}
 

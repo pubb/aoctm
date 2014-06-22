@@ -17,6 +17,7 @@ CGraphDlg::CGraphDlg(CWnd* pParent /*=NULL*/)
 	if(::IsWindow(m_Graph.m_hWnd))
 		m_Graph.DestroyWindow();
 	m_pXGraphWndHandle = NULL;//fred
+	first = true;
 }
 
 CGraphDlg::~CGraphDlg()
@@ -127,6 +128,9 @@ void CGraphDlg::ShowTechStatBar(void)
 
 void CGraphDlg::ShowRatingCurve(void)
 {
+	//pubb, 14-06-22, fix repaint bug
+	if (!first) goto draw;
+
 	if(m_LastGame < m_FirstGame)
 		return;
 	
@@ -170,12 +174,14 @@ void CGraphDlg::ShowRatingCurve(void)
 		}
 	}
 	theApp.Players.Update(false);	//restore global database
+	first = false;	//only prepare once
 
+draw:
 	CRect clRect;
 	//GetClientRect(clRect);
 	//fred add test codes for xgraph
 	
-	CWnd * pTmp = (CWnd *)GetDlgItem(IDC_Curve_XGraph);
+	CWnd * pTmp = (CWnd *)GetDlgItem(IDC_Curve_XGraph);	
 	m_pXGraphWndHandle = pTmp;//fred 20080110
 	pTmp->GetWindowRect(clRect);
 	ScreenToClient(clRect);

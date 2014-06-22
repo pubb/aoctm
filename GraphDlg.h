@@ -31,7 +31,8 @@ public:
 
 private:
 	CMyGraph m_Graph;
-	
+	bool first;
+
 	void ShowRatingCurve(void);
 	void ShowTechStatBar(void);
 	void ShowUsedCivs(void);
