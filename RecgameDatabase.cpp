@@ -182,9 +182,13 @@ CString CRecgameDatabase::GetAOCRegistry(void)
 	DWORD buffsize = 1024;
 	CString path;
 
-	RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,
 		         _T("SOFTWARE\\Microsoft\\Microsoft Games\\Age of Empires II: The Conquerors Expansion\\1.0"),
-		         0, KEY_ALL_ACCESS, &hKey);
+		         0, KEY_READ, &hKey) != ERROR_SUCCESS)
+	{
+		AfxMessageBox(_T("Error reading Registry!"));
+		return _T("");
+	}
 	RegQueryValueEx(hKey, _T("EXE Path"), NULL, &vartype, (LPBYTE) &buff[0], &buffsize);
 	RegCloseKey(hKey);
 
@@ -271,20 +275,40 @@ next:	;
 	return -1;
 }
 
-CTime	CRecgameDatabase::GetLatestGameTime(void)
+INT_PTR	CRecgameDatabase::GetLastGameID(CString name)
 {
 	if(GetCount() <= 0)
-		return CTime(0);
+		return -1;
 
-	return GetAt(GetCount() - 1)->RecordTime;
+	if(name.IsEmpty())
+		return GetCount() - 1;
+	else
+	{
+		for(int i = GetCount() - 1; i >= 0; i--)
+		{
+			if(GetAt(i)->IsPlayerInGame(name))
+				return i;
+		}
+		return -1;
+	}
 }
 
-CTime	CRecgameDatabase::GetFirstGameTime(void)
+INT_PTR	CRecgameDatabase::GetFirstGameID(CString name)
 {
 	if(GetCount() <= 0)
-		return CTime(0);
+		return -1;
 
-	return GetAt(0)->RecordTime;
+	if(name.IsEmpty())
+		return 0;
+	else
+	{
+		for(int i = 0; i < GetCount(); i++)
+		{
+			if(GetAt(i)->IsPlayerInGame(name))
+				return i;
+		}
+		return -1;
+	}
 }
 
 void	CRecgameDatabase::Free(void)

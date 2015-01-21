@@ -68,4 +68,8 @@ private:
 public:
 	afx_msg void OnNMDblclkRecList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedSummary();
+	afx_msg void OnNMRClickRecList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnSetWinner(UINT command);
+	afx_msg void GroupThis();
+	afx_msg void OnRegroupThis();
 };

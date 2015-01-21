@@ -6,7 +6,8 @@
 
 #include "db/persistentinterface.h"
 
-#define	TIME_4_INCOMPLETE  (17 * 60)		// as seconds. if game time is less than 20 min, then consider is as an incomplete one.
+const int	TIME_4_INCOMPLETE = (17 * 60);		// as seconds. if game time is less than 17 min, then consider is as an incomplete one.
+const int	MAX_PLAYERS_INGAME	= 8;
 
 extern CString civ_name[24];
 extern COLORREF player_color[8];
@@ -100,6 +101,8 @@ public:
 	//CArray<CChatInfo, CChatInfo&>	ChatInGame;		//游戏中的聊天信息
 	CArray<CChatInfo *, CChatInfo *> ChatB4Game;
 	CArray<CChatInfo *, CChatInfo *>	ChatInGame;
+	//pubb, 14-12-13, winner info in DB, which can be different from GetWinnerTeam() calculated from resign msg. it can be changed manually in such condition as actually no winner game or should-be-ignored game (a game without meaning in ratings).
+	int		ManualWinnerTeam;	//0 for no winner, 1/2 for winner team, <0 for not defined
 
 	bool	Loaded;
 
@@ -111,6 +114,7 @@ public:
 	/* pubb, 07-07-26 */
 	int		GetWinnerTeam(void);
 	bool	IsWinner(int player_id);
+	bool	IsPlayerInGame(CString name);
 
 private:
 	/* pubb, 07-08,02, copy from original recgame structure */
@@ -129,8 +133,8 @@ private:
 	SIZE		map_size;
 	int			map_load_flg;
 	char		map_data[57600];
-	int			data_ref[9];
-	bool		player_resign[9];
+	int			player_index[MAX_PLAYERS_INGAME + 1];
+	bool		player_resign[MAX_PLAYERS_INGAME + 1];
 	unsigned char * m_pt_header;
 	unsigned char * m_pt_body;
 	unsigned long m_body_len;
@@ -160,6 +164,11 @@ private:
 	/* pubb, 07-08-02, construct CTime object */
 	CTimeSpan	Timecnt2CTimeSpan(int timecnt);
 	
+	int	SetPlayersName(int pos);
+	int	SetPlayersCivColor(int pos, int end_pos);
+	int SetPlayersTeam(int pos);
+	void	CopyCooperatingPlayerInfo(void);
+	CString	GetMapName(void);
 };			
 
 #else
@@ -193,7 +202,7 @@ public:
 	int			rec_player;
 	int			player_num;
     CString		team_num;
-	int			data_ref[9];
+	int			player_index[9];
 	player_info player_data[9];
     int			player_team[9];
     CString		player_name[9];

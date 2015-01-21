@@ -70,7 +70,8 @@ public:
 	int ImplCount;
 	//保存使用的文明，每一项表示该文明被使用一次
 	//255表示那个文明？
-	int Civs[CIVS];
+	//14-09-24, pubb, to store wincount & playcount with the civ.
+	int Civs[CIVS][2];	//Civs[][0] for playcount, Civs[][1] for wincount
 
 	//pubb,07-08-02, change to pointer for better construction
 	//CArray<CPaidFee, CPaidFee&> PaidFee;	//玩家缴费记录

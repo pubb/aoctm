@@ -12,7 +12,7 @@
 IMPLEMENT_DYNAMIC(CGraphDlg, CDialog)
 
 CGraphDlg::CGraphDlg(CWnd* pParent /*=NULL*/)
-: CDialog(CGraphDlg::IDD, pParent), m_pPlayers(NULL), m_nCommand(SHOW_RATINGCURVE), m_FirstGame(FIRSTGAME_TIME), m_LastGame(CTime::GetCurrentTime())
+: CDialog(CGraphDlg::IDD, pParent), m_pPlayers(NULL), m_nCommand(SHOW_RATINGCURVE), m_FirstGameID(0), m_LastGameID(0)
 {
 	if(::IsWindow(m_Graph.m_hWnd))
 		m_Graph.DestroyWindow();
@@ -131,9 +131,14 @@ void CGraphDlg::ShowRatingCurve(void)
 	//pubb, 14-06-22, fix repaint bug
 	if (!first) goto draw;
 
-	if(m_LastGame < m_FirstGame)
+	if(m_LastGameID < m_pPlayers->m_pRecgameDB->GetCount() - 1)
+		m_LastGameID++;
+	if(m_FirstGameID > 0)
+		m_FirstGameID--;
+
+	if(m_LastGameID < m_FirstGameID)
 		return;
-	
+
 //fred, replace CGraph with XGraph for curve
 #if 0
 	CTime t;
@@ -154,7 +159,7 @@ void CGraphDlg::ShowRatingCurve(void)
 	}
 #endif
 
-	int serie = m_pPlayers->GetCount(), segment = m_pPlayers->m_pRecgameDB->GetCount();
+	int serie = m_pPlayers->GetCount(), segment = m_LastGameID - m_FirstGameID + 1;
 	m_Graph.PrepareData(serie, segment, true);
 
 	int i, j;
@@ -162,14 +167,14 @@ void CGraphDlg::ShowRatingCurve(void)
 	for(i = 0 ; i < serie; i++)
 		m_Graph.Series[i] = m_pPlayers->GetAt(i)->NickNames[0];
 
-	theApp.Players.GetRatings(m_FirstGame - CTimeSpan(0, 0, 5, 0));	//XXX, use global database. not a good way. but no way except for it now as i know
+	theApp.Players.GetRatings(m_pPlayers->m_pRecgameDB->GetAt(m_FirstGameID)->RecordTime - CTimeSpan(0, 0, 5, 0));	//XXX, use global database. not a good way. but no way except for it now as i know
 	for ( j = 0; j < segment; j++)
 	{
-		theApp.Players.Add(m_pPlayers->m_pRecgameDB->GetAt(j));
+		theApp.Players.Add(m_pPlayers->m_pRecgameDB->GetAt(m_FirstGameID + j));
 		for(i = 0; i < serie; i++)
 		{
 			int index = theApp.Players.GetFirstSamePlayer(m_pPlayers->GetAt(i)->NickNames[0]);
-			m_Graph.m_XGraphValues[i][j].fXVal = COleDateTime(m_pPlayers->m_pRecgameDB->GetAt(j)->RecordTime.GetTime());
+			m_Graph.m_XGraphValues[i][j].fXVal = COleDateTime(m_pPlayers->m_pRecgameDB->GetAt(m_FirstGameID + j)->RecordTime.GetTime());
 			m_Graph.m_XGraphValues[i][j].fYVal = theApp.Players[index]->Rating;
 		}
 	}
@@ -195,13 +200,17 @@ void CGraphDlg::ShowUsedCivs(void)
 	//XXX, pubb, 07-09-09, only deal with the first selected player for now
 	//prepare data
 	extern CString civ_name[];
-	m_Graph.PrepareData(1, CIVS-1);	//one serie, 18 civs for segments
+	float winpercentage = 0;
+	CString str;
+
+	m_Graph.PrepareData(1, CIVS-1);	//one serie, 24 civs for segments
 	theApp.Players.Update(false);	//to generate Civs[]
 	CPlayer * player = m_pPlayers->GetAt(0);
 	for(int i = 0; i < CIVS-1; i++)
 	{
-		m_Graph.Segments[i] = civ_name[i + 1];
-		m_Graph.Data[0][i] = player->Civs[i + 1];
+		str.Format(_T("%9s : %.2f%%"), civ_name[i + 1], 100.0 * player->Civs[i+1][1] / player->Civs[i+1][0]);	
+		m_Graph.Segments[i] = str;
+		m_Graph.Data[0][i] = player->Civs[i + 1][0];
 	}
 
 	CRect clRect;
@@ -209,7 +218,9 @@ void CGraphDlg::ShowUsedCivs(void)
 	//fred
 	HideUserControl();
 
-	m_Graph.ShowPie(clRect, RGB(255, 255, 255), _T("Used Civs"), player->NickNames[0], this);
+	//pubb, 14-09-26, show wincount/playcount for each civ.
+	str.Format(_T("%s : %d / %d"), player->NickNames[0], player->WinCount, player->PlayCount);
+	m_Graph.ShowPie(clRect, RGB(255, 255, 255), _T("Used Civs"), str, this);
 }
 
 void CGraphDlg::OnPaint()

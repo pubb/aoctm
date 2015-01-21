@@ -524,7 +524,7 @@ void C2DPieGraph::BuildGraphLegend(HDC hDC)
 	// Draw graph legend
 	CBrush bgBrush( m_LegendBackgroundColor );
 	HBRUSH hOldBrush = (HBRUSH)::SelectObject( hDC, bgBrush.GetSafeHandle() );
-	::Rectangle( hDC, m_Position.x + int(m_Size.cx*1.1), m_Position.y + offset, m_Position.x + int(m_Size.cx*1.75), m_Position.y + int((m_SegmentsNumber+0.5)*ts.cy + offset) );
+	::Rectangle( hDC, m_Position.x + int(m_Size.cx*1.1), m_Position.y + offset, m_Position.x + int(m_Size.cx*1.9), m_Position.y + int((m_SegmentsNumber+0.5)*ts.cy + offset) );
 	::SelectObject( hDC, hOldBrush );
 	bgBrush.DeleteObject();
 

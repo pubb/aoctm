@@ -27,12 +27,13 @@ protected:
 public:
 	CPlayerDatabase	* m_pPlayers;
 	CHART_COMMAND	m_nCommand;
-	CTime	m_FirstGame, m_LastGame;
+	INT_PTR	m_FirstGameID, m_LastGameID;
 
 private:
 	CMyGraph m_Graph;
 	bool first;
 
+	CString GetWinningPercentage(CPlayer *player);
 	void ShowRatingCurve(void);
 	void ShowTechStatBar(void);
 	void ShowUsedCivs(void);

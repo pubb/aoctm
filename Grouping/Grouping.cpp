@@ -35,8 +35,6 @@ void	CGrouping::Initialize(int num, BOOL prefer4v3)
 
 void	CGrouping::DoGroup(void)
 {
-	delta = 65536;
-
 	if(player_num % 2)
 		if(!b4v3)
 			TryGroup2in1();	//generating 'delta, group1, group2', cooperators in group look like (player1 << 4 | player2)
@@ -156,8 +154,11 @@ void CGrouping::TryGrouping(int index, int min, int odd, bool clear)
 	static int tmp_group1[4], tmp_group2[4], tmp_delta;
 	int i, max = player_num - (player_num / 2 + odd - (index + 1));
 
+
 	if(clear)
 	{
+		//pubb, 14-12-14, bugfix, move from DoGrouping() to initialize delta each time of calculating.
+		delta = 65536;
 		memset(tmp_group1, 0, sizeof(tmp_group1));
 		memset(tmp_group2, 0, sizeof(tmp_group2));
 	}
@@ -260,10 +261,10 @@ void CGrouping::AdjustCooperateGroup(int * group, int cooperator1, int cooperato
 
 //by wordless, different methods for averaging
 const float average_grade = 1;	//pubb, 14-02-15, 2 for SQ
-#define	ACCUMULATE_SIGMA		//pubb, 14-02-15, undefined for PI
+#define	ACCUMULATE_PI		//pubb, 14-02-15, undefined for SIGMA
 float CGrouping::do_accumulate(float base, float value)
 {
-#ifdef	ACCUMULATE_SIGMA
+#ifdef	ACCUMULATE_PI
 	if(value < 0)
 		return base - powf(-value, average_grade);
 	else
@@ -282,7 +283,7 @@ float CGrouping::do_accumulate(float base, float value)
 
 float CGrouping::do_average(float sum, int count)
 {
-#ifdef	ACCUMULATE_SIGMA
+#ifdef	ACCUMULATE_PI
 	return powf(sum / count, 1 / average_grade);
 #else
 	return powf(sum, 1.0 / count);

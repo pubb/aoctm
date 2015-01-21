@@ -1703,13 +1703,14 @@ int CReportCtrl::_CompareItems(int nItem1, int nItem2)
 	const CString s1 = GetItemText(nItem1, m_nSortCol);
 	const CString s2 = GetItemText(nItem2, m_nSortCol);
 
-	DWORD dw1, dw2;
-	if(_ITEM_COMPARE_FUNCS::_IsHexNumber(s1, dw1) && _ITEM_COMPARE_FUNCS::_IsHexNumber(s2, dw2))
-		return _ITEM_COMPARE_FUNCS::_HexNumberCompare(dw1, dw2);
-
+	//pubb, 14-07-31, compare DecNumber before HexNumber, because all DecNumber are HexNumber too.
 	double f1, f2;
 	if(_ITEM_COMPARE_FUNCS::_IsDecNumber(s1, f1) && _ITEM_COMPARE_FUNCS::_IsDecNumber(s2, f2))
 		return _ITEM_COMPARE_FUNCS::_DecNumberCompare(f1, f2);
+
+	DWORD dw1, dw2;
+	if(_ITEM_COMPARE_FUNCS::_IsHexNumber(s1, dw1) && _ITEM_COMPARE_FUNCS::_IsHexNumber(s2, dw2))
+		return _ITEM_COMPARE_FUNCS::_HexNumberCompare(dw1, dw2);
 
 	COleDateTime date1, date2;
 	if(_ITEM_COMPARE_FUNCS::_IsDate(s1, date1) && _ITEM_COMPARE_FUNCS::_IsDate(s2, date2))

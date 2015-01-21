@@ -117,7 +117,7 @@ FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
     LTEXT           "AocTM v""AOCTM_VERSION""  build yymmdd",IDC_VERSION,40,10,136,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2007 of pubb\nCredit to mep, onfire, fred and andy",IDC_STATIC,40,25,119,23
+    LTEXT           "Copyleft (C) 2007-2014 of pubb\nCredit to mep, onfire, fred, andy and ssss",IDC_STATIC,40,25,188,23
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,16,WS_GROUP
 END
 
@@ -130,7 +130,7 @@ FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     CONTROL         "Drag&&Drop GAME RECORD files in, or press F5.",IDC_STATIC,
                     "Static",SS_LEFTNOWORDWRAP | WS_GROUP,209,277,152,8,WS_EX_TRANSPARENT
-    CTEXT           "nnn games (xxxx-xx-xx xx'xx'xx' to xxxx-xx-xx xx'xx'xx')",IDC_TITLE,110,7,243,8
+    CTEXT           "Empty Database",IDC_TITLE,110,7,243,8
     CONTROL         "",IDC_DATETIME_TO,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,357,7,100,15
     CONTROL         "",IDC_DATETIME_FROM,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,7,7,100,15
     CONTROL         "",IDC_REC_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,24,450,244
@@ -405,6 +405,22 @@ BEGIN
         MENUITEM "&RatingCurve",                ID__RATINGCURVE
         MENUITEM "Used&Civs",                   ID__USEDCIVS
         MENUITEM "&TechStat",                   ID__TECHSTAT
+    END
+END
+
+IDR_RECPOPMENU MENU 
+BEGIN
+    POPUP " "
+    BEGIN
+        POPUP "&Set Winner"
+        BEGIN
+            MENUITEM "&NONE",                       ID_SETWINNER_0
+            MENUITEM "Team &1",                     ID_SETWINNER_1
+            MENUITEM "Team &2",                     ID_SETWINNER_2
+            MENUITEM "&Clear",                      ID_SETWINNER_CLEAR
+        END
+        MENUITEM "&Group this",                 ID__GROUPTHIS
+        MENUITEM "&Regroup this",               ID__REGROUPTHIS
     END
 END
 

@@ -20,9 +20,8 @@ public:
 	void SetPattern(CString pattern);
 	//void Parse();
 	//07-10-11, pubb, to be a static function for better usage
-	static CTime Parse(CString file);
-	//14-02-15, pubb, for aofe
-	static CTime ParseAOFE(CString file);
+	//14-06-29, pubb, to merge for all format, and rename it to a more easy-understood function name.
+	static CTime Parse2Playtime(CString file);
 
 	//07-10-11, pubb, to be a static function for better usage
 	static int ToMonth(CString& s);

@@ -75,7 +75,13 @@ BOOL CReportDlg::OnInitDialog()
 
 		//pubb, 08-01-28, save 'dirty' state before temparory update
 		//pubb, 07-09-18, to generate ratings before the report ( 5 minutes )
-		theApp.Players.Update(false, CTime(0), m_pPlayerDB->m_pRecgameDB->GetFirstGameTime() - CTimeSpan(0, 0, 5, 0));
+		INT_PTR id = m_pPlayerDB->m_pRecgameDB->GetFirstGameID();
+		if(id < 0)
+		{
+			AfxMessageBox(_T("No proper games!"));
+			return false;
+		}
+		theApp.Players.Update(false, CTime(0), m_pPlayerDB->m_pRecgameDB->GetAt(id)->RecordTime - CTimeSpan(0, 0, 5, 0));
 		m_pPlayerDB->CopyPlayers();	//store ratings before this show up in InitRating
 		//pubb, 07-09-22, restore the normal ratings
 		theApp.Players.Update(false);
@@ -201,9 +207,12 @@ void CReportDlg::OnNMDblclkReportlist(NMHDR *pNMHDR, LRESULT *pResult)
 	CGraphDlg dlg;
 	dlg.m_nCommand = SHOW_RATINGCURVE;
 	dlg.m_pPlayers = &selected_players;
-	dlg.m_FirstGame = m_pPlayerDB->m_pRecgameDB->GetFirstGameTime();
-	dlg.m_LastGame = m_pPlayerDB->m_pRecgameDB->GetLatestGameTime();
-	dlg.DoModal();
+	dlg.m_FirstGameID = m_pPlayerDB->m_pRecgameDB->GetFirstGameID(player->NickNames[0]);
+	dlg.m_LastGameID = m_pPlayerDB->m_pRecgameDB->GetLastGameID(player->NickNames[0]);
+	if(dlg.m_LastGameID >= dlg.m_FirstGameID)
+		dlg.DoModal();
+	else
+		AfxMessageBox(_T("Strange Timeline, IGNORE!"));
 
 	*pResult = 0;
 }
@@ -259,7 +268,21 @@ void CReportDlg::OnShowChart(UINT command)
 	CGraphDlg dlg;
 	dlg.m_nCommand = (CHART_COMMAND)command;
 	dlg.m_pPlayers = &selected_players;
-	dlg.m_FirstGame = m_pPlayerDB->m_pRecgameDB->GetFirstGameTime();
-	dlg.m_LastGame = m_pPlayerDB->m_pRecgameDB->GetLatestGameTime();
-	dlg.DoModal();
+	dlg.m_FirstGameID = dlg.m_LastGameID = 0;
+	for(int i = 0; i < selected_players.GetCount(); i++)
+	{
+		int id1 = m_pPlayerDB->m_pRecgameDB->GetFirstGameID(selected_players.GetAt(i)->NickNames[0]), id2 = m_pPlayerDB->m_pRecgameDB->GetLastGameID(selected_players.GetAt(i)->NickNames[0]);
+		if(dlg.m_FirstGameID == 0 || dlg.m_LastGameID == 0)
+		{
+			dlg.m_FirstGameID = id1;
+			dlg.m_LastGameID = id2;
+			continue;
+		}
+		dlg.m_FirstGameID = min(dlg.m_FirstGameID, id1);
+		dlg.m_LastGameID = max(dlg.m_LastGameID, id2);
+	}
+	if(dlg.m_LastGameID >= dlg.m_FirstGameID)
+		dlg.DoModal();
+	else
+		AfxMessageBox(_T("Strange Timeline, IGNORE!"));
 }

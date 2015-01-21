@@ -110,8 +110,8 @@ CPlayerInGame::CPlayerInGame(void)
   FeudTime(0), CstlTime(0), ImplTime(0),ResignTime(0),
   number_key(0)
 {
-	for(int i = 0; i < 256; i++)
-		name_key[i] = 0;
+	//pubb, 14-10-09, better implementation.
+	memset(name_key, 0, 256);
 }
 
 CPlayerInGame::CPlayerInGame(CPlayerInGame & player)
@@ -129,8 +129,8 @@ CPlayerInGame::CPlayerInGame(CPlayerInGame & player)
 	ResignTime = player.ResignTime;
 
 	/* pubb, 07-08-02, copy from original, not sure for their meanings */
-	for(int i = 0; i < 256; i++)
-		name_key[i] = player.name_key[i];
+	//pubb, 14-10-09, better implementation.
+	memcpy(name_key, player.name_key, 256);
 	number_key = number_key;
 }
 
@@ -151,8 +151,8 @@ CPlayerInGame::operator = (CPlayerInGame& rh)
 	ResignTime = rh.ResignTime;
 
 	/* pubb, 07-08-02, copy from original, not sure for their meanings */
-	for(int i = 0; i < 256; i++)
-		name_key[i] = rh.name_key[i];
+	//pubb, 14-10-09, better implementation.
+	memcpy(name_key, rh.name_key, 256);
 	number_key = number_key;
 
 	return *this;
@@ -163,10 +163,11 @@ CRecgame::CRecgame()
 {
 	//pubb, 07-10-23, moved from getGameData()
 	ViewerID = 0;
+	ManualWinnerTeam = -1;
 
 	map_load_flg = 0;
 	for(int j = 0; j <= 8 ; j++){
-		data_ref[j] = 0;
+		player_index[j] = 0;
 		player_resign[j] = true;	//assume everyone to be loser
 	}
 
@@ -199,11 +200,7 @@ bool CRecgame::Read(CString file)
 	int index = file.ReverseFind('\\');
 	FileName = file.Mid(index + 1);	//only FILENAME
 	
-	RecordTime = Renamer::Parse(FileName);
-	if(RecordTime == CTime())	//try AOFE format
-	{
-		RecordTime = Renamer::ParseAOFE(FileName);
-	}
+	RecordTime = Renamer::Parse2Playtime(FileName);
 
 	if(RecordTime == CTime(0))		//if the filename was renamed manually, then use 'file create time' for RecordTime
 	{
@@ -393,7 +390,214 @@ void CRecgame::getBody(unsigned char **pt_body, unsigned int *length)
 }
 */
 
-void CRecgame::getGameData(void)
+/* Fill the playernames from the rec.
+ * Names are listed in the order of what lists in game lobby.
+ * For a restored game, the order is maybe not the same as what the game begins with, so, there's a player_index array storing the order when beginning. 
+ * The player_index will be used to decide the player's team, because the team information is stored in the order of begining (XXX).
+ * For a '2in1' case, the controlling players will point to a single index in the play_index array.
+ */
+
+int	CRecgame::SetPlayersName(int pos)
+{
+	int i;
+	int player_name_len;
+	unsigned char t_player_name[256];
+
+	for(i = 0; i <= MAX_PLAYERS_INGAME; i++){
+		player_index[i] = *((int*)&m_pt_header[pos]);
+		
+		pos += 8;
+		
+		player_name_len = *(int*)(&m_pt_header[pos]);
+		pos += 4;
+
+		//XXX, pubb, 07-10-31, this code segment should be considered specially for '2 v 1' condition
+		if(player_index[i] != 0){
+			
+			memset(t_player_name, 0, 256);
+			memcpy(t_player_name, &m_pt_header[pos], player_name_len);
+			Players[i].Name = t_player_name;
+
+			if(strlen(Players[player_index[i]].name_key) == 0)
+			{
+				memcpy(Players[player_index[i]].name_key, t_player_name, player_name_len);
+				Players[player_index[i]].number_key = i;
+			}
+		}
+		pos += player_name_len;
+	}
+	return pos;
+}
+
+/* Fill players' Civ and Color.
+ * The players' civ and color are stored in the order of game lobby order when the game begins whether it is a restored game or not.
+ */
+int CRecgame::SetPlayersCivColor(int pos, int end_pos)
+{
+	int civ, color;
+	int player_name_len, str_len, length;
+
+	for(int j = 1; pos < end_pos; pos++)
+	{
+		player_name_len = strlen(Players[j].name_key);
+		if(memcmp(&m_pt_header[pos], Players[j].name_key, player_name_len) == 0){
+			str_len = *((short*)&m_pt_header[pos-2]) - 1;
+
+			if(str_len == player_name_len){
+				pos += (player_name_len + 1);
+				//XXX, pubb, 07-11-04, 'length' is actually either 0 or 255(-1). just ignore it
+				//so make 'pos' increases by 816
+				//pubb, 14-06-27, restore original pos++ code for wrongly interpreting to a restored game
+				pos += 807;
+				length = *((short*)&m_pt_header[pos]);
+				//length = 0;
+				pos += 4;
+				pos += length * 8;
+				pos += 5;
+				//*/
+				//pos += 816;
+
+				civ = m_pt_header[pos];
+				pos += 1;
+				pos += 3;
+				//pubb, 07-10-31, 0 for 'blue'
+				color = m_pt_header[pos];
+
+				//pubb, 14-12-10, new method to fill color/civ information. leave the id controlling an cooperating player blank, until fill/copy its infor from the active player later.
+				//there'll be some cases that more than 1 players have the same no..
+				//if k1,k2 are controlling the same player j, then player_index[k1],player_index[k2] will both be equal to j, then player k1,k2 will be set to the same civ and color.
+#if 0
+				for(int k = 1; k < 9; k++)
+				{
+					if(player_index[k] == j)
+					{
+						Players[k].Civ = civ;
+						Players[k].Color = color;
+					}
+				}
+#else
+				int index = Players[j].number_key;
+				if(index != 0)
+				{
+					Players[index].Civ = civ;
+					Players[index].Color = color;
+				}
+#endif
+
+				j++;
+				
+				if(j > MAX_PLAYERS_INGAME){
+					break;
+				}
+			}
+		}
+	}
+	return pos;
+}
+
+/* pubb, 09-03-29, rewrite the team setting algorithm
+ * player team can be 'not set'(0), random(1), or set (team1=2,team2=3,...,team8=9)
+ * XXX: only support 2 teams situation.
+ * the team information are stored in the order what the game begins, whether a restored game or not.
+ */
+/* pubb, 14-12-11, bugfix for '2in1' condition since 14-10-08 patch.
+ * pubb, 14-10-08, bugfix for restored game situation. bug example: 20141001-22:51:22, famin exchanged with web.
+ */
+int	CRecgame::SetPlayersTeam(int pos)
+{
+	int j;
+	int team = 0, team1 = 0, team2 = 0, index = 0;
+
+	//set the team number according the player1's team
+	for(j = 0; j <= MAX_PLAYERS_INGAME; j++)
+	{
+		switch(m_pt_header[pos+j] - 1)
+		{
+		case 1:
+		case 2:	
+			team1 = m_pt_header[pos+j] - 1;
+			break;
+		case 0:
+			continue;
+		default:
+			team2 = m_pt_header[pos+j] - 1;
+			break;
+		}
+		if(team1 != 0)
+			break;
+	}
+
+	/* pubb, 07-07-26, player_team as integer */
+	bool	found;
+	int	shift = 0;
+	for(j = 1; j <= MAX_PLAYERS_INGAME; j++)
+	{
+		//pubb, 14-12-11, team info only meanful to one player when '2 in 1' condition. use number_key as index.
+		//pubb, 07-08-04, set Players.Team
+		//pubb, 09-01-04, skip null players
+		for(found = false, index = 1; index <= PlayerNum; index++)
+		{
+			/*
+			 * pubb, 14-12-11, number_key stores the current real position of players, whether a restored game or not.
+			 * but for a '2in1' situation, the cooperating player will have no number_key stored, so the position has to be shifted forward to read the correct team information.
+			 * and the cooperating player will have no team information filled. it'll be copied later.
+			 */
+			if(Players[index].number_key == j)
+			{
+				team = m_pt_header[pos + index + shift - 1] - 1;
+				//pubb, 07-10-31, if not set team (that's '-' in the game), then set it manually
+				//pubb, 09-01-04, buggy data (08-07-30-22:40), two in team 1, two in team '4'. Set it definitely to be team 1 and team 2
+				//pubb, 09-03-29, rewritten according to preset team1 and team2 variables
+				switch(team)
+				{
+				case 0:
+					if(team1 == 0)	//no one set team
+					{
+						Players[j].Team = 1;
+						team1 = 1;
+						team2 = 2;
+					}
+					else
+					{
+						Players[j].Team = 2;	//usually there're only 2 players in this condition
+					}
+					break;
+				default:
+					if(team == team1)
+						Players[j].Team = 1;
+					else
+						Players[j].Team = 2;
+				}
+				found = true;
+				break;
+			}
+		}
+		// not found a number_key equal to j, indicates to a '2in1' situation, so shift forward for next team reading.
+		if(!found)
+			shift++;
+		//pubb, 14-12-10, leave '2 as 1' player's team blank until fill/copy its whole infor later.
+		//pubb, 09-01-04, '2 as 1' condition will also be invalid team, set it manually
+		//pubb, 14-10-07, bugfix move this code segment after team decision
+	}
+	return pos;
+}
+
+void	CRecgame::CopyCooperatingPlayerInfo(void)
+{
+	int j;
+	
+	for(j = 0; j <= MAX_PLAYERS_INGAME; j++)
+	{
+		if(player_index[j] != 0 && Players[j].Team < 0)
+		{
+			Players[j].Civ = Players[player_index[j]].Civ;
+			Players[j].Color = Players[player_index[j]].Color;
+			Players[j].Team = Players[player_index[j]].Team;
+		}
+	}
+}
+
+CString	CRecgame::GetMapName(void)
 {
 	//pubb, 07-11-07, make them a group of string for any possibilities. end with 'null'
 	//pubb, 07-11-05, use CHAR instead of TCHAR to do correct compare
@@ -417,10 +621,58 @@ void CRecgame::getGameData(void)
 	  "µØÍ¼Àà±ð",		//cn2
 	  NULL
 	};
+	unsigned char map_buff[100];
+	int i, j;
+
+	for(i = m_header_len - 18000; i > 100000; i--)
+	{
+		//pubb, 07-11-07, fix a bug incurred by chinese version of aoc
+		//pubb, 07-11-05, rearranged the code section for better view
+		if((m_pt_header[i-1] == ':' && m_pt_header[i] == ' ') || (m_pt_header[i-1] == 0xa1 && m_pt_header[i] == 'G') || (m_pt_header[i-1] == 0xa3 && m_pt_header[i] == 0xba /* "£º" */))
+		{ 
+			//pubb, 07-11-07, to find 'map type'
+			bool found = false;
+			for(int t = 0; maptype_str[t][0] != NULL; t++)
+			{
+				char * p = maptype_str[t];
+				int len = (int)strlen(p);
+				if(memcmp(&m_pt_header[i - 1 - len], p, len) == 0)
+				{
+					found = true;
+					break;
+				}
+			}
+			if(found)
+			{
+				i = i + 1;
+				memset(map_buff,'\0',100);
+				for(j = 0; j < 100; j++){
+					if(m_pt_header[i+j] == 0x0A){
+						break;
+					}
+					map_buff[j] = m_pt_header[i+j];
+				}
+				break;
+			}
+		}
+		else if(m_pt_header[i] == 'A')
+		{
+			if(m_pt_header[i-3] == 'G' && m_pt_header[i-2] == 'A' && m_pt_header[i-1] == 'I')
+			{
+				map_buff[0] = NULL;
+				break;		
+			}
+		}
+	}
+	return (map_buff[0] == NULL ? Map.Name : CString(map_buff));
+}
+
+//pubb, 14-10-09, rearrange players' name/civ/color/team and mapname code to seperated functions as above.
+void CRecgame::getGameData(void)
+{
 	char gaia[15]       = "GAIA";
 
 	long i,j;
-	int ret;
 	int pos;
 
 	int trigger_pos = 0;
@@ -444,7 +696,6 @@ void CRecgame::getGameData(void)
 	int command;
 	int command_len;
 	int time_cnt;
-	short str_len;
 	short player_id;
 	short research_id;
 	short unit_type_id;
@@ -457,15 +708,11 @@ void CRecgame::getGameData(void)
 	*/
 	//CStringArray  str_chat;
 
-	unsigned char map_buff[100];
 	unsigned char age_flag[9] ={0,0,0,0,0,0,0,0,0};
 	int chat_len;
-	int player_name_len;
 	unsigned char player_number;
 	unsigned char chat_msg[256];
-	unsigned char t_player_name[256];
 	//CString str_edit;
-	CString t_map_name;
 	CString alt_map_name;
 	CString str_work;
 	CString str_advance;
@@ -513,41 +760,16 @@ void CRecgame::getGameData(void)
 	
 	pos += 12;
 	
+	//pubb, 07-11-05, for 'custom' map, if read the map name out from rec, then set it.
+	//set mapname, standard or 'custom' for map_id = 44
 	map_id = *((int*)&m_pt_header[pos]);
+	Map.Name = (map_id == 44 ? GetMapName() : theApp.Recgames.GetMapName(map_id));
+
 	pos += 4;
 	pos += 8;
 	
-	for(i = 0; i < 9; i++){
-		
-		data_ref[i] = *((int*)&m_pt_header[pos]);
-		
-		pos += 8;
-		
-		player_name_len = *(int*)(&m_pt_header[pos]);
-		pos += 4;
+	SetPlayersName(pos);		//ignore return value of increased pos
 
-		//XXX, pubb, 07-10-31, this code segment should be considered specially for '2 v 1' condition
-		if(data_ref[i] != 0){
-			
-			memset(t_player_name, 0, 256);
-			memcpy(t_player_name, &m_pt_header[pos], player_name_len);
-			Players[i].Name = t_player_name;
-
-			if(strlen(Players[data_ref[i]].name_key) == 0){
-				
-				memcpy(Players[data_ref[i]].name_key, t_player_name, player_name_len);
-				
-				Players[data_ref[i]].number_key = i;
-			}
-		}
-		
-		Players[i].Color = 0;
-		Players[i].Civ = 0;
-
-		pos += player_name_len;
-	}
-
-	
 	pos = 0x0C;
 	
 	include_ai = *((int*)&m_pt_header[pos]);
@@ -674,109 +896,20 @@ void CRecgame::getGameData(void)
 		}
 	}
 	*/
-	for(j = 1; pos < trigger_pos; pos++)
-	{
-		int civ, color;
 
-		player_name_len = (int)strlen(Players[j].name_key);
-		
-		ret = memcmp(&m_pt_header[pos], Players[j].name_key, player_name_len);
-		
-		if(ret == 0){
-			str_len = *((short*)&m_pt_header[pos-2]) - 1;
+	SetPlayersCivColor(pos, trigger_pos);	//ignore return value of increased pos
 
-			if(str_len == player_name_len){
-				pos += (player_name_len + 1);
-				//XXX, pubb, 07-11-04, 'length' is actually either 0 or 255(-1). just ignore it
-				//so make 'pos' increases by 816
-				/*
-				pos += 807;
-				length = *((short*)&m_pt_header[pos]);
-				length = 0;
-				pos += 4;
-				pos += length * 8;
-				pos += 5;
-				*/
-				pos += 816;
-
-				civ = m_pt_header[pos];
-				pos += 1;
-				pos += 3;
-				//pubb, 07-10-31, 0 for 'blue'
-				color = m_pt_header[pos];
-
-				for(int k = 1; k < 9; k++)
-				{
-					if(data_ref[k] == j)
-					{
-						Players[k].Civ = civ;
-						Players[k].Color = color;
-					}
-				}
-
-				j++;
-				
-				if(j > PlayerNum){
-					break;
-				}
-			}
-		}
-	}
-
-	for(i = m_header_len - 18000; i > 100000; i--)
-	{
-		//pubb, 07-11-07, fix a bug incurred by chinese version of aoc
-		//pubb, 07-11-05, rearranged the code section for better view
-		if((m_pt_header[i-1] == ':' && m_pt_header[i] == ' ') || (m_pt_header[i-1] == 0xa1 && m_pt_header[i] == 'G') || (m_pt_header[i-1] == 0xa3 && m_pt_header[i] == 0xba /* "£º" */))
-		{ 
-			//pubb, 07-11-07, to find 'map type'
-			bool found = false;
-			for(int t = 0; maptype_str[t][0] != NULL; t++)
-			{
-				char * p = maptype_str[t];
-				int len = (int)strlen(p);
-				if(memcmp(&m_pt_header[i - 1 - len], p, len) == 0)
-				{
-					found = true;
-					break;
-				}
-			}
-			if(found)
-			{
-				i = i + 1;
-				memset(map_buff,'\0',100);
-				for(j = 0; j < 100; j++){
-					if(m_pt_header[i+j] == 0x0A){
-						break;
-					}
-					map_buff[j] = m_pt_header[i+j];
-				}
-				t_map_name = map_buff;
-				break;
-			}
-		}
-		else if(m_pt_header[i] == 'A')
-		{
-			if(m_pt_header[i-3] == 'G' && m_pt_header[i-2] == 'A' && m_pt_header[i-1] == 'I')
-			{
-				t_map_name = _T("");
-				break;		
-			}
-		}
-	}
-
-	Map.Name = theApp.Recgames.GetMapName(map_id);
-	//pubb, 07-11-05, for 'custom' map, if read the map name out from rec, then set it.
-	if(map_id == 44 && !t_map_name.IsEmpty())
-		Map.Name = t_map_name;
-	
 	pos = trigger_pos;
 
 	
 	pos += 1;
 	
 	trigger_num = *((int*)&m_pt_header[pos]);
-	
+	//if there're 1 or more trigger, that'll be a scenario map.
+	if(trigger_num > 0){
+		Map.Name = _T("scenario");
+	}
+
 	pos += 4;
 
 	
@@ -819,81 +952,10 @@ void CRecgame::getGameData(void)
 	}
 	pos += (trigger_num * 4); 
 
-	/* pubb, 09-03-29, rewrite the team setting algorithm
-	 * player team can be 'not set'(0), random(1,2), or set (1,2,...,n)
-	 * the following loop will decide the status for all players' team set.
-	 */
-	int team1 = 0, team2 = 0;
-	for(j = 0; j < PlayerNum; j++)
-	{
-		switch(m_pt_header[pos+j] - 1)
-		{
-		case 1:
-		case 2:	
-			team1 = m_pt_header[pos+j] - 1;
-			break;
-		case 0:
-			continue;
-		default:
-			team2 = m_pt_header[pos+j] - 1;
-			break;
-		}
-		if(team1 != 0)
-			break;
-	}
-	/* pubb, 07-07-26, player_team as integer */
-	for(j = 0; j < 8; j++)
-	{
-		//pubb, 07-08-04, set Players.Team
-		//pubb, 09-01-04, skip null players
-		if(data_ref[j+1] == 0)
-			continue;
+	pos = SetPlayersTeam(pos);
 
-		//pubb, 09-01-04, '2 as 1' condition will also be invalid team, set it manually
-		if(data_ref[j+1] != j+1)
-			for(int k = 1; k < j+1; k++)
-				if(data_ref[j+1] == data_ref[k])	//bug fix by pubb, 09-03-07, use 'data_ref[k]' instead of 'k'
-				{
-					Players[j+1].Team = Players[k].Team;
-					goto next;
-				}
+	CopyCooperatingPlayerInfo();
 
-		//pubb, 07-10-31, if not set team (that's '-' in the game), then set it manually
-		//pubb, 09-01-04, buggy data (08-07-30-22:40), two in team 1, two in team '4'. Set it definitely to be team 1 and team 2
-		//pubb, 09-03-29, rewritten according to preset team1 and team2 variables
-		switch(m_pt_header[pos+j] - 1)
-		{
-		case 0:
-			if(team1 == 0)	//no one set team
-			{
-				Players[j+1].Team = 1;
-				team1 = 1;
-				team2 = 2;
-			}
-			else
-			{
-				Players[j+1].Team = 2;	//usually there're only 2 players in this condition
-			}
-			break;
-		default:
-			if(m_pt_header[pos+j] - 1 == team1)
-				Players[j+1].Team = 1;
-			else
-				Players[j+1].Team = 2;
-		}
-next:
-		;
-
-	/*
-		if(m_pt_header[pos+j] - 1 == 0){
-			player_team[j+1] = _T("-");
-		}
-		else{
-			player_team[j+1].Format(_T("%d"), m_pt_header[pos+j] - 1);
-		}
-	*/
-	}
-	
 	pos += 8;
 	pos += 19;
 
@@ -917,12 +979,6 @@ next:
 	}
 	//pubb, 07-08-02, no need now */
 	//AnalyzeChat(str_edit, ChatB4Game);
-
-	if(trigger_num > 0){
-		
-		Map.Name = _T("scenario");
-	}
-
 
 	/* body decoding
 	 * containing a serie of operations with meaningful type of 1, 2 or 4.
@@ -1295,6 +1351,10 @@ void	CRecgame::FillWinner(void)
 
 int		CRecgame::GetWinnerTeam(void)
 {
+	//pubb, 14-12-13, set manual winner team according to DB
+	if(ManualWinnerTeam >= 0)
+		return ManualWinnerTeam;
+
 	int i;
 	int	team_lose[9];	//team_lose[0] is 'no group'. most of time, it's two teams occupying slots no.1 and no. 2
 
@@ -1373,4 +1433,17 @@ void	CRecgame::SetResignFromChat(void)
 bool CRecgame::LoadChatInfo(class IPersistentInterface * engine)
 {
 	return engine->LoadChatInfo(*this);
+}
+
+bool CRecgame::IsPlayerInGame(CString name)
+{
+
+	INT_PTR index = theApp.Players.GetFirstSamePlayer(name);
+	if(index < 0)
+		return false;	//no name in player database
+
+	for(int i = 0; i <= MAX_PLAYERS_INGAME; i++)
+		if(!Players[i].Name.IsEmpty() && theApp.Players.GetFirstSamePlayer(Players[i].Name) == index)	//found
+			return true;
+	return false;
 }

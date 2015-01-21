@@ -174,7 +174,11 @@ void CPlayerDatabase::Add(CRecgame * rg)
 				player->MinImplTime = rg->Players[i].ImplTime;
 		}
 		if( (rg->Players[i].Civ > 0) && (rg->Players[i].Civ < 24) )
-			player->Civs[rg->Players[i].Civ]++;
+		{
+			player->Civs[rg->Players[i].Civ][0]++;
+			if(rg->IsWinner(i))
+				player->Civs[rg->Players[i].Civ][1]++;
+		}
 	
 #if 0
 		//DEBUG, pubb, 07-09-15, Civ == 255, strange. 2007-06-02 21'14 - old(1), 2007-07-26 21'25 - mXp(1), 2007-07-26 21'55 - pubb(1)
@@ -331,24 +335,24 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 			if(rg->Players[i].Team ==  winteam)
 			{
 				winner_count--;
-				R_winner = CGrouping::do_accumulate(R_winner, -tmp_rating);	//minus means deleting it from accumulation
+				R_winner = CGrouping::do_accumulate(R_winner, (float)-tmp_rating);	//minus means deleting it from accumulation
 			}
 			else
 			{
 				loser_count--;
-				R_loser = CGrouping::do_accumulate(R_loser, -tmp_rating);
+				R_loser = CGrouping::do_accumulate(R_loser, (float)-tmp_rating);
 			}
 		}
 
 		if(rg->Players[i].Team ==  winteam)
 		{
 			winner_count++;
-			R_winner = CGrouping::do_accumulate(R_winner, rating);
+			R_winner = CGrouping::do_accumulate(R_winner, (float)rating);
 		}
 		else
 		{
 			loser_count++;
-			R_loser = CGrouping::do_accumulate(R_loser, rating);
+			R_loser = CGrouping::do_accumulate(R_loser, (float)rating);
 		}
 	}
 	if(winner_count == 0 || loser_count == 0)
@@ -356,13 +360,13 @@ void	CPlayerDatabase::UpdateRatings(CRecgame * rg)
 
 	if(winner_count > loser_count)
 	{
-		R_winner = GetOddMoreRating(CGrouping::do_average(R_winner, winner_count) , winner_count, loser_count);
+		R_winner = (float)GetOddMoreRating((int)CGrouping::do_average(R_winner, winner_count) , winner_count, loser_count);
 		R_loser = CGrouping::do_average(R_loser, loser_count);
 	}
 	else if(winner_count < loser_count)
 	{
-		R_winner = CGrouping::do_average(R_winner, winner_count);
-		R_loser = GetOddMoreRating(CGrouping::do_average(R_loser, loser_count), loser_count, winner_count);
+		R_winner = (float)CGrouping::do_average(R_winner, winner_count);
+		R_loser = (float)GetOddMoreRating((int)CGrouping::do_average(R_loser, loser_count), loser_count, winner_count);
 	}
 	else
 	{

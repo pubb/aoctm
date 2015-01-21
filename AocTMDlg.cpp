@@ -22,7 +22,7 @@
 
 // CAboutDlg dialog used for App About
 
-#define	AOCTM_VERSION	(_T("1.0beta"))
+#define	AOCTM_VERSION	(_T("1.1beta"))
 #define AOCTM_BUILD	__AOCTM_BUILD()
 inline CString __AOCTM_BUILD(void)
 {
@@ -118,6 +118,10 @@ BEGIN_MESSAGE_MAP(CAocTMDlg, CDialog)
 	ON_COMMAND(ID_ACCELERATOR_LOAD, (AFX_PMSG)&CAocTMDlg::OnAcceleratorLoad)
 	ON_NOTIFY(NM_DBLCLK, IDC_REC_LIST, &CAocTMDlg::OnNMDblclkRecList)
 	ON_BN_CLICKED(IDC_SUMMARY, &CAocTMDlg::OnBnClickedSummary)
+	ON_NOTIFY(NM_RCLICK, IDC_REC_LIST, &CAocTMDlg::OnNMRClickRecList)
+	ON_COMMAND_RANGE(ID_SETWINNER_0, ID_SETWINNER_CLEAR, &CAocTMDlg::OnSetWinner)
+	ON_COMMAND(ID__GROUPTHIS, &CAocTMDlg::GroupThis)
+	ON_COMMAND(ID__REGROUPTHIS, &CAocTMDlg::OnRegroupThis)
 END_MESSAGE_MAP()
 
 
@@ -408,7 +412,31 @@ void CAocTMDlg::OnFee(void)
 void CAocTMDlg::Refresh(void)
 {
 	CString str;
-	str.Format(_T("%3d games (%s to %s)"), theApp.Recgames.GetCount(), theApp.Recgames.GetFirstGameTime().Format(_T("%Y-%m-%d %H:%M:%S")), theApp.Recgames.GetLatestGameTime().Format(_T("%Y-%m-%d %H:%M:%S")));
+
+	//pubb, 14-12-13, to save selected iteam position, in order to restore display
+	POSITION pos, saved_selected_pos;
+	pos = saved_selected_pos = m_List.GetFirstSelectedItemPosition();
+	int selected_recid;
+	if(saved_selected_pos)
+		selected_recid = m_List.GetItemData(m_List.GetNextSelectedItem(pos));
+
+	//pubb, 14-12-11, bugfix for empty database situation.
+	if(theApp.Recgames.IsEmpty())
+	{
+		str.Format(_T("Empty database."));
+		SetDlgItemText(IDC_TITLE, str);
+		m_List.DeleteAllItems();
+		m_List.UpdateWindow();
+		return;
+	}
+
+	INT_PTR id1 = theApp.Recgames.GetFirstGameID(), id2 = theApp.Recgames.GetLastGameID();
+	if(id1 < 0 || id2 < 0)
+	{
+		AfxMessageBox(_T("Database Error!"));
+		return;
+	}
+	str.Format(_T("%3d games (%s to %s)"), theApp.Recgames.GetCount(), theApp.Recgames[id1]->RecordTime.Format(_T("%Y-%m-%d %H:%M:%S")), theApp.Recgames[id2]->RecordTime.Format(_T("%Y-%m-%d %H:%M:%S")));
 	SetDlgItemText(IDC_TITLE, str);
 
 	m_List.SetRedraw(false);
@@ -452,6 +480,13 @@ void CAocTMDlg::Refresh(void)
 			{
 				team_position = 8 + lose_index++;
 			}
+			//14-12-08, pubb, bugfix for strange team condition when more than 4 players in one team
+			if( win_index > 4 || lose_index > 4)
+			{
+				str.Format(_T("Recgame %s, More than 4 players in one team, r u sure?\n Ignore it now!"), rec->RecordTime.Format(_T("%y-%m-%d %H:%M:%S")));
+				AfxMessageBox(str);
+				continue;
+			}
 			m_List.SetItemText(j, team_position, str);
 #ifdef	XLISTCTRL_OLD
 			//m_List.SetItemTextColor(j, team_position, player_color[k]);
@@ -462,6 +497,21 @@ void CAocTMDlg::Refresh(void)
 		}
 		//save recgame index in DB
 		m_List.SetItemData(j++, i);
+	}
+
+	//pubb, 14-12-13, ensure the selected rec be selected after refresh if existed in current view.
+	if(saved_selected_pos)
+	{
+		int i;
+		for(i = 0; i < m_List.GetItemCount(); i++)
+		{
+			if(m_List.GetItemData(i) == selected_recid)
+			{
+				m_List.SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
+				m_List.EnsureVisible(i, true);
+				break;
+			}
+		}
 	}
 	m_List.SetRedraw();
 	m_List.UpdateWindow();
@@ -561,8 +611,9 @@ bool CAocTMDlg::LoadRecFile(bool aofe)
 
 	bool loadnew = false;
 	CFileFind finder;
-	CTime DBLatestGameTime = theApp.Recgames.GetLatestGameTime();
-	BOOL bWorking = finder.FindFile(aofe?_T("*.mgz"):_T("*.mgx"));
+	INT_PTR id = theApp.Recgames.GetLastGameID();
+	CTime DBLatestGameTime = theApp.Recgames[id]->RecordTime;
+	BOOL bWorking = finder.FindFile(_T("*.mg?"));
 	while(bWorking)
 	{
 		bWorking = finder.FindNextFile();
@@ -571,7 +622,7 @@ bool CAocTMDlg::LoadRecFile(bool aofe)
 		//07-10-11, pubb, to speedup, analyze the filename before process
 		{
 			CString file = finder.GetFileName();
-			if((aofe?Renamer::ParseAOFE(file):Renamer::Parse(file)) <= DBLatestGameTime)
+			if((Renamer::Parse2Playtime(file)) <= DBLatestGameTime)
 				continue;
 		}
 		
@@ -606,7 +657,12 @@ bool CAocTMDlg::LoadRecFile(bool aofe)
 
 bool CAocTMDlg::OnAcceleratorLoad()
 {
-	bool loadnew = LoadRecFile(false) || LoadRecFile(true);
+	//pubb, 14-10-07, bugfix for stopping after loading aoe. '||' problem of C language implementation.
+	bool loadnew = false;
+	if(LoadRecFile(false))
+		loadnew = true;
+	if(LoadRecFile(true))
+		loadnew = true;
 
 	if(loadnew)
 	{
@@ -673,4 +729,107 @@ void CAocTMDlg::OnBnClickedSummary()
 	ShowReport(&players);;
 	
 	players.Free();
+}
+
+//pubb, 14-12-13, add right click handler to set winner manually.
+void CAocTMDlg::OnNMRClickRecList(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	POSITION pos = m_List.GetFirstSelectedItemPosition();
+	if(!pos)
+		return;
+
+	CMenu menu, *pSubMenu;
+	if (!menu.LoadMenu(IDR_RECPOPMENU))
+		return;
+	if (!(pSubMenu = menu.GetSubMenu(0)))
+		return;
+	CPoint point;
+	GetCursorPos(&point);
+	SetForegroundWindow();  
+
+	::TrackPopupMenu(pSubMenu->m_hMenu, 0, point.x, point.y, 0, 
+					 GetSafeHwnd(), NULL);
+	PostMessage(WM_NULL, 0, 0);
+	menu.DestroyMenu();
+
+	*pResult = 0;
+}
+
+void CAocTMDlg::OnSetWinner(UINT command)
+{
+	int team;
+	POSITION pos = m_List.GetFirstSelectedItemPosition();
+	switch(command)
+	{
+	case ID_SETWINNER_0:
+		team = 0;
+		break;
+	case ID_SETWINNER_1:
+		team = 1;
+		break;
+	case ID_SETWINNER_2:
+		team = 2;
+		break;
+	case ID_SETWINNER_CLEAR:
+		team = -1;
+		break;
+	default:
+		//probably unable to run here
+		team = theApp.Recgames[m_List.GetItemData(m_List.GetNextSelectedItem(pos))]->GetWinnerTeam();
+	}
+	pos = m_List.GetFirstSelectedItemPosition();
+	while(pos)
+	{
+		theApp.Recgames[m_List.GetItemData(m_List.GetNextSelectedItem(pos))]->ManualWinnerTeam = team;
+	}
+	Refresh();
+}
+
+//pubb, 14-12-13, call grouping according to players in one played game.
+void CAocTMDlg::GroupThis()
+{
+	POSITION pos = m_List.GetFirstSelectedItemPosition();
+	if(!pos)
+		return;
+	CRecgame * rec = theApp.Recgames[m_List.GetItemData(m_List.GetNextSelectedItem(pos))];
+	if(!rec)
+		return;
+	int index;
+	theApp.ClearCurrentPlayers();
+	for(int i = 0, j = 0; i < rec->Players.GetCount(); i++)
+	{
+		index = theApp.Players.GetFirstSamePlayer(rec->Players[i].Name);
+		if(index < 0)
+			continue;
+		theApp.CurrentPlayers[j++] = index;
+	}
+
+	theApp.bCurrent = true;
+	OnGrouping();
+}
+
+//pubb, 14-12-13, call grouping to see what's the best grouping for a played game.
+void CAocTMDlg::OnRegroupThis()
+{
+	POSITION pos = m_List.GetFirstSelectedItemPosition();
+	if(!pos)
+		return;
+	CRecgame * rec = theApp.Recgames[m_List.GetItemData(m_List.GetNextSelectedItem(pos))];
+	if(!rec)
+		return;
+	int index;
+	theApp.ClearCurrentPlayers();
+	for(int i = 0, j = 0; i < rec->Players.GetCount(); i++)
+	{
+		index = theApp.Players.GetFirstSamePlayer(rec->Players[i].Name);
+		if(index < 0)
+			continue;
+		theApp.CurrentPlayers[j++] = index;
+	}
+
+	theApp.bCurrent = true;
+
+	theApp.Players.Update(false, CTime(0), rec->RecordTime - CTimeSpan(0, 0, 5, 0));
+	OnGrouping();
+	theApp.Players.Update();
 }

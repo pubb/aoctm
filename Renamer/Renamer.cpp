@@ -57,8 +57,10 @@ Renamer::Parse()
 */
 
 /* pubb, 07-08-11, Parse(), almost rewrite */
-CTime	Renamer::Parse(CString file)
+/* pubb, 14-06-29. Parse() to recognize all file format as I konw */
+CTime	Renamer::Parse2Playtime(CString file)
 {
+	enum { MGX, MGZ, UNKNOWN } filetype=UNKNOWN;
 	int index;
 	//trim path
 	index = file.ReverseFind('\\');
@@ -66,7 +68,17 @@ CTime	Renamer::Parse(CString file)
 
 	//检查文件扩展名
 	int len = file.GetLength();
-	if( file.Mid(len - 3, 3).Compare(_T("mgx")) != 0 )
+	//.mgx (1.0c) or .mgz (1.4 userpatch or aofe)
+	CString ext = file.Mid(len - 3, 3);
+	if (ext.Compare(_T("mgx")) == 0)
+	{
+		filetype = MGX;
+	}
+	if (ext.Compare(_T("mgz")) == 0)
+	{
+		filetype = MGZ;
+	}
+	if (filetype == UNKNOWN)
 	{
 		return CTime(0);
 	}
@@ -79,74 +91,63 @@ CTime	Renamer::Parse(CString file)
 	index = file.FindOneOf(_T("0123456789"));
 	file = file.Mid(index);
 
-	CString token;
-	int curPos= 0;
+	int year, month, day, hour, minute, second;
 
-	//得到时间字符串
-	//pubb, 07-11-24, add '_' for token seperator
-	token = file.Tokenize(_T("_-` "), curPos);
-	int result[6];
-	int j = 0;
-
-	//pubb, 09-02-07, bug fix for j exceeding limit
-	while( token != "" && j < 6 )
+	//mgx
+	if( filetype == MGX )
 	{
-		result[j] = _ttoi((LPCTSTR)token);
+		CString token;
+		int curPos= 0;
 
-		if( result[j] == 0 )
+		//得到时间字符串
+		//pubb, 07-11-24, add '_' for token seperator
+		token = file.Tokenize(_T("_-` "), curPos);
+		int result[6];
+		int j = 0;
+
+		//pubb, 09-02-07, bug fix for j exceeding limit
+		while( token != "" && j < 6 )
 		{
-			//转换失败，可能是中文或者英文的月份
-			result[j] = ToMonth(token);
+			result[j] = _ttoi((LPCTSTR)token);
+
+			if( result[j] == 0 )
+			{
+				//转换失败，可能是中文或者英文的月份
+				result[j] = ToMonth(token);
+			}
+
+			token = file.Tokenize(_T("-` "), curPos);
+
+			j++;
 		}
 
-		token = file.Tokenize(_T("-` "), curPos);
-
-		j++;
-	}
-
-	int year, day;
-	if(result[0] > 31)	// //altered NormalName : 'recorded game YYYY-MM-DD hh`mm`ss'
+		int year, day;
+		if(result[0] > 31)	// //altered NormalName : 'recorded game YYYY-MM-DD hh`mm`ss'
+		{
+			year = result[0];
+			day = result[2];
+		}
+		else	//orignial name : 'recorded game MM-DD-YYYY
+		{
+			year = result[2];
+			day = result[0];
+		}
+		//pubb, 07-10-23, don't do that any more.
+		/* XXX, SET year to be 2007 in case that the machine time is not correct in many places */
+		//year = 2007;
+		month = result[1];
+		hour = result[3];
+		minute = result[4];
+		second = result[5];
+	} else	//mgz
 	{
-		year = result[0];
-		day = result[2];
+		year = _ttoi((LPCTSTR)(file.Left(4)));
+		month = _ttoi((LPCTSTR)(file.Mid(4,2)));
+		day = _ttoi((LPCTSTR)(file.Mid(6,2)));
+		hour = _ttoi((LPCTSTR)(file.Mid(9,2)));
+		minute = _ttoi((LPCTSTR)(file.Mid(11,2)));
+		second = _ttoi((LPCTSTR)(file.Mid(13,2)));
 	}
-	else	//orignial name : 'recorded game MM-DD-YYYY
-	{
-		year = result[2];
-		day = result[0];
-	}
-	//pubb, 07-10-23, don't do that any more.
-	/* XXX, SET year to be 2007 in case that the machine time is not correct in many places */
-	//year = 2007;
-
-	if(result[1] < 1 || result[1] > 12 || day < 1 || day > 31 || result[3] < 0 || result[3] > 24 || result[4] < 0 || result[4] > 60 || result[5] < 0 || result[5] > 60)
-		return CTime(0);
-
-	return CTime(year /* YEAR */, result[1] /* MONTH */, day /* DAY */, result[3] /* HOUR */, result[4] /* MINUTE */, result[5] /* SECOND */);
-}
-
-/* pubb, 14-02-14, for aofe */
-CTime	Renamer::ParseAOFE(CString file)
-{
-	int index;
-	//trim path
-	index = file.ReverseFind('\\');
-	file = file.Mid(index + 1);
-
-	//检查文件扩展名
-	int len = file.GetLength();
-	if( file.Mid(len - 3, 3).Compare(_T("mgz")) != 0 )
-	{
-		return CTime(0);
-	}
-
-	int year, month, day, hour, minute, second;
-	year = _ttoi((LPCTSTR)(file.Left(4)));
-	month = _ttoi((LPCTSTR)(file.Mid(4,2)));
-	day = _ttoi((LPCTSTR)(file.Mid(6,2)));
-	hour = _ttoi((LPCTSTR)(file.Mid(9,2)));
-	minute = _ttoi((LPCTSTR)(file.Mid(11,2)));
-	second = _ttoi((LPCTSTR)(file.Mid(13,2)));
 
 	if(month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 24 || minute < 0 || minute > 60 || second < 0 || second > 60)
 		return CTime(0);

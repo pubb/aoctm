@@ -32,3 +32,29 @@
 07-10-11
     增加F5快捷键，自动加载系统缺省游戏录像目录中的录像文件。
     简化了Renamer类，并将其中的主要功能做成static函数，便于调用。
+    
+......
+
+14-08-01
+		bug fix for restored game interpreting.
+		About dlg updated.
+
+		bug fix for minus number sorting in reportdlg.
+
+14-09-24
+		enhanced with win-percentage divided by Civs for each player in ShowUsedCivs PIE graph.
+	
+14-09-27
+		bug fix for Win7 gameload (press F5), the RegOpenKeyEx should run with KEY_READ instead of KEY_ALL_ACCESS.
+		
+14-09-28
+		enhanced with more accurate RatingCurves in Timespan, from the selected players' FirstGame to selected players' LastGame instead of from/to ALL players.
+		
+14-10-09
+		bug fix for team resolvation. rearrange the huge getGameData() in a certain.
+		
+14-12-14
+		updated to v1.1beta (from v1.0beta longlongtime ago).
+		bugfix for team decision algorithm for restored games and 2in1 games.
+		bugfix for grouping program.
+		add popup menu for recgames list to enable some interesting functions.

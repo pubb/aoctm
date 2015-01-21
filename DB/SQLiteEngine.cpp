@@ -942,8 +942,8 @@ SQLitePersisten::SaveRecGame(/*in*/ CRecgame& recGame)
 	const char* unused = 0;
 
 	const TCHAR* insertStr = _T("insert into t_RecGame ")
-		_T("(filename, recordtime, playtime, playernum, viewerid, mapname, size, hardlevel, victory, fulltechtree)")
-		_T(" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		_T("(filename, recordtime, playtime, playernum, viewerid, mapname, size, hardlevel, victory, fulltechtree, winner)")
+		_T(" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 	int ret = SQLITE3_PREPARE(m_DB, insertStr, stmt, unused);
 
@@ -970,6 +970,7 @@ SQLitePersisten::SaveRecGame(/*in*/ CRecgame& recGame)
 	sqlite3_bind_int(stmt, 8, recGame.Map.HardLevel);
 	sqlite3_bind_int(stmt, 9, recGame.Map.Victory);
 	sqlite3_bind_int(stmt, 10, recGame.Map.FullTechTree);
+	sqlite3_bind_int(stmt, 11, recGame.ManualWinnerTeam);
 
 	if(sqlite3_step(stmt) != SQLITE_DONE)
 	{
@@ -1154,7 +1155,7 @@ SQLitePersisten::LoadRecGame(/*in out*/ CRecgame& recGame)
 		return false;
 
 	const TCHAR* queryStr = _T("select filename, recordtime, playtime, playernum, viewerid, mapname, size, ")
-		_T(" hardlevel, victory, fulltechtree")
+		_T(" hardlevel, victory, fulltechtree, winner")
 		_T(" from t_RecGame where recgame_id = ?");
 
 	int ret = SQLITE3_PREPARE(m_DB, queryStr, stmt, unused);	
@@ -1179,6 +1180,7 @@ SQLitePersisten::LoadRecGame(/*in out*/ CRecgame& recGame)
 		recGame.Map.HardLevel = sqlite3_column_int(stmt, 7);
 		recGame.Map.Victory = sqlite3_column_int(stmt, 8);
 		recGame.Map.FullTechTree = sqlite3_column_int(stmt, 9);
+		recGame.ManualWinnerTeam = sqlite3_column_int(stmt, 10);
 
 		sqlite3_finalize(stmt);
 	}

@@ -114,16 +114,16 @@ BOOL Statdlg::OnInitDialog()
 		int index = 0;
 		for(int j = 0;j < CIVS;j++)
 		{
-			if( mostciv < m_pPlayerDB->GetAt(i)->Civs[j])
+			if( mostciv < m_pPlayerDB->GetAt(i)->Civs[j][0])
 			{
-				mostciv = m_pPlayerDB->GetAt(i)->Civs[j];
+				mostciv = m_pPlayerDB->GetAt(i)->Civs[j][0];
 				index = j;
 			}
 		}
 
 		if( (index > 0) && (index < CIVS) )
 		{
-			str.Format(_T("%9s/%.f%%"), civ_name[index], 100*(float)m_pPlayerDB->GetAt(i)->Civs[index]/(float)m_pPlayerDB->GetAt(i)->PlayCount);
+			str.Format(_T("%9s/%.f%%"), civ_name[index], 100*(float)m_pPlayerDB->GetAt(i)->Civs[index][0]/(float)m_pPlayerDB->GetAt(i)->PlayCount);
 			m_List.SetItemText(nItem, 1, str);
 		}
 		else

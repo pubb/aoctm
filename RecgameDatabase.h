@@ -38,8 +38,9 @@ public:
 	void	SetDirty(bool dirty = true);
 
 	CString	GetMapName(int id);		//called in recgame initialization, from map_id to map_name
-	CTime	GetFirstGameTime(void);
-	CTime	GetLatestGameTime(void);
+	//pubb,14-09-28, use ID instead of CTime to simplify the algorithm, aiming to beautify RatingCurve with more accurate timespan
+	INT_PTR	GetFirstGameID(CString name = NULL);
+	INT_PTR	GetLastGameID(CString name = NULL);
 	INT_PTR	GetFirstSameRecgame(CRecgame * rg);
 
 	CString	GetRecPath(void);

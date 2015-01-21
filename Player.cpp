@@ -53,6 +53,7 @@ void CPlayer::Initialize(void)
 
 	for(int i = 0; i < CIVS;i++)
 	{
-		Civs[i] = 0;
+		Civs[i][0] = 0;
+		Civs[i][1] = 0;
 	}
 }

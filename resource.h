@@ -22,6 +22,7 @@
 #define IDD_CONFIG_PLAYER               143
 #define IDR_ACCELERATOR1                145
 #define IDD_GAMEINFO                    146
+#define IDR_RECPOPMENU                  148
 #define IDC_ReportList                  1000
 #define IDC_PLAYERS                     1002
 #define IDC_SELECTED                    1003
@@ -106,13 +107,20 @@
 #define ID_CONFIG_CHARGE                32793
 #define ID_CONFIG_PLAYERINITIALIZE      32794
 #define ID_ACCELERATOR_LOAD             32795
+#define ID__SETWINNER                   32797
+#define ID_SETWINNER_0                  32798
+#define ID_SETWINNER_1                  32799
+#define ID_SETWINNER_2                  32800
+#define ID_SETWINNER_CLEAR              32801
+#define ID__GROUPTHIS                   32802
+#define ID__REGROUPTHIS                 32803
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        148
-#define _APS_NEXT_COMMAND_VALUE         32797
+#define _APS_NEXT_RESOURCE_VALUE        149
+#define _APS_NEXT_COMMAND_VALUE         32804
 #define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
