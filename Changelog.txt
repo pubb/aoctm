@@ -58,3 +58,6 @@
 		bugfix for team decision algorithm for restored games and 2in1 games.
 		bugfix for grouping program.
 		add popup menu for recgames list to enable some interesting functions.
+		
+05-05-30
+		a few improvements in Grouping Dlg.

@@ -160,7 +160,18 @@ void CGroupingDlg::OnBnClickedReset()
 
 void CGroupingDlg::OnBnClickedInput()
 {
-	CPlayerInputDlg	dlg;
+	//15-05-30, pubb, set the initial value for the input dialog.
+	CString name = _T("");
+	UINT rating = DEF_RATING;
+	POSITION pos = m_Selected.GetFirstSelectedItemPosition();
+	if (pos != NULL)
+	{
+		INT_PTR i = m_Selected.GetNextSelectedItem(pos);
+		name = m_Selected.GetItemText(i, 0);
+		rating = _ttoi(m_Selected.GetItemText(i, 1));
+	}
+
+	CPlayerInputDlg	dlg(name, rating);
 	if(dlg.DoModal() == IDOK)
 	{
 		INT_PTR index = theApp.Players.GetFirstSamePlayer(dlg.m_Name);
@@ -253,6 +264,8 @@ void CGroupingDlg::Refresh(void)
 			index = theApp.CurrentPlayers[i];
 			InsertSelected(theApp.Players[index]->NickNames[0], theApp.Players[index]->Rating, index);
 		}
+		//15-05-30, pubb, do grouping automatically.
+		OnBnClickedOk();
 	}
 
 	//09-03-12, pubb, add for bug fix

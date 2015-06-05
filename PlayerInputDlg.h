@@ -8,7 +8,7 @@ class CPlayerInputDlg : public CDialog
 	DECLARE_DYNAMIC(CPlayerInputDlg)
 
 public:
-	CPlayerInputDlg(CWnd* pParent = NULL);   // standard constructor
+	CPlayerInputDlg(CString name = _T(""), UINT rating = INIT_RATING, CWnd* pParent = NULL);   // standard constructor
 	virtual ~CPlayerInputDlg();
 
 // Dialog Data

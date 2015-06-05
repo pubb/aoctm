@@ -10,10 +10,10 @@
 
 IMPLEMENT_DYNAMIC(CPlayerInputDlg, CDialog)
 
-CPlayerInputDlg::CPlayerInputDlg(CWnd* pParent /*=NULL*/)
+CPlayerInputDlg::CPlayerInputDlg(CString name /* =_T("") */, UINT rating /* =INIT_RATING */, CWnd* pParent /*=NULL*/)
 	: CDialog(CPlayerInputDlg::IDD, pParent)
-	, m_iRating(0)
-	, m_Name(_T(""))
+	, m_iRating(rating)
+	, m_Name(name)
 {
 
 }
@@ -42,8 +42,9 @@ BOOL CPlayerInputDlg::OnInitDialog(void)
 {
 	CDialog::OnInitDialog();
 
-	//fred 
-	m_iRating=INIT_RATING;
+	//fred
+	//15-05-30, set initial rating to be the selected one's when constructed.
+	//m_iRating = INIT_RATING;
 
 	CSpinButtonCtrl *pSpinCtrl=(CSpinButtonCtrl*)GetDlgItem(IDC_SPINRATING);
 	pSpinCtrl->SetRange32(MIN_RATING,MAX_RATING);
