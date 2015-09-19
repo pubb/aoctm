@@ -140,7 +140,7 @@ private:
 	unsigned long m_body_len;
 	unsigned long m_header_len;
 
-	void getGameData(void);
+	bool getGameData(void);
 	//pubb, 07-08-02, no use
 	/*
 	void getBody(unsigned char ** pt_body, unsigned int* length);
@@ -164,11 +164,13 @@ private:
 	/* pubb, 07-08-02, construct CTime object */
 	CTimeSpan	Timecnt2CTimeSpan(int timecnt);
 	
-	int	SetPlayersName(int pos);
-	int	SetPlayersCivColor(int pos, int end_pos);
+	//15-09-18, pubb, change the following two functions' return value type to 'bool' to handle error.
+	bool	SetPlayersName(int pos);
+	bool	SetPlayersCivColor(int pos, int end_pos);
 	int SetPlayersTeam(int pos);
 	void	CopyCooperatingPlayerInfo(void);
 	CString	GetMapName(void);
+	bool	GetPlayerDataPos(int & trigger_pos, int & player_data_pos, unsigned long tail);
 };			
 
 #else

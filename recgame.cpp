@@ -210,9 +210,7 @@ bool CRecgame::Read(CString file)
 		bSpecialRecordTime = true;
 	}
 
-	getGameData();
-
-	Loaded = true;
+	Loaded = getGameData();
 
 	ClearMem();
 
@@ -397,7 +395,7 @@ void CRecgame::getBody(unsigned char **pt_body, unsigned int *length)
  * For a '2in1' case, the controlling players will point to a single index in the play_index array.
  */
 
-int	CRecgame::SetPlayersName(int pos)
+bool	CRecgame::SetPlayersName(int pos)
 {
 	int i;
 	int player_name_len;
@@ -405,10 +403,13 @@ int	CRecgame::SetPlayersName(int pos)
 
 	for(i = 0; i <= MAX_PLAYERS_INGAME; i++){
 		player_index[i] = *((int*)&m_pt_header[pos]);
-		
+		if(player_index[i] > MAX_PLAYERS_INGAME) return false;
+
 		pos += 8;
 		
 		player_name_len = *(int*)(&m_pt_header[pos]);
+		if(player_name_len <= 0)	return false;
+
 		pos += 4;
 
 		//XXX, pubb, 07-10-31, this code segment should be considered specially for '2 v 1' condition
@@ -426,13 +427,13 @@ int	CRecgame::SetPlayersName(int pos)
 		}
 		pos += player_name_len;
 	}
-	return pos;
+	return true;
 }
 
 /* Fill players' Civ and Color.
  * The players' civ and color are stored in the order of game lobby order when the game begins whether it is a restored game or not.
  */
-int CRecgame::SetPlayersCivColor(int pos, int end_pos)
+bool CRecgame::SetPlayersCivColor(int pos, int end_pos)
 {
 	int civ, color;
 	int player_name_len, str_len, length;
@@ -492,7 +493,7 @@ int CRecgame::SetPlayersCivColor(int pos, int end_pos)
 			}
 		}
 	}
-	return pos;
+	return true;
 }
 
 /* pubb, 09-03-29, rewrite the team setting algorithm
@@ -579,7 +580,7 @@ int	CRecgame::SetPlayersTeam(int pos)
 		//pubb, 09-01-04, '2 as 1' condition will also be invalid team, set it manually
 		//pubb, 14-10-07, bugfix move this code segment after team decision
 	}
-	return pos;
+	return true;
 }
 
 void	CRecgame::CopyCooperatingPlayerInfo(void)
@@ -667,8 +668,29 @@ CString	CRecgame::GetMapName(void)
 	return (map_buff[0] == NULL ? Map.Name : CString(map_buff));
 }
 
+bool	CRecgame::GetPlayerDataPos(int & trigger_pos, int & player_data_pos, unsigned long tail)
+{
+	int i;
+	//XXX, little endian
+	const INT64 MAGIC1 = 0x3FF999999999999A;
+	const INT32 MAGIC2 = 0xFFFFFF9D;
+	const unsigned long MAX_INDEX = 18000;
+
+	for(i = tail; i > MAX_INDEX; i--)
+	{
+		if(*(INT64 *)(m_pt_header + i) == MAGIC1 && trigger_pos == 0)
+			trigger_pos = i + 8;
+		if(*(INT32 *)(m_pt_header + i) == MAGIC2 && trigger_pos != 0)
+		{
+			player_data_pos = i;
+			return true;
+		}
+	}
+	return false;
+}
+
 //pubb, 14-10-09, rearrange players' name/civ/color/team and mapname code to seperated functions as above.
-void CRecgame::getGameData(void)
+bool CRecgame::getGameData(void)
 {
 	char gaia[15]       = "GAIA";
 
@@ -733,48 +755,35 @@ void CRecgame::getGameData(void)
 	*/
 
 	if(m_header_len == 0){
-		return ;
+		return false;
 	}
 	
-	for(i = m_header_len; i > 18000; i--){
+	//pubb, 15-09-19, magic words searching changed to be a function, enabling loop search in case that the magic words appear for multiple times.
+	player_data_pos = m_header_len + 1;
+	do
+	{
+		if(!GetPlayerDataPos(trigger_pos, player_data_pos, player_data_pos - 1)) return false; 
 		
-		if(m_pt_header[i-7] == 0x9A && m_pt_header[i-6] == 0x99 &&
-		   m_pt_header[i-5] == 0x99 && m_pt_header[i-4] == 0x99 &&
-		   m_pt_header[i-3] == 0x99 && m_pt_header[i-2] == 0x99 &&
-		   m_pt_header[i-1] == 0xF9 && m_pt_header[i]   == 0x3F){
-			if(trigger_pos == 0){
-				trigger_pos = i + 1;
-			}
-		}
+		pos = player_data_pos;
+	
+		pos += 12;
+	
+		//pubb, 07-11-05, for 'custom' map, if read the map name out from rec, then set it.
+		//set mapname, standard or 'custom' for map_id = 44
+		map_id = *((int*)&m_pt_header[pos]);
+		Map.Name = (map_id == 44 ? GetMapName() : theApp.Recgames.GetMapName(map_id));
+	} while(Map.Name.IsEmpty());
 		
-		if(m_pt_header[i-3] == 0x9D && m_pt_header[i-2] == 0xFF &&
-		   m_pt_header[i-1] == 0xFF && m_pt_header[i]   == 0xFF){
-			if(trigger_pos != 0){
-				player_data_pos = i - 3;
-				break;
-			}
-		}
-	}
-	
-	pos = player_data_pos;
-	
-	pos += 12;
-	
-	//pubb, 07-11-05, for 'custom' map, if read the map name out from rec, then set it.
-	//set mapname, standard or 'custom' for map_id = 44
-	map_id = *((int*)&m_pt_header[pos]);
-	Map.Name = (map_id == 44 ? GetMapName() : theApp.Recgames.GetMapName(map_id));
-
 	pos += 4;
 	pos += 8;
 	
-	SetPlayersName(pos);		//ignore return value of increased pos
+	//15-09-18, pubb, check the return value (bool). there're buggy records in some occasion.
+	if(!SetPlayersName(pos)) return false;	
 
 	pos = 0x0C;
 	
 	include_ai = *((int*)&m_pt_header[pos]);
 	pos += 4;
-
 	
 	if(include_ai == 1){
 		pos = 0x12;
@@ -897,7 +906,8 @@ void CRecgame::getGameData(void)
 	}
 	*/
 
-	SetPlayersCivColor(pos, trigger_pos);	//ignore return value of increased pos
+	//15-09-18, pubb, check the return value (bool)
+	if(!SetPlayersCivColor(pos, trigger_pos)) return false;
 
 	pos = trigger_pos;
 
@@ -1271,7 +1281,7 @@ void CRecgame::getGameData(void)
 
 	/* pubb, 07-07-31, FillWinner() by default */
 	FillWinner();
-
+	return true;
 }
 
 /* pubb, 07-08-02, no need now */
