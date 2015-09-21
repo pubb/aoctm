@@ -504,7 +504,7 @@ bool CRecgame::SetPlayersCivColor(int pos, int end_pos)
 /* pubb, 14-12-11, bugfix for '2in1' condition since 14-10-08 patch.
  * pubb, 14-10-08, bugfix for restored game situation. bug example: 20141001-22:51:22, famin exchanged with web.
  */
-int	CRecgame::SetPlayersTeam(int pos)
+bool	CRecgame::SetPlayersTeam(int pos)
 {
 	int j;
 	int team = 0, team1 = 0, team2 = 0, index = 0;
@@ -962,7 +962,7 @@ bool CRecgame::getGameData(void)
 	}
 	pos += (trigger_num * 4); 
 
-	pos = SetPlayersTeam(pos);
+	if(!SetPlayersTeam(pos)) return false;
 
 	CopyCooperatingPlayerInfo();
 

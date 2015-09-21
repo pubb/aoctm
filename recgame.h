@@ -164,10 +164,10 @@ private:
 	/* pubb, 07-08-02, construct CTime object */
 	CTimeSpan	Timecnt2CTimeSpan(int timecnt);
 	
-	//15-09-18, pubb, change the following two functions' return value type to 'bool' to handle error.
+	//15-09-18, pubb, change the following 3 functions' return value type to 'bool' to handle error.
 	bool	SetPlayersName(int pos);
 	bool	SetPlayersCivColor(int pos, int end_pos);
-	int SetPlayersTeam(int pos);
+	bool	SetPlayersTeam(int pos);
 	void	CopyCooperatingPlayerInfo(void);
 	CString	GetMapName(void);
 	bool	GetPlayerDataPos(int & trigger_pos, int & player_data_pos, unsigned long tail);
