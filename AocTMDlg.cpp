@@ -245,7 +245,7 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 	int	count =	DragQueryFile(hDropInfo,0xffffffff,NULL,0);
 
 	TCHAR	strPath[4096];
-	bool loadnew = false;
+	int	loadcount = 0, loadnew = 0;
 	CRecgame *rg;
 	CProgressWnd	wndProgress;
 
@@ -288,13 +288,13 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 		}
 
 		players.Add(rg);
+		loadcount++;
 
 		if(theApp.Recgames.Add(rg))
 		{
 			//pubb, 07-09-18, for temporary storage for one drag&drop
 			recgames.Add(rg);
-			if(!loadnew)
-				loadnew = true;
+			loadnew++;
 		}
 		else
 		{
@@ -309,15 +309,25 @@ void CAocTMDlg::OnDropFiles(HDROP hDropInfo)
 
 	wndProgress.Hide();
 
-	if(loadnew)
+	if(loadnew > 0)
 		theApp.Players.Update(true);
 
-	players.CopyNickNames();
-	ShowReport(&players);;
-	Refresh();
+	//pubb, 15-09-21, if load none, show mesg here instead of in CReportDlg::OnInitDialog()
+	if(loadcount < count)
+	{
+		CString str;
+		str.Format(_T("%d(new: %d) of %d Game(s) Loaded."), loadcount, loadnew, count);
+		AfxMessageBox(str);
+	}
 
-	players.Free();
-
+	if(loadcount > 0)
+	{
+		players.CopyNickNames();
+		ShowReport(&players);;
+		Refresh();
+		players.Free();
+	}
+	
 	CDialog::OnDropFiles(hDropInfo);
 }
 
@@ -382,13 +392,11 @@ void CAocTMDlg::ShowReport(CPlayerDatabase * players)
 
 void CAocTMDlg::OnViewHistory()
 {
-	// TODO: Add your command handler code here
 	ShowReport(&theApp.Players);
 }
 
 void CAocTMDlg::OnStatistic()
 {
-	// TODO: Add your command handler code here
 	Statdlg dlg;
 	dlg.m_pPlayerDB = &theApp.Players;
 	dlg.DoModal();
@@ -396,7 +404,6 @@ void CAocTMDlg::OnStatistic()
 
 void CAocTMDlg::OnGrouping()
 {
-	// TODO: Add your command handler code here
 	CGroupingDlg	dlg;
 	dlg.maindlg = this;
 	
@@ -598,21 +605,22 @@ void CAocTMDlg::OnBnClickedRecDismiss()
 	OnCancel();
 }
 
-bool CAocTMDlg::LoadRecFile(bool aofe)
+void CAocTMDlg::LoadRecFile(bool aofe, int & loadnew, int & loadcount, int & readcount)
 {
 	CString strPath = (aofe?theApp.Recgames.GetRecPathAOFE():theApp.Recgames.GetRecPath());
 
 	if(strPath.IsEmpty())
-		return false;
+		return;
 
 	TCHAR oldpath[MAX_PATH];
 	::GetCurrentDirectory(MAX_PATH, oldpath);
 	::SetCurrentDirectory(strPath);
 
-	bool loadnew = false;
 	CFileFind finder;
 	INT_PTR id = theApp.Recgames.GetLastGameID();
-	CTime DBLatestGameTime = theApp.Recgames[id]->RecordTime;
+	//pubb, 15-09-21, bugfix for empty db loading
+	CTime DBLatestGameTime;
+	DBLatestGameTime = (id < 0 ? CTime(0) : theApp.Recgames[id]->RecordTime);
 	BOOL bWorking = finder.FindFile(_T("*.mg?"));
 	while(bWorking)
 	{
@@ -633,17 +641,18 @@ bool CAocTMDlg::LoadRecFile(bool aofe)
 			delete rg;
 			continue;
 		}
-		
+		readcount++;
+
 		if(rg->PlayTime < TIME_4_INCOMPLETE)	//if play time less than 20 min, consider it an INCOMPLETE game
 		{
 			delete rg;
 			continue;
 		}
 
+		loadcount++;
 		if(theApp.Recgames.Add(rg))
 		{
-			if(!loadnew)
-				loadnew = true;
+			loadnew++;
 		}
 		else
 		{
@@ -652,19 +661,26 @@ bool CAocTMDlg::LoadRecFile(bool aofe)
 	}
 	
 	::SetCurrentDirectory(oldpath);
-	return loadnew;
+	return;
 }
 
-bool CAocTMDlg::OnAcceleratorLoad()
+int CAocTMDlg::OnAcceleratorLoad()
 {
 	//pubb, 14-10-07, bugfix for stopping after loading aoe. '||' problem of C language implementation.
-	bool loadnew = false;
-	if(LoadRecFile(false))
-		loadnew = true;
-	if(LoadRecFile(true))
-		loadnew = true;
+	//pubb, 15-09-21, show load count when some recs aren't loaded successfully
+	int	readcount = 0, loadcount = 0, loadnew = 0;
+	
+	LoadRecFile(false, loadnew, loadcount, readcount);
+	LoadRecFile(true, loadnew, loadcount, readcount);
 
-	if(loadnew)
+	if(loadcount < readcount)
+	{
+		CString str;
+		str.Format(_T("%d(new: %d) of %d Game(s) Loaded."), loadcount, loadnew, readcount);
+		AfxMessageBox(str);
+	}
+
+	if(loadnew > 0)
 	{
 		theApp.Players.Update(true);
 		Refresh();

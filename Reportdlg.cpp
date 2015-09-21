@@ -76,11 +76,8 @@ BOOL CReportDlg::OnInitDialog()
 		//pubb, 08-01-28, save 'dirty' state before temparory update
 		//pubb, 07-09-18, to generate ratings before the report ( 5 minutes )
 		INT_PTR id = m_pPlayerDB->m_pRecgameDB->GetFirstGameID();
-		if(id < 0)
-		{
-			AfxMessageBox(_T("No proper games!"));
-			return false;
-		}
+		if(id < 0)	return false;
+		
 		theApp.Players.Update(false, CTime(0), m_pPlayerDB->m_pRecgameDB->GetAt(id)->RecordTime - CTimeSpan(0, 0, 5, 0));
 		m_pPlayerDB->CopyPlayers();	//store ratings before this show up in InitRating
 		//pubb, 07-09-22, restore the normal ratings

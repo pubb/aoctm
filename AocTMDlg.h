@@ -52,14 +52,14 @@ public:
 	afx_msg void OnBnClickedRecDelete();
 	afx_msg void OnDtnDatetimechange(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedRecDismiss();
-	afx_msg bool OnAcceleratorLoad();
+	afx_msg int OnAcceleratorLoad();
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 private:
 	void ShowReport(CPlayerDatabase * players);
 	void Refresh(void);
-	bool LoadRecFile(bool aofe);
+	void LoadRecFile(bool aofe, int & loadnew, int & loadcount, int & readcount);
 
 	CXListCtrl m_List;
 	CDateTimeCtrl m_From;
