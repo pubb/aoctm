@@ -676,7 +676,7 @@ bool	CRecgame::GetPlayerDataPos(int & trigger_pos, int & player_data_pos, unsign
 	const INT32 MAGIC2 = 0xFFFFFF9D;
 	const unsigned long MAX_INDEX = 18000;
 
-	for(i = tail; i > MAX_INDEX; i--)
+	for(i = tail - sizeof(INT64) + 1 /* 15-11-06, pubb, reserve room for INT64 pointer */; i > MAX_INDEX; i--)
 	{
 		if(*(INT64 *)(m_pt_header + i) == MAGIC1 && trigger_pos == 0)
 			trigger_pos = i + 8;
