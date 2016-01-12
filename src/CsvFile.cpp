@@ -1,9 +1,16 @@
 #include "StdAfx.h"
 #include ".\csvfile.h"
 
-CCsvFile::CCsvFile(LPCTSTR lpszFileName,UINT nOpenFlags)
-: CStdioFileEx(lpszFileName, nOpenFlags | CFile::typeText)
+CCsvFile::CCsvFile(void)
+{	
+}
+
+BOOL CCsvFile::Open(CString name, UINT nOpenFlags)
 {
+	CFileDialog dlg(FALSE, _T(".csv"), name + _T(".csv"), OFN_OVERWRITEPROMPT, _T("CSV (Comma delimited, *.csv)|*.csv||"));
+	if(dlg.DoModal() == IDCANCEL)
+		return false;
+	return CStdioFileEx::Open(dlg.GetPathName(), nOpenFlags);
 }
 
 /* extract CSV items using undocumented 'AfxExtractSubString()' to speed up (maybe) */
@@ -70,4 +77,41 @@ void CCsvFile::WriteLine(const CStringArray & a)
 	line.TrimRight(',');
 	WriteString(line);
 	WriteString(_T("\n"));
+}
+
+bool CCsvFile::WriteList(CXListCtrl & list)
+{
+	CStringArray	a;
+	const CHeaderCtrl	* header = list.GetHeaderCtrl();
+	int i;
+
+	HDITEM hdi;
+    enum   { sizeOfBuffer = 256 };
+    TCHAR  lpBuffer[sizeOfBuffer];
+    
+    hdi.mask = HDI_TEXT;
+    hdi.pszText = lpBuffer;
+    hdi.cchTextMax = sizeOfBuffer;
+
+	a.SetSize(header->GetItemCount());
+
+	for(i = 0; i < header->GetItemCount(); i++)
+	{
+		header->GetItem(i, &hdi);
+		a[i] = lpBuffer;
+	}
+	WriteLine(a);
+
+	for(int i = 0; i < list.GetItemCount(); i++)
+	{
+#ifdef	XLISTCTRL_OLD
+		for(int j = 0; j < list.GetColumnCount(); j++)
+#else
+		for(int j = 0; j < list.GetColumns(); j++)
+#endif
+			a[j] = list.GetItemText(i, j);
+		WriteLine(a);
+	}
+
+	return true;
 }

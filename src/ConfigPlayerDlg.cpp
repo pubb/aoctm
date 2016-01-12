@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "AocTM.h"
 #include "ConfigPlayerDlg.h"
-
+#include "csvfile.h"
 
 // CConfigPlayerDlg dialog
 
@@ -32,6 +32,7 @@ BEGIN_MESSAGE_MAP(CConfigPlayerDlg, CDialog)
 	ON_NOTIFY(NM_CLICK, IDC_PLAYER_LIST, &CConfigPlayerDlg::OnNMClickPlayerList)
 	ON_BN_CLICKED(IDC_PLAYER_ADD, &CConfigPlayerDlg::OnBnClickedPlayerAdd)
 	ON_BN_CLICKED(IDC_PLAYER_DELETE, &CConfigPlayerDlg::OnBnClickedPlayerDelete)
+	ON_BN_CLICKED(IDC_SAVE2CSV, &CConfigPlayerDlg::OnBnClickedSave2csv)
 END_MESSAGE_MAP()
 
 
@@ -246,4 +247,14 @@ bool CConfigPlayerDlg::IsDuplicatedName(CString name)
 	}
 	names.Add(name);
 	return false;
+}
+
+void CConfigPlayerDlg::OnBnClickedSave2csv()
+{
+	CCsvFile	csv;
+	if(csv.Open(_T("players")))
+	{
+		csv.WriteList(m_List);
+		OnOK();
+	}
 }

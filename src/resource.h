@@ -92,6 +92,8 @@
 #define IDC_MONEY_LEFT_TOTAL            1046
 #define IDC_Curve_XGraph                1047
 #define IDC_STATIC_Info                 1048
+#define IDC_BUTTON3                     1049
+#define IDC_SAVE2CSV                    1049
 #define ID_32779                        32779
 #define ID_32780                        32780
 #define ID_32781                        32781
@@ -121,7 +123,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        149
 #define _APS_NEXT_COMMAND_VALUE         32804
-#define _APS_NEXT_CONTROL_VALUE         1049
+#define _APS_NEXT_CONTROL_VALUE         1050
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

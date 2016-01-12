@@ -145,46 +145,12 @@ void CReportDlg::OnBnClickedOk()
 	if(!m_pPlayerDB)
 		return;
 
-	CFileDialog dlg(FALSE, _T(".csv"), _T("stat.csv"), OFN_OVERWRITEPROMPT, _T("CSV (Comma delimited, *.csv)|*.csv||"));
-	if(dlg.DoModal() == IDCANCEL)
-		return;
-	CString	csvfile = dlg.GetPathName();
-
-	CCsvFile	csv(csvfile, CFile::modeWrite | CFile::modeCreate);
-
-	CStringArray	a;
-	const CHeaderCtrl	* header = m_List.GetHeaderCtrl();
-	int i;
-
-	HDITEM hdi;
-    enum   { sizeOfBuffer = 256 };
-    TCHAR  lpBuffer[sizeOfBuffer];
-    
-    hdi.mask = HDI_TEXT;
-    hdi.pszText = lpBuffer;
-    hdi.cchTextMax = sizeOfBuffer;
-
-	a.SetSize(header->GetItemCount());
-
-	for(i = 0; i < header->GetItemCount(); i++)
+	CCsvFile	csv;
+	if(csv.Open(_T("stat")))
 	{
-		header->GetItem(i, &hdi);
-		a[i] = lpBuffer;
+		csv.WriteList(m_List);
+		OnOK();
 	}
-	csv.WriteLine(a);
-
-	for(int i = 0; i < m_List.GetItemCount(); i++)
-	{
-#ifdef	XLISTCTRL_OLD
-		for(int j = 0; j < m_List.GetColumnCount(); j++)
-#else
-		for(int j = 0; j < m_List.GetColumns(); j++)
-#endif
-			a[j] = m_List.GetItemText(i, j);
-		csv.WriteLine(a);
-	}
-
-	OnOK();
 }
 
 void CReportDlg::OnNMDblclkReportlist(NMHDR *pNMHDR, LRESULT *pResult)

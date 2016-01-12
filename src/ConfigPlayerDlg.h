@@ -34,4 +34,6 @@ private:
 	//pubb, 07-10-25, check duplicate names to avoid error in DB save.
 	CStringArray	names;
 	bool	IsDuplicatedName(CString name);
+public:
+	afx_msg void OnBnClickedSave2csv();
 };
