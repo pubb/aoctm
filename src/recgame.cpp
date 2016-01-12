@@ -408,7 +408,14 @@ bool	CRecgame::SetPlayersName(int pos)
 		pos += 8;
 		
 		player_name_len = *(int*)(&m_pt_header[pos]);
-		if(player_name_len <= 0)	return false;
+		//pubb, 16-01-12, strange player_name_len, but dont panic but continue, referring to game 01-06-13-18`40`33
+		//if(player_name_len <= 0)	return false;
+		if(player_name_len < 0) return false;
+		if(player_name_len == 0)
+		{
+			pos += 4;
+			continue;
+		}
 
 		pos += 4;
 
@@ -504,10 +511,13 @@ bool CRecgame::SetPlayersCivColor(int pos, int end_pos)
 /* pubb, 14-12-11, bugfix for '2in1' condition since 14-10-08 patch.
  * pubb, 14-10-08, bugfix for restored game situation. bug example: 20141001-22:51:22, famin exchanged with web.
  */
+/* pubb, 16-01-12, for the game which team members differ in count more than 1 (like 3v1, 4v2), just ignore it as a joke,
+ */
 bool	CRecgame::SetPlayersTeam(int pos)
 {
 	int j;
 	int team = 0, team1 = 0, team2 = 0, index = 0;
+	int team1count = 0, team2count = 0;
 
 	//set the team number according the player1's team
 	for(j = 0; j <= MAX_PLAYERS_INGAME; j++)
@@ -554,20 +564,24 @@ bool	CRecgame::SetPlayersTeam(int pos)
 				case 0:
 					if(team1 == 0)	//no one set team
 					{
-						Players[j].Team = 1;
+						Players[j].Team = 1; team1count++;
 						team1 = 1;
 						team2 = 2;
 					}
 					else
 					{
-						Players[j].Team = 2;	//usually there're only 2 players in this condition
+						Players[j].Team = 2; team2count++;	//usually there're only 2 players in this condition
 					}
 					break;
 				default:
 					if(team == team1)
-						Players[j].Team = 1;
+					{
+						Players[j].Team = 1; team1count++;
+					}
 					else
-						Players[j].Team = 2;
+					{
+						Players[j].Team = 2; team2count++;
+					}
 				}
 				found = true;
 				break;
@@ -580,6 +594,8 @@ bool	CRecgame::SetPlayersTeam(int pos)
 		//pubb, 09-01-04, '2 as 1' condition will also be invalid team, set it manually
 		//pubb, 14-10-07, bugfix move this code segment after team decision
 	}
+	//pubb, 16-01-12, ignore the game of 2v4 or 3v1 as a joke.
+	team1count -= team2count; if(team1count > 1 || team1count < -1) return false;
 	return true;
 }
 

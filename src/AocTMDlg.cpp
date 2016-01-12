@@ -488,11 +488,13 @@ void CAocTMDlg::Refresh(void)
 				team_position = 8 + lose_index++;
 			}
 			//14-12-08, pubb, bugfix for strange team condition when more than 4 players in one team
+			//16-01-12, pubb, set background color to be red for this situation, not ignore it.
 			if( win_index > 4 || lose_index > 4)
 			{
-				str.Format(_T("Recgame %s, More than 4 players in one team, r u sure?\n Ignore it now!"), rec->RecordTime.Format(_T("%y-%m-%d %H:%M:%S")));
-				AfxMessageBox(str);
-				continue;
+//				str.Format(_T("Recgame %s, More than 4 players in one team, r u sure?\n Ignore it now!"), rec->RecordTime.Format(_T("%y-%m-%d %H:%M:%S")));
+//				AfxMessageBox(str);
+//				continue;
+				background_color = RGB(220, 0, 0);
 			}
 			m_List.SetItemText(j, team_position, str);
 #ifdef	XLISTCTRL_OLD
